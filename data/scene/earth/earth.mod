@@ -3,7 +3,8 @@ return {
     {
         Name = "EarthBarycenter",
         Parent = "SolarSystemBarycenter",
-		SceneRadius = 40000000.0,
+        -- SceneRadius unit is KM                
+		SceneRadius = 40000000.0, 
         Static = true,
         Ephemeris = {
             Type = "Spice",

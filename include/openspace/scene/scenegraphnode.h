@@ -55,7 +55,7 @@ public:
     static const std::string KeyName;
     static const std::string KeyParentName;
     static const std::string KeyDependencies;
-	static const std::string KeySceneRadius;
+    static const std::string KeySceneRadius;
     
     SceneGraphNode();
     ~SceneGraphNode();
@@ -94,8 +94,8 @@ public:
     const Renderable* renderable() const;
     Renderable* renderable();
 
-	void SceneGraphNode::setSceneRadius(float SceneRadius);
-	const float& sceneRadius() const;
+    void setSceneRadius(double SceneRadius);
+    const double& sceneRadius() const;
 
     // @TODO Remove once the scalegraph is in effect ---abock
     void setEphemeris(Ephemeris* eph) {
@@ -109,7 +109,7 @@ private:
     std::vector<SceneGraphNode*> _children;
     SceneGraphNode* _parent;
     Ephemeris* _ephemeris;
-	float _sceneRadius;
+    double _sceneRadius;
 
     PerformanceRecord _performanceRecord;
 

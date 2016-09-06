@@ -48,6 +48,7 @@
 #include <openspace/util/spicemanager.h>
 #include <openspace/util/syncbuffer.h>
 #include <openspace/util/transformationmanager.h>
+#include <openspace/util/distancetoobject.h>
 
 #include <ghoul/ghoul.h>
 #include <ghoul/cmdparser/commandlineparser.h>
@@ -330,7 +331,7 @@ void OpenSpaceEngine::destroy() {
     FactoryManager::deinitialize();
     Time::deinitialize();
     SpiceManager::deinitialize();
-
+    DistanceToObject::deinitialize();
     LogManager::deinitialize();
 
     ghoul::deinitialize();
@@ -430,6 +431,9 @@ bool OpenSpaceEngine::initialize() {
     std::string scenePath = "";
     configurationManager().getValue(ConfigurationManager::KeyConfigScene, scenePath);
     sceneGraph->scheduleLoadSceneFile(scenePath);
+
+    // Initialize Distance To Object System
+    DistanceToObject::initialize();
 
     // Initialize the RenderEngine
     _renderEngine->setSceneGraph(sceneGraph);

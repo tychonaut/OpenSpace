@@ -10,53 +10,48 @@
 #include <iostream>
 namespace openspace {
 
-	class DistanceToObject {
+class DistanceToObject {
+public:
+    static bool initialize();
+    static void deinitialize();
+    static int sceneNrPub;
+
+    /*
+    * Returns the reference to the distance singleton object.
+    * \return The reference to the distance singleton object
+    */
+
+    static DistanceToObject& ref();
+
+    // static bool isInitialized(); Not working?
 
 
-	public:
+    //float distanceCalc(); //psc& camerapos
+    //const psc& camera
+    //const distancefromcamerato(int a);
 
-		static bool initialize();
-		static void deinitialize();
-		static int sceneNrPub;
+    //float distanceCalc(const psc& position, psc targetPos); //psc& camerapos //const ?
+    double distanceCalc(const psc& position, psc targetPos);
+private:
+    /// Creates the distance object. Only used in the initialize() method
+    DistanceToObject();
+    double distToScene = 500000.0;
+    DistanceToObject(const DistanceToObject& src) = delete;
 
-		/*
-		* Returns the reference to the distance singleton object.
-		* \return The reference to the distance singleton object
-		*/
+    DistanceToObject& operator=(const DistanceToObject& rhs) = delete;
+    double distance;
+    static DistanceToObject* _distInstance; ///< The singleton instance
+                                            //float distance;
 
-		static DistanceToObject& ref();
+                                            //float _distancefromcamera;
+                                            //static DistanceToObject* _distancefromcamera; ///< The singleton instance
 
-		// static bool isInitialized(); Not working?
+};
 
-
-		//float distanceCalc(); //psc& camerapos
-		//const psc& camera
-		//const distancefromcamerato(int a);
-
-		//float distanceCalc(const psc& position, psc targetPos); //psc& camerapos //const ?
-		double distanceCalc(const psc& position, psc targetPos);
-	private:
-		/// Creates the distance object. Only used in the initialize() method
-		DistanceToObject();
-		float distToScene = 500000.0;
-		DistanceToObject(const DistanceToObject& src) = delete;
-
-		DistanceToObject& operator=(const DistanceToObject& rhs) = delete;
-		float distance;
-		static DistanceToObject* _distInstance; ///< The singleton instance
-												//float distance;
-
-												//float _distancefromcamera;
-												//static DistanceToObject* _distancefromcamera; ///< The singleton instance
-
-	};
-
-
-
-	/**
-	* Returns the reference to the Time singleton object.
-	* \return The reference to the Time singleton object
-	*/
+    /**
+    * Returns the reference to the Time singleton object.
+    * \return The reference to the Time singleton object
+    */
 
 }
 #endif // __DISTANCETOOBJ_H__

@@ -69,9 +69,9 @@ SceneGraphNode* SceneGraphNode::createFromDictionary(const ghoul::Dictionary& di
     dictionary.getValue(KeyName, name);
     result->setName(name);
 
-	float sceneRadius;
-	dictionary.getValue(KeySceneRadius, sceneRadius);
-	result->setSceneRadius(sceneRadius);
+    double sceneRadius;
+    dictionary.getValue(KeySceneRadius, sceneRadius);
+    result->setSceneRadius(sceneRadius);
 
     if (dictionary.hasValue<ghoul::Dictionary>(KeyRenderable)) {
         ghoul::Dictionary renderableDictionary;
@@ -132,7 +132,7 @@ SceneGraphNode::SceneGraphNode()
     , _renderable(nullptr)
     , _renderableVisible(false)
     , _boundingSphereVisible(false)
-	, _sceneRadius(0.0)
+    , _sceneRadius(0.0)
 {
 }
 
@@ -173,7 +173,7 @@ bool SceneGraphNode::deinitialize() {
     _renderableVisible = false;
     _boundingSphereVisible = false;
     _boundingSphere = PowerScaledScalar(0.0, 0.0);
-	_sceneRadius = 0.0;
+    _sceneRadius = 0.0;
 
     return true;
 }
@@ -319,9 +319,9 @@ void SceneGraphNode::addChild(SceneGraphNode* child) {
 //    return false;
 //}
 
-void SceneGraphNode::setSceneRadius(float sceneRadius) {
+void SceneGraphNode::setSceneRadius(double sceneRadius) {
 
-	_sceneRadius = std::move(sceneRadius);
+    _sceneRadius = std::move(sceneRadius);
 
 }
 const psc& SceneGraphNode::position() const
@@ -462,8 +462,8 @@ void SceneGraphNode::updateCamera(Camera* camera) const{
     //printf("target: %f, %f, %f, %f\n", target.vec4().x, target.vec4().y, target.vec4().z, target.vec4().w);
     
 }
-const float& SceneGraphNode::sceneRadius() const {
-	return _sceneRadius;
+const double& SceneGraphNode::sceneRadius() const {
+    return _sceneRadius;
 }
 
 }  // namespace openspace
