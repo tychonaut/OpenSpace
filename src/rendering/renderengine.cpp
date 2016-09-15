@@ -108,9 +108,9 @@ namespace openspace {
 const std::string RenderEngine::KeyFontMono = "Mono";
 const std::string RenderEngine::KeyFontLight = "Light";
 const std::vector<RenderEngine::FrametimeType> RenderEngine::FrametimeTypes({
-	RenderEngine::FrametimeType::DtTimeAvg,
-	RenderEngine::FrametimeType::FPS,
-	RenderEngine::FrametimeType::FPSAvg
+    RenderEngine::FrametimeType::DtTimeAvg,
+    RenderEngine::FrametimeType::FPS,
+    RenderEngine::FrametimeType::FPSAvg
 });
 
 RenderEngine::RenderEngine()
@@ -127,8 +127,8 @@ RenderEngine::RenderEngine()
     , _fadeDuration(2.f)
     , _currentFadeTime(0.f)
     , _fadeDirection(0)
-	, _frametimeType(FrametimeType::DtTimeAvg)
-	, _nameOfScene("SolarSystemBarycenter")
+    , _frametimeType(FrametimeType::DtTimeAvg)
+    , _nameOfScene("SolarSystemBarycenter")
     //    , _sgctRenderStatisticsVisible(false)
 {
     _onScreenInformation = {
@@ -355,7 +355,7 @@ void RenderEngine::postSynchronizationPreDraw() {
         }
     }
 
-	
+    
         
 
     bool windowResized = OsEng.windowWrapper().windowHasResized();
@@ -373,13 +373,14 @@ void RenderEngine::postSynchronizationPreDraw() {
         Time::ref().deltaTime(),
         _performanceManager != nullptr
     });
-	if (_mainCamera) {
+    if (_mainCamera) {
 
-		//Sets the camera to its relative position depending on the common parent (when changed from worldPosition to position)
-		//setRelativeOrigin(_mainCamera, scene()); 
-		
-		_mainCamera->postSynchronizationPreDraw();
-	}
+        // New DynamicRootGraph System in action:
+        //Sets the camera to its relative position depending on the common parent (when changed from worldPosition to position)
+        setRelativeOrigin(_mainCamera, scene()); 
+        
+        _mainCamera->postSynchronizationPreDraw();
+    }
     _sceneGraph->evaluate(_mainCamera);
 
     _renderer->update();
@@ -407,6 +408,27 @@ void RenderEngine::postSynchronizationPreDraw() {
 }
 
 void RenderEngine::render(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix){
+    // DEBUG: (JCC)
+    std::string oldNameOfScene(_nameOfScene);
+    //double distance = DistanceToObject::ref().distanceCalc(_mainCamera->position(), _mainCamera->focusPosition());
+    _nameOfScene = setScene(scene(), _mainCamera, _nameOfScene);
+
+    // New DynamicRootGraph system in action:
+    _mainCamera->setParent(_nameOfScene);
+    //glm::vec3 displacementVector(_mainCamera->position().vec3() - OsEng.interactionHandler().focusNode()->worldPosition().vec3());
+    glm::vec3 displacementVector(_mainCamera->position().vec3() - scene()->sceneGraphNode(_mainCamera->getParent())->worldPosition().vec3());
+    _mainCamera->setDisplacementVector(displacementVector);
+    
+    // DEBUG: (JCC)
+    if (_nameOfScene.compare(oldNameOfScene)) {
+        std::cout << "==== Name of Scene: " << _nameOfScene << " ====" << std::endl;
+        //double distance = DistanceToObject::ref().distanceCalc(_mainCamera->position(), _mainCamera->focusPosition());
+        //InteractionMode::focusNode() {
+        std::string focusNodeName(OsEng.interactionHandler().focusNode()->name());
+        setNewViewMatrix(_mainCamera->getParent(), OsEng.interactionHandler().focusNode(), scene());
+
+        std::cout << "==== Displacement Vector: " << displacementVector << " ====" << std::endl;
+    }
     _mainCamera->sgctInternal.setViewMatrix(viewMatrix);
     _mainCamera->sgctInternal.setProjectionMatrix(projectionMatrix);
 
@@ -426,10 +448,22 @@ void RenderEngine::render(const glm::mat4& projectionMatrix, const glm::mat4& vi
             screenSpaceRenderable->render();
     }
 
-	_mainCamera->setParent(_nameOfScene);
-	double distance = DistanceToObject::ref().distanceCalc(_mainCamera->position(), _mainCamera->focusPosition());
+    //// New DynamicRootGraph system in action:
+    //_mainCamera->setParent(_nameOfScene);
+    //// DEBUG: (JCC)
+    //std::string oldNameOfScene(_nameOfScene);
+    ////double distance = DistanceToObject::ref().distanceCalc(_mainCamera->position(), _mainCamera->focusPosition());
+    //_nameOfScene = setScene(scene(), _mainCamera, _nameOfScene);
+    //// DEBUG: (JCC)
+    //if (_nameOfScene.compare(oldNameOfScene)) {
+    //    std::cout << "==== Name of Scene: " << _nameOfScene << " ====" << std::endl;
+    //    //double distance = DistanceToObject::ref().distanceCalc(_mainCamera->position(), _mainCamera->focusPosition());
+    //    //InteractionMode::focusNode() {
+    //    std::string focusNodeName(OsEng.interactionHandler().focusNode()->name());
+    //    setNewViewMatrix(_mainCamera->getParent(), OsEng.interactionHandler().focusNode(), scene());
+    //}
 
-	//_nameOfScene = setScene(scene(), _mainCamera, _nameOfScene);
+
 }
 
 void RenderEngine::renderShutdownInformation(float timer, float fullTime) {
@@ -748,12 +782,12 @@ scripting::LuaLibrary RenderEngine::luaLibrary() {
                 "bool",
                 "Toggles the showing of render information on-screen text"
             },
-			{
-				"toggleFrametimeType",
-				&luascriptfunctions::toggleFrametimeType,
-				"int",
-				"Toggle showing FPS or Average Frametime in heads up info"
-			},
+            {
+                "toggleFrametimeType",
+                &luascriptfunctions::toggleFrametimeType,
+                "int",
+                "Toggle showing FPS or Average Frametime in heads up info"
+            },
             {
                 "setPerformanceMeasurement",
                 &luascriptfunctions::setPerformanceMeasurement,
@@ -929,50 +963,58 @@ void RenderEngine::changeViewPoint(std::string origin) {
     }
     if (origin == "Sun") {
         solarSystemBarycenterNode->setParent(scene()->sceneGraphNode("SolarSystem"));
+        solarSystemBarycenterNode->setEphemeris(new StaticEphemeris);
 
-        if (plutoBarycenterNode)
+        if (plutoBarycenterNode) {
             plutoBarycenterNode->setParent(solarSystemBarycenterNode);
-        jupiterBarycenterNode->setParent(solarSystemBarycenterNode);
-        if (newHorizonsNode)
+
+            ghoul::Dictionary plutoDictionary =
+            {
+                { std::string("Type"), std::string("Spice") },
+                { std::string("Body"), std::string("PLUTO BARYCENTER") },
+                { std::string("Reference"), std::string("GALACTIC") },
+                { std::string("Observer"), std::string("SUN") },
+                { std::string("Kernels"), ghoul::Dictionary() }
+            };
+
+            plutoBarycenterNode->setEphemeris(new SpiceEphemeris(plutoDictionary));
+        }
+
+        if (jupiterBarycenterNode) {
+            jupiterBarycenterNode->setParent(solarSystemBarycenterNode);
+
+            ghoul::Dictionary jupiterDictionary =
+            {
+                { std::string("Type"), std::string("Spice") },
+                { std::string("Body"), std::string("JUPITER BARYCENTER") },
+                { std::string("Reference"), std::string("GALACTIC") },
+                { std::string("Observer"), std::string("SUN") },
+                { std::string("Kernels"), ghoul::Dictionary() }
+            };
+
+            jupiterBarycenterNode->setEphemeris(new SpiceEphemeris(jupiterDictionary));
+        }
+
+        if (newHorizonsNode) {
             newHorizonsNode->setParent(solarSystemBarycenterNode);
+
+            ghoul::Dictionary newHorizonsDictionary =
+            {
+                { std::string("Type"), std::string("Spice") },
+                { std::string("Body"), std::string("NEW HORIZONS") },
+                { std::string("Reference"), std::string("GALACTIC") },
+                { std::string("Observer"), std::string("SUN") },
+                { std::string("Kernels"), ghoul::Dictionary() }
+            };
+
+            newHorizonsNode->setEphemeris(new SpiceEphemeris(newHorizonsDictionary));
+        }
         //newHorizonsGhostNode->setParent(solarSystemBarycenterNode);
 
         //newHorizonsTrailNode->setParent(solarSystemBarycenterNode);
         //dawnNode->setParent(solarSystemBarycenterNode);
         //vestaNode->setParent(solarSystemBarycenterNode);
 
-        ghoul::Dictionary plutoDictionary =
-        {
-            { std::string("Type"), std::string("Spice") },
-            { std::string("Body"), std::string("PLUTO BARYCENTER") },
-            { std::string("Reference"), std::string("GALACTIC") },
-            { std::string("Observer"), std::string("SUN") },
-            { std::string("Kernels"), ghoul::Dictionary() }
-        };
-        ghoul::Dictionary jupiterDictionary =
-        {
-            { std::string("Type"), std::string("Spice") },
-            { std::string("Body"), std::string("JUPITER BARYCENTER") },
-            { std::string("Reference"), std::string("GALACTIC") },
-            { std::string("Observer"), std::string("SUN") },
-            { std::string("Kernels"), ghoul::Dictionary() }
-        };
-        
-        solarSystemBarycenterNode->setEphemeris(new StaticEphemeris);
-        jupiterBarycenterNode->setEphemeris(new SpiceEphemeris(jupiterDictionary));
-        if (plutoBarycenterNode)
-            plutoBarycenterNode->setEphemeris(new SpiceEphemeris(plutoDictionary));
-
-        ghoul::Dictionary newHorizonsDictionary =
-        {
-            { std::string("Type"), std::string("Spice") },
-            { std::string("Body"), std::string("NEW HORIZONS") },
-            { std::string("Reference"), std::string("GALACTIC") },
-            { std::string("Observer"), std::string("SUN") },
-            { std::string("Kernels"), ghoul::Dictionary() }
-        };
-        if (newHorizonsNode)
-            newHorizonsNode->setEphemeris(new SpiceEphemeris(newHorizonsDictionary));
         //newHorizonsTrailNode->setEphemeris(new SpiceEphemeris(newHorizonsDictionary));
 
         

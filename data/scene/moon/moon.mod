@@ -4,7 +4,7 @@ return {
         Name = "Moon",
         Parent = "EarthBarycenter",
         -- SceneRadius in KM
-        SceneRadius = 90000.0,                
+        SceneRadius = 20000.0,                
         Renderable = {
             Type = "RenderablePlanet",
 			Frame = "IAU_MOON",

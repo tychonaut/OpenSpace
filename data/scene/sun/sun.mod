@@ -3,6 +3,8 @@ return {
     {
         Name = "SolarSystemBarycenter",
         Parent = "SolarSystem",
+        -- SceneRadius unit is KM                
+		SceneRadius = 6000000000.0,
         Ephemeris = {
             Type = "Static",
         },
@@ -12,6 +14,8 @@ return {
     {   
         Name = "Sun",
         Parent = "SolarSystemBarycenter",
+         -- SceneRadius unit is KM                
+		SceneRadius = 30000000.0,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_SUN",

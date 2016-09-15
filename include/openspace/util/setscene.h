@@ -35,27 +35,28 @@
 #include <iostream>
 
 namespace openspace {
-	std::string setScene(Scene* scene, Camera* camera, std::string _nameOfScene);
+    std::string setScene(Scene* scene, Camera* camera, std::string _nameOfScene);
 
-	const glm::mat4 setNewViewMatrix(std::string, SceneGraphNode* target, Scene*);
+    const glm::dvec3 vectorPosition(const std::string & cameraParent, const SceneGraphNode* target, const Scene* scene);
 
-	glm::vec3 pathCollector(std::vector<SceneGraphNode*> path, std::string commonParent, bool inverse);
+    const glm::mat4 setNewViewMatrix(const std::string & cameraParent, SceneGraphNode* target, Scene*);
 
-	std::vector<SceneGraphNode*> pathTo(std::string nameOfScene, Scene* scene);
-	void setRelativeOrigin(Camera* camera, Scene* scene);
+    glm::vec3 pathCollector(const std::vector<SceneGraphNode*> & path, const std::string & commonParent, const bool inverse);
 
-	void newCameraOrigin(std::vector<SceneGraphNode*> commonParentPath, std::string commonParent, Camera* camera, Scene* scene);
+    void setRelativeOrigin(Camera* camera, Scene* scene);
 
-	glm::vec3 Vec3Subtract(glm::vec3 vec1, glm::vec3 vec2);
+    void newCameraOrigin(std::vector<SceneGraphNode*> commonParentPath, std::string commonParent, Camera* camera, Scene* scene);
 
-	std::string commonParent(std::vector<SceneGraphNode*> t1, std::vector<SceneGraphNode*> t2);
+    glm::vec3 Vec3Subtract(glm::vec3 vec1, glm::vec3 vec2);
 
-	SceneGraphNode* findCommonParentNode(std::string firstPath, std::string secondPath, Scene* scene);
+    std::string commonParent(std::vector<SceneGraphNode*> t1, std::vector<SceneGraphNode*> t2);
 
-	std::vector<SceneGraphNode*> pathTo(SceneGraphNode* node);
-	
-	//std::string nameOfScene, Scene* scene)
+    SceneGraphNode* findCommonParentNode(const std::string & firstPath, const std::string & secondPath, const Scene* scene);
 
-	//std::string findCommonParent(Camera* camera, Scene* scene);
+    std::vector<SceneGraphNode*> pathTo(SceneGraphNode* node);
+    
+    //std::string nameOfScene, Scene* scene)
+
+    //std::string findCommonParent(Camera* camera, Scene* scene);
 }
 #endif

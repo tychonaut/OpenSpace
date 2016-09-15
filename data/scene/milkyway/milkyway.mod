@@ -1,7 +1,9 @@
 return {
     {
         Name = "MilkyWay",
-        Parent = "SolarSystem",
+        Parent = "Root",
+        -- KM
+        SceneRadius = 20.0E+19,
         Ephemeris = {
             Type = "Static"
         },

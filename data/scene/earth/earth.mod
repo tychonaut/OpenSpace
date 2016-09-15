@@ -20,7 +20,7 @@ return {
     {   
         Name = "Earth",
         Parent = "EarthBarycenter",
-		SceneRadius = 500000.0,
+		SceneRadius = 100000.0,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_EARTH",

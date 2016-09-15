@@ -32,18 +32,17 @@ namespace {
 
 namespace openspace {
 
-    // JCC: Why does distance need to be global???
-    double _distance;
-
     // finds the current parent for the camera and sets returns the parent as a string. 
     std::string setScene(Scene* scene, Camera* camera, std::string _nameOfScene) 
     {        
-        psc cameraPos = camera->position();
+        //psc cameraPos = camera->position();
+        glm::vec3 cp = scene->sceneGraphNode(camera->getParent())->worldPosition().vec3() + camera->getDisplacementVector();
+        psc cameraPos = PowerScaledCoordinate::CreatePowerScaledCoordinate(cp.x, cp.y, cp.z);
         //sets the current node to the the node with the previous name. 
         SceneGraphNode* node = scene->sceneGraphNode(_nameOfScene);
 
         //Starts in the last scene we kow we were in, checks if we are still inside, if not check parent, continue until we are inside a scene
-        _distance = (DistanceToObject::ref().distanceCalc(camera->position(), node->worldPosition()));
+        double _distance = (DistanceToObject::ref().distanceCalc(camera->position(), node->worldPosition()));
 
         std::vector<SceneGraphNode*> childrenScene = node->children();
         int nrOfChildren = static_cast<int>(childrenScene.size());
@@ -53,7 +52,8 @@ namespace openspace {
             _distance = (DistanceToObject::ref().distanceCalc(camera->position(), node->worldPosition()));
 
             //LINFO("Check parent current scene whileloop");
-            if ((node->parent() != NULL) && node->parent()->name() != "SolarSystem") {
+            //if ((node->parent() != NULL) && node->parent()->name() != "SolarSystem") {
+            if ((node->parent() != NULL) && node->name() != "Root") {
                 node = node->parent();
 
                 //_distance = (DistanceToObject::ref().distanceCalc(_mainCamera->position(), node->position()));
@@ -63,7 +63,9 @@ namespace openspace {
 
                 //LINFO(" 1: Switching to parent node named: " << _nameOfScene << " Nr of new children: " << nrOfChildren);
                 break;
-            } else if (node->parent()->name() == "Root") {
+            }            
+            //else if (node->parent()->name() == "Root") {
+            else if (node->name() == "Root") {
                 //We have reached the root. 
 
                 // Don't think this is needed, should already be here if we arived inside this loop.
@@ -87,10 +89,14 @@ namespace openspace {
         while (!childrenScene.empty() && !outsideAllChildScenes) {
 
             for (size_t i = 0; i < nrOfChildren; ++i) {
-                //	SceneGraphNode* tempChild = childrenScene.at(i);
-                _distance = DistanceToObject::ref().distanceCalc(camera->position(), childrenScene.at(static_cast<int>(i))->worldPosition());
+                /*double _childDistance = DistanceToObject::ref().distanceCalc(camera->position(), 
+                    childrenScene.at(static_cast<int>(i))->worldPosition());*/
+                
+                double _childDistance = DistanceToObject::ref().distanceCalc(camera->position(),
+                    childrenScene.at(static_cast<int>(i))->dynamicWorldPosition(*camera, childrenScene.at(static_cast<int>(i)), scene));
 
-                if (_distance < childrenScene.at(i)->sceneRadius())	{
+                double childSceneRadius = childrenScene.at(i)->sceneRadius();
+                if (_childDistance < childSceneRadius ) {
                     //set new current scene
                     node = childrenScene.at(i);
                     childrenScene = node->children();
@@ -118,9 +124,39 @@ namespace openspace {
         return vm;
     }
 
+    /**
+    * Calculates the wolrd position of target from the common node between camera's parent and target.
+    **/
+    const glm::dvec3 vectorPosition(const std::string & cameraParent, const SceneGraphNode* target, const Scene* scene)
+    {
+        std::string targetName(target->name());
 
+        std::vector<SceneGraphNode*> cameraPath;
+        std::vector<SceneGraphNode*> targetPath;
 
-    const glm::mat4 setNewViewMatrix(std::string cameraParent, SceneGraphNode* target, Scene* scene)
+        SceneGraphNode* cameraParentNode = scene->sceneGraphNode(cameraParent);
+        SceneGraphNode* commonParentNode;
+        std::vector<SceneGraphNode*> commonParentPath;
+        
+        //Find common parent for camera and object
+        std::string commonParentName(cameraParent);  // initiates to camera parent in case 
+                                                     // other path is not found
+        cameraPath = pathTo(cameraParentNode);
+        targetPath = pathTo(scene->sceneGraphNode(targetName));
+
+        commonParentNode = findCommonParentNode(cameraParent, targetName, scene);
+        commonParentName = commonParentNode->name();
+        commonParentPath = pathTo(commonParentNode);
+
+        //Find the path from the camera to the common parent
+
+        glm::dvec3 collectorCamera( pathCollector(cameraPath, commonParentName, true) );
+        glm::dvec3 collectorTarget( pathCollector(targetPath, commonParentName, false) );
+
+        return collectorTarget + collectorCamera;
+    }
+
+    const glm::mat4 setNewViewMatrix(const std::string & cameraParent, SceneGraphNode* target, Scene* scene)
     {
         //collect the positions for all parents in, get psc.vec3.
         // add them all up then use glm::translate to make it a mat 4. 
@@ -136,7 +172,7 @@ namespace openspace {
 
         glm::mat4 newViewMatrix;
         //glm::mat4 viewMatrix = camera->viewMatrix();;
-        std::string nameOftarget = target->name();
+        std::string targetName(target->name());
         
         std::vector<SceneGraphNode*> cameraPath;
         std::vector<SceneGraphNode*> targetPath;
@@ -149,12 +185,12 @@ namespace openspace {
         //Scene scene = RenderEngine::scene()
 
         //Find common parent for camera and object
-        std::string commonParentName = cameraParent; // initiates to camera parent in case 
+        std::string commonParentName(cameraParent);  // initiates to camera parent in case 
                                                      // other path is not found
         cameraPath = pathTo(cameraParentNode);
-        targetPath = pathTo(scene->sceneGraphNode(nameOftarget));
+        targetPath = pathTo(scene->sceneGraphNode(targetName));
 
-        commonParentNode = findCommonParentNode(cameraParent, nameOftarget, scene);
+        commonParentNode = findCommonParentNode(cameraParent, targetName, scene);
         commonParentName = commonParentNode->name();
         commonParentPath = pathTo(commonParentNode);
 
@@ -242,7 +278,7 @@ namespace openspace {
     }
 
 
-    glm::vec3 pathCollector(std::vector<SceneGraphNode*> path, std::string commonParentName, bool inverse)
+    glm::vec3 pathCollector(const std::vector<SceneGraphNode*> & path, const std::string & commonParentName, const bool inverse)
     {
         SceneGraphNode* firstElement = path.front();
         glm::vec3 collector(path.back()->position().vec3());
@@ -354,11 +390,11 @@ namespace openspace {
         return path;
     }
 
-    SceneGraphNode* findCommonParentNode(std::string firstPath, std::string secondPath, Scene* scene) 
+    SceneGraphNode* findCommonParentNode(const std::string & firstPath, const std::string & secondPath, const Scene* scene) 
     {
         //SceneGraphNode* node = ;
-        std::vector<SceneGraphNode*> firstPathNode = pathTo(scene->sceneGraphNode(firstPath.c_str()));
-        std::vector<SceneGraphNode*> secondPathNode = pathTo(scene->sceneGraphNode(secondPath));
+        std::vector<SceneGraphNode*> firstPathNode  = pathTo( scene->sceneGraphNode(firstPath) );
+        std::vector<SceneGraphNode*> secondPathNode = pathTo( scene->sceneGraphNode(secondPath) );
         std::string strCommonParent = commonParent(firstPathNode, secondPathNode);
 
         return scene->sceneGraphNode(strCommonParent);

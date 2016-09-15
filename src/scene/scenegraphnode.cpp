@@ -24,6 +24,7 @@
 
 // open space includes
 #include <openspace/scene/scenegraphnode.h>
+#include <openspace/util/setscene.h>
 #include <openspace/query/query.h>
 
 // ghoul includes
@@ -251,7 +252,22 @@ void SceneGraphNode::evaluate(const Camera* camera, const psc& parentPosition) {
 }
 
 void SceneGraphNode::render(const RenderData& data, RendererTasks& tasks) {
-    const psc thisPosition = worldPosition();
+    //const psc thisPosition = worldPosition();
+
+    // JCC: Implement a cache sytem to avoid calculate the same path while in the same camera parent.
+    // Just update the displacement vector to the sum.
+    //const psc dynamicThisPosition = dynamicWorldPosition(data.camera, this, OsEng.renderEngine().scene());
+    const psc thisPosition = dynamicWorldPosition(data.camera, this, OsEng.renderEngine().scene());
+    // DEBUG: (JCC)
+    //std::cout << "=== Node: " << this->name() << " dynamicThisPosition: " << thisPosition.vec3() << " ===" << std::endl;
+    //if (this->name().compare("Moon") == 0)
+    //{
+    //    std::cout << "=== Moon dynamicThisPosition: " << dynamicThisPosition.vec3() << " ===" << std::endl;
+    //}
+    //else if (this->name().compare("Earth") == 0)
+    //{
+    //    std::cout << "=== Earth dynamicThisPosition: " << dynamicThisPosition.vec3() << " ===" << std::endl;
+    //}
 
     RenderData newData = {data.camera, thisPosition, data.doPerformanceMeasurement};
 
@@ -337,6 +353,15 @@ psc SceneGraphNode::worldPosition() const
     } else {
         return _ephemeris->position();
     }
+}
+
+psc SceneGraphNode::dynamicWorldPosition(const Camera& camera, SceneGraphNode* target, Scene* scene) const
+{
+    glm::dvec3 currentDynamicPosition = vectorPosition(camera.getParent(), this, scene);
+    currentDynamicPosition -= camera.getDisplacementVector();
+    return PowerScaledCoordinate::CreatePowerScaledCoordinate(currentDynamicPosition.x,
+        currentDynamicPosition.y,
+        currentDynamicPosition.z);
 }
 
 SceneGraphNode* SceneGraphNode::parent() const
