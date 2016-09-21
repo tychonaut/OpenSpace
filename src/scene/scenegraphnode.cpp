@@ -291,10 +291,11 @@ void SceneGraphNode::update(const UpdateData& data) {
     _worldRotationCached = calculateWorldRotation();
     _worldScaleCached = calculateWorldScale();
     // Assumes _worldRotationCached and _worldScaleCached have been calculated for parent
-    _worldPositionCached = calculateWorldPosition();
+    //_worldPositionCached = calculateWorldPosition();
+    _worldPositionCached = dynamicWorldPosition().dvec3();
 
-    //newUpdateData.modelTransform.translation = worldPosition();
-    newUpdateData.modelTransform.translation = dynamicWorldPosition().dvec3();
+    newUpdateData.modelTransform.translation = worldPosition();
+    //newUpdateData.modelTransform.translation = dynamicWorldPosition().dvec3();
     //newUpdateData.modelTransform.translation = dynamicWorldPosition();
     newUpdateData.modelTransform.rotation = worldRotationMatrix();
     newUpdateData.modelTransform .scale = worldScale();

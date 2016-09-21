@@ -199,13 +199,13 @@ void InteractionHandler::setFocusNode(SceneGraphNode* node) {
 
     //orient the camera to the new node
     //psc focusPos = node->worldPosition();
-    psc focusPos = node->dynamicWorldPosition(OsEng.renderEngine().scene());
+    psc focusPos = node->dynamicWorldPosition();
     psc camToFocus = focusPos - _camera->position();
     glm::vec3 viewDir = glm::normalize(camToFocus.vec3());
     glm::vec3 cameraView = glm::normalize(_camera->viewDirectionWorldSpace());
     //set new focus position
     //_camera->setFocusPosition(node->worldPosition());
-    _camera->setFocusPosition(node->dynamicWorldPosition(OsEng.renderEngine().scene()));
+    _camera->setFocusPosition(node->dynamicWorldPosition());
     float dot = glm::dot(viewDir, cameraView);
 
     //static const float Epsilon = 0.001f;
@@ -307,7 +307,7 @@ void InteractionHandler::orbit(const float &dx, const float &dy, const float &dz
     psc origin;
     if (_focusNode) {
         //origin = _focusNode->worldPosition();
-        origin = _focusNode->dynamicWorldPosition(OsEng.renderEngine().scene());
+        origin = _focusNode->dynamicWorldPosition();
     }
 
     //new camera position
@@ -361,7 +361,7 @@ void InteractionHandler::orbitDelta(const glm::quat& rotation)
     psc origin;
     if (_focusNode) {
         //origin = _focusNode->worldPosition();
-        origin = _focusNode->dynamicWorldPosition(OsEng.renderEngine().scene());
+        origin = _focusNode->dynamicWorldPosition();
     }
 
     psc relative_origin_coordinate = relative - origin;
@@ -412,7 +412,7 @@ void InteractionHandler::distanceDelta(const PowerScaledScalar& distance, size_t
         
     psc relative = _camera->position();
     //const psc origin = (_focusNode) ? _focusNode->worldPosition() : psc();
-    const psc origin = (_focusNode) ? _focusNode->dynamicWorldPosition(OsEng.renderEngine().scene()) : psc();
+    const psc origin = (_focusNode) ? _focusNode->dynamicWorldPosition() : psc();
     
     unlockControls();
 

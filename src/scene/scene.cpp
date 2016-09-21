@@ -639,7 +639,7 @@ void Scene::setRelativeOrigin(Camera* camera) const {
 
     newCameraOrigin(cameraParentPath, camera);
 }
-
+/* Not in use now*/
 void Scene::newCameraOrigin(const std::vector<SceneGraphNode*> & commonParentPath, Camera* camera) const {
     if (commonParentPath.empty() || camera == nullptr) {
         LERROR("Empty common parent path or not allocated camera passed to newCameraOrigin method.");
