@@ -3,22 +3,34 @@ return {
     {
         Name = "UranusBarycenter",
         Parent = "SolarSystemBarycenter",
-        Ephemeris = {
-            Type = "Static"
-        }
+         -- SceneRadius unit is KM                
+		SceneRadius = 1.0E+6,
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "URANUS BARYCENTER",
+                Reference = "ECLIPJ2000",
+                Observer = "SUN",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
+        },
     },
 
     -- Uranus module
     {   
         Name = "Uranus",
         Parent = "UranusBarycenter",
+        -- SceneRadius unit is KM                
+		SceneRadius = 3.0E+5,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_URANUS",
-            Body = "URANUS BARYCENTER",
+            Body = "URANUS",
             Geometry = {
                 Type = "SimpleSphere",
-                Radius = { 2.5362 , 7 },
+                Radius = { 2.5559, 7 },
                 Segments = 100
             },
             Textures = {
@@ -26,26 +38,32 @@ return {
                 Color = "textures/uranus.jpg",
             },
         },
-        Ephemeris = {
-            Type = "Spice",
-            Body = "URANUS BARYCENTER",
-            Reference = "ECLIPJ2000",
-            Observer = "SUN",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-            }
-        },
-        Rotation = {
-            Type = "Spice",
-            Frame = "IAU_URANUS",
-            Reference = "ECLIPJ2000"
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "URANUS BARYCENTER",
+                Reference = "ECLIPJ2000",
+                Observer = "URANUS BARYCENTER",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
+            Rotation = {
+                Type = "SpiceRotation",
+                SourceFrame = "IAU_URANUS",
+                DestinationFrame = "ECLIPJ2000",
+            },
+            Scale = {
+                Type = "StaticScale",
+                Scale = 1,
+            },
         },
         GuiName = "/Solar/Planets/Uranus"
     },
     -- UranusTrail module
     {   
         Name = "UranusTrail",
-        Parent = "UranusBarycenter",
+        Parent = "SolarSystemBarycenter",
         Renderable = {
             Type = "RenderableTrail",
             Body = "URANUS BARYCENTER",

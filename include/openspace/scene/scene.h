@@ -31,6 +31,8 @@
 #include <set>
 #include <mutex>
 
+#include <openspace/documentation/documentation.h>
+
 #include <openspace/util/camera.h>
 #include <openspace/util/updatestructures.h>
 #include <openspace/scripting/scriptengine.h>
@@ -107,6 +109,32 @@ public:
     void addSceneGraphNode(SceneGraphNode* node){
         _graph.addSceneGraphNode(node);
     }
+
+    /**
+    * Return the current scene name (new camera's node parent) based on the camera's position 
+    * and the former scene name.
+    */
+    std::string currentSceneName(Camera* camera, std::string _nameOfScene) const;
+
+    /**
+    * Calculates the world position of target from the common node between camera's parent and target.
+    */
+    const glm::dvec3 currentDisplacementPosition(const std::string & cameraParent, 
+        const SceneGraphNode* target) const;
+
+    SceneGraphNode* findCommonParentNode(const std::string & firstPath, const std::string & secondPath) const;
+
+    std::vector<SceneGraphNode*> pathTo(SceneGraphNode* node) const;
+
+    glm::dvec3 pathCollector(const std::vector<SceneGraphNode*> & path, const std::string & commonParentName,
+        const bool inverse) const;
+
+    std::string commonParent(std::vector<SceneGraphNode*> t1, std::vector<SceneGraphNode*> t2) const;
+
+    void setRelativeOrigin(Camera* camera) const;
+
+    void newCameraOrigin(const std::vector<SceneGraphNode*> & commonParentPath, Camera* camera) const;
+
     /**
      * Returns the Lua library that contains all Lua functions available to change the
      * scene graph. The functions contained are
@@ -116,6 +144,8 @@ public:
      * scene graph
      */
     static scripting::LuaLibrary luaLibrary();
+
+    static documentation::Documentation Documentation();
 
 private:
     bool loadSceneInternal(const std::string& sceneDescriptionFilePath);

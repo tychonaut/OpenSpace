@@ -3,6 +3,8 @@ return {
     {
         Name = "PlutoBarycenter",
         Parent = "SolarSystemBarycenter",
+         -- Scene Radius in KM:
+        SceneRadius = 1.0E+5,
         Ephemeris = {
             Type = "Spice",
             Body = "PLUTO BARYCENTER",
@@ -19,24 +21,21 @@ return {
     {   
         Name = "Pluto",
         Parent = "PlutoBarycenter",
+         -- Scene Radius in KM:
+        SceneRadius = 1.0E+4,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_PLUTO",
             Body = "PLUTO",
             Geometry = {
                 Type = "SimpleSphere",
-                Radius = { 1.173 , 6 },
+                Radius = { 1.187 , 6 },
                 Segments = 100
             },
             Textures = {
                 Type = "simple",
                 Color = "textures/pluto.jpg",
             },
-            Atmosphere = {
-                Type = "Nishita", -- for example, values missing etc etc
-                MieFactor = 1.0,
-                MieColor = {1.0, 1.0, 1.0}
-            }
         },
         Ephemeris = {
             Type = "Spice",
@@ -56,9 +55,11 @@ return {
         },
         GuiName = "/Solar/Planets/Pluto"
     },
-{   
+    {   
         Name = "Charon",
         Parent = "PlutoBarycenter",
+         -- Scene Radius in KM:
+        SceneRadius = 6.0E+3,                
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_CHARON",
@@ -116,7 +117,6 @@ return {
         },
         GuiName = "/Solar/CharonTrail"
     }    
-    --[[
     -- PlutoTrail module
     {   
         Name = "PlutoTrail",
@@ -138,5 +138,4 @@ return {
         },
         GuiName = "/Solar/PlutoTrail"
     }
---]]
 }

@@ -37,10 +37,18 @@
 
 #include <glm/gtx/quaternion.hpp>
 
+//#include <modules/globebrowsing/globes/renderableglobe.h>
+
+#include <ghoul/glm.h>
+
 #include <fstream>
 
 namespace {
     const std::string _loggerCat = "InteractionHandler";
+
+    const std::string KeyFocus = "Focus";
+    const std::string KeyPosition = "Position";
+    const std::string KeyRotation = "Rotation";
 }
 
 #include "interactionhandler_lua.inl"
@@ -298,7 +306,7 @@ void InteractionHandler::orbit(const float &dx, const float &dy, const float &dz
     }
 
     //new camera position
-    relative = origin + relative_focus_coordinate; 	
+    relative = origin + relative_focus_coordinate;     
 
 
     psc target = relative + relative_focus_coordinate * dist * zoomSpeed;
@@ -615,7 +623,8 @@ void InteractionHandler::clearKeyframes(){
 }
 
 #else // USE_OLD_INTERACTIONHANDLER
-
+/*
+<<<<<<< HEAD
 // InputState
 InputState::InputState() {
 
@@ -841,10 +850,10 @@ void OrbitalInteractionMode::updateCameraStateFromMouseStates() {
         //glm::dvec3 camPos = _camera->positionVec3();
         
         // JCC: Distance from camera's parent node. It is now the current position of the camera.
-        //glm::dvec3 dynamicCamPos = OsEng.renderEngine().scene()->sceneGraphNode(_camera->getParent())->worldPosition().vec3() + _camera->getDisplacementVector();
-        //glm::dvec3 dynamicCamPos = _camera->getDisplacementVector();
-        //glm::dvec3 camPos = _camera->getDisplacementVector();
-        glm::dvec3 camPos = OsEng.renderEngine().scene()->sceneGraphNode(_camera->getParent())->worldPosition().vec3() + _camera->getDisplacementVector();
+        // Working
+        //glm::dvec3 camPos = OsEng.renderEngine().scene()->sceneGraphNode(_camera->getParent())->worldPosition().vec3() + _camera->getDisplacementVector();
+        glm::dvec3 camPos = OsEng.renderEngine().scene()->sceneGraphNode(_camera->getParent())->worldPosition().dvec3() + 
+            _camera->displacementVector();
         glm::dvec3 centerPos = _focusNode->dynamicWorldPosition(*_camera, _focusNode, OsEng.renderEngine().scene()).dvec3();
 
         glm::dvec3 posDiff = camPos - centerPos;
@@ -1012,12 +1021,18 @@ void GlobeBrowsingInteractionMode::update(double deltaTime) {
 
 #endif
 
+=======
+>>>>>>> develop
+*/
 // InteractionHandler
 InteractionHandler::InteractionHandler()
     : _origin("origin", "Origin", "")
     , _coordinateSystem("coordinateSystem", "Coordinate System", "")
     , _rotationalFriction("rotationalFriction", "Rotational Friction", true)
-    , _zoomFriction("zoomFriction", "Zoom Friction", true)
+    , _horizontalFriction("horizontalFriction", "Horizontal Friction", true)
+    , _verticalFriction("verticalFriction", "Vertical Friction", true)
+    , _sensitivity("sensitivity", "Sensitivity", 0.002, 0.0001, 0.02)
+    , _rapidness("rapidness", "Rapidness", 1, 0.1, 60)
 {
     setName("Interaction");
 
@@ -1028,43 +1043,57 @@ InteractionHandler::InteractionHandler()
             return;
         }
         setFocusNode(node);
+        resetCameraDirection();
     });
-    addProperty(_origin);
 
     _coordinateSystem.onChange([this]() {
         OsEng.renderEngine().changeViewPoint(_coordinateSystem.value());
     });
-    addProperty(_coordinateSystem);
-
 
     // Create the interactionModes
-    _inputState = std::shared_ptr<InputState>(new InputState());
-    _orbitalInteractionMode = std::shared_ptr<OrbitalInteractionMode>(
-        new OrbitalInteractionMode(_inputState, 0.002, 0.02));
-
-#ifdef OPENSPACE_MODULE_GLOBEBROWSING_ENABLED
-    _globebrowsingInteractionMode = std::shared_ptr<GlobeBrowsingInteractionMode>(
-        new GlobeBrowsingInteractionMode(_inputState, 0.002, 0.02));
-#endif
+    _inputState = std::make_unique<InputState>();
+    // Inject the same mouse states to both orbital and global interaction mode
+    _mouseStates = std::make_unique<OrbitalInteractionMode::MouseStates>(0.002, 1);
+    _interactionModes.insert(
+        std::pair<std::string, std::shared_ptr<InteractionMode>>(
+            "Orbital",
+            std::make_shared<OrbitalInteractionMode>(_mouseStates)
+            ));
+    _interactionModes.insert(
+        std::pair<std::string, std::shared_ptr<InteractionMode>>(
+            "GlobeBrowsing",
+            std::make_shared<GlobeBrowsingInteractionMode>(_mouseStates)
+            ));
 
     // Set the interactionMode
-    _currentInteractionMode = _orbitalInteractionMode;
+    _currentInteractionMode = _interactionModes["Orbital"];
 
+    // Define lambda functions for changed properties
     _rotationalFriction.onChange([&]() {
-        _orbitalInteractionMode->setRotationalFriction(_rotationalFriction);
-#ifdef OPENSPACE_MODULE_GLOBEBROWSING_ENABLED
-        _globebrowsingInteractionMode->setRotationalFriction(_rotationalFriction);
-#endif
+        _mouseStates->setRotationalFriction(_rotationalFriction);
     });
-    addProperty(_rotationalFriction);
+    _horizontalFriction.onChange([&]() {
+        _mouseStates->setHorizontalFriction(_horizontalFriction);
+    });
+    _verticalFriction.onChange([&]() {
+        _mouseStates->setVerticalFriction(_verticalFriction);
+    });
+    _sensitivity.onChange([&]() {
+        _mouseStates->setSensitivity(_sensitivity);
+    });
+    _rapidness.onChange([&]() {
+        _mouseStates->setVelocityScaleFactor(_rapidness);
+    });
 
-    _zoomFriction.onChange([&]() {
-        _orbitalInteractionMode->setZoomFriction(_zoomFriction);
-#ifdef OPENSPACE_MODULE_GLOBEBROWSING_ENABLED
-        _globebrowsingInteractionMode->setZoomFriction(_zoomFriction);
-#endif
-    });
-    addProperty(_zoomFriction);
+    // Add the properties
+    addProperty(_origin);
+    addProperty(_coordinateSystem);
+
+    addProperty(_rotationalFriction);
+    addProperty(_horizontalFriction);
+    addProperty(_verticalFriction);
+    addProperty(_sensitivity);
+    addProperty(_rapidness);
 }
 
 InteractionHandler::~InteractionHandler() {
@@ -1076,31 +1105,66 @@ void InteractionHandler::setFocusNode(SceneGraphNode* node) {
 }
 
 void InteractionHandler::setCamera(Camera* camera) {
-    _currentInteractionMode->setCamera(camera);
+    _camera = camera;
+}
+
+void InteractionHandler::resetCameraDirection() {
+    LINFO("Setting camera direction to point at focus node.");
+
+    glm::dquat rotation = _camera->rotationQuaternion();
+    glm::dvec3 focusPosition = focusNode()->worldPosition();
+    glm::dvec3 cameraPosition = _camera->positionVec3();
+    glm::dvec3 lookUpVector = _camera->lookUpVectorWorldSpace();
+
+    glm::dvec3 directionToFocusNode = glm::normalize(focusPosition - cameraPosition);
+
+    // To make sure the lookAt function won't fail
+    static const double epsilon = 0.000001;
+    if (glm::dot(lookUpVector, directionToFocusNode) > 1.0 - epsilon) {
+        // Change the look up vector a little bit
+        lookUpVector = glm::normalize(lookUpVector + glm::dvec3(epsilon));
+    }
+
+    // Create the rotation to look at  focus node
+    glm::dmat4 lookAtMat = glm::lookAt(
+        glm::dvec3(0, 0, 0),
+        directionToFocusNode,
+        lookUpVector);
+    glm::dquat rotationLookAtFocusNode = normalize(quat_cast(inverse(lookAtMat)));
+
+    // Update camera Rotation
+    _camera->setRotation(rotationLookAtFocusNode);
+
+    // Explicitly synch
+    _camera->preSynchronization();
+    _camera->postSynchronizationPreDraw();
 }
 
 void InteractionHandler::setInteractionMode(std::shared_ptr<InteractionMode> interactionMode) {
-    // Camera and focus node is passed over from the previous interaction mode
-    Camera* camera = _currentInteractionMode->camera();
+    // Focus node is passed over from the previous interaction mode
     SceneGraphNode* focusNode = _currentInteractionMode->focusNode();
 
     // Set the interaction mode
     _currentInteractionMode = interactionMode;
 
-    // Update the camera and focusnode for the new interaction mode
-    _currentInteractionMode->setCamera(camera);
+    // Update the focusnode for the new interaction mode
     _currentInteractionMode->setFocusNode(focusNode);
 }
 
-void InteractionHandler::setInteractionModeToOrbital() {
-    setInteractionMode(_orbitalInteractionMode);
+void InteractionHandler::setInteractionMode(const std::string& interactionModeKey) {
+    if (_interactionModes.find(interactionModeKey) != _interactionModes.end()) {
+        setInteractionMode(_interactionModes[interactionModeKey]);
+        LINFO("Interaction mode set to '" << interactionModeKey << "'");
+    }
+    else {
+        std::string listInteractionModes("");
+        for (auto pair : _interactionModes) {
+            listInteractionModes += "'" + pair.first + "', ";
+        }
+        LWARNING("'" << interactionModeKey <<
+            "' is not a valid interaction mode. Candidates are " << listInteractionModes);
+    }
 }
-
-#ifdef OPENSPACE_MODULE_GLOBEBROWSING_ENABLED
-void InteractionHandler::setInteractionModeToGlobeBrowsing() {
-    setInteractionMode(_globebrowsingInteractionMode);
-}
-#endif
 
 void InteractionHandler::lockControls() {
 
@@ -1110,20 +1174,44 @@ void InteractionHandler::unlockControls() {
 
 }
 
-void InteractionHandler::update(double deltaTime) {
-    _currentInteractionMode->update(deltaTime);
+void InteractionHandler::preSynchronization(double deltaTime) {
+    ghoul_assert(_inputState != nullptr, "InputState cannot be null!");
+    ghoul_assert(_camera != nullptr, "Camera cannot be null!");
+
+    if (_cameraUpdatedFromScript) {
+        _cameraUpdatedFromScript = false;
+    }
+    else {
+        _currentInteractionMode->updateMouseStatesFromInput(*_inputState, deltaTime);
+    }
 }
+
+void InteractionHandler::postSynchronizationPreDraw() {
+    ghoul_assert(_inputState != nullptr, "InputState cannot be null!");
+    ghoul_assert(_camera != nullptr, "Camera cannot be null!");
+
+    if (_cameraUpdatedFromScript) {
+        _cameraUpdatedFromScript = false;
+    }
+    else {
+        if (_camera && focusNode()) {
+            _currentInteractionMode->updateCameraStateFromMouseStates(*_camera);
+            _camera->setFocusPositionVec3(focusNode()->worldPosition());
+        }
+    }
+}
+
 
 SceneGraphNode* const InteractionHandler::focusNode() const {
     return _currentInteractionMode->focusNode();
 }
 
 Camera* const InteractionHandler::camera() const {
-    return _currentInteractionMode->camera();
+    return _camera;
 }
 
-std::shared_ptr<InputState> InteractionHandler::inputState() const {
-    return _inputState;
+const InputState& InteractionHandler::inputState() const {
+    return *_inputState;
 }
 
 
@@ -1152,6 +1240,105 @@ void InteractionHandler::keyboardCallback(Key key, KeyModifier modifier, KeyActi
     }
 }
 
+void InteractionHandler::setCameraStateFromDictionary(const ghoul::Dictionary& cameraDict) {
+    bool readSuccessful = true;
+
+    std::string focus;
+    glm::dvec3 cameraPosition;
+    glm::dvec4 cameraRotation; // Need to read the quaternion as a vector first.
+
+    readSuccessful &= cameraDict.getValue(KeyFocus, focus);
+    readSuccessful &= cameraDict.getValue(KeyPosition, cameraPosition);
+    readSuccessful &= cameraDict.getValue(KeyRotation, cameraRotation);
+
+    if (!readSuccessful) {
+        throw ghoul::RuntimeError(
+            "Position, Rotation and Focus need to be defined for camera dictionary.");
+    }
+
+    SceneGraphNode* node = sceneGraphNode(focus);
+    if (!node) {
+        throw ghoul::RuntimeError(
+            "Could not find a node in scenegraph called '" + focus + "'");
+    }
+
+    // Set state
+    setFocusNode(node);
+    _camera->setPositionVec3(cameraPosition);
+    _camera->setRotation(glm::dquat(
+        cameraRotation.x, cameraRotation.y, cameraRotation.z, cameraRotation.w));
+
+    // Explicitly synch
+    _camera->preSynchronization();
+    _camera->postSynchronizationPreDraw();
+}
+
+ghoul::Dictionary InteractionHandler::getCameraStateDictionary() {
+    glm::dvec3 cameraPosition;
+    glm::dquat quat;
+    glm::dvec4 cameraRotation;
+
+    cameraPosition = _camera->positionVec3();
+    quat = _camera->rotationQuaternion();
+    cameraRotation = glm::dvec4(quat.w, quat.x, quat.y, quat.z);
+
+    ghoul::Dictionary cameraDict;
+    cameraDict.setValue(KeyPosition, cameraPosition);
+    cameraDict.setValue(KeyRotation, cameraRotation);
+    cameraDict.setValue(KeyFocus, focusNode()->name());
+
+    return cameraDict;
+}
+
+void InteractionHandler::saveCameraStateToFile(const std::string& filepath) {
+    if (!filepath.empty()) {
+        auto fullpath = absPath(filepath);
+        LINFO("Saving camera position: " << filepath);
+
+        ghoul::Dictionary cameraDict = getCameraStateDictionary();
+
+        // TODO : Should get the camera state as a dictionary and save the dictionary to
+        // a file in form of a lua state and not use ofstreams here.
+        
+        std::ofstream ofs(fullpath.c_str());
+        
+        glm::dvec3 p = _camera->positionVec3();
+        glm::dquat q = _camera->rotationQuaternion();
+
+        ofs << "return {" << std::endl;
+        ofs << "    " << KeyFocus << " = " << "\"" << focusNode()->name() << "\"" << "," << std::endl;
+        ofs << "    " << KeyPosition << " = {"
+            << std::to_string(p.x) << ", "
+            << std::to_string(p.y) << ", "
+            << std::to_string(p.z) << "}," << std::endl;
+        ofs << "    " << KeyRotation << " = {"
+            << std::to_string(q.w) << ", "
+            << std::to_string(q.x) << ", "
+            << std::to_string(q.y) << ", "
+            << std::to_string(q.z) << "}," << std::endl;
+        ofs << "}"<< std::endl;
+
+        ofs.close();
+    }
+}
+
+void InteractionHandler::restoreCameraStateFromFile(const std::string& filepath) {
+    LINFO("Reading camera state from file: " << filepath);
+    if (!FileSys.fileExists(filepath))
+        throw ghoul::FileNotFoundError(filepath, "CameraFilePath");
+
+    ghoul::Dictionary cameraDict;
+    try {
+        ghoul::lua::loadDictionaryFromFile(filepath, cameraDict);
+        setCameraStateFromDictionary(cameraDict);
+        _cameraUpdatedFromScript = true;
+    }
+    catch (ghoul::RuntimeError& e) {
+        LWARNING("Unable to set camera position");
+        LWARNING(e.message);
+    }
+}
+
 void InteractionHandler::resetKeyBindings() {
     _keyLua.clear();
 }
@@ -1166,12 +1353,65 @@ void InteractionHandler::bindKey(Key key, KeyModifier modifier, std::string lua)
 void InteractionHandler::writeKeyboardDocumentation(const std::string& type, const std::string& file)
 {
     if (type == "text") {
-        std::ofstream f(absPath(file));
+        std::ofstream f;
+        f.exceptions(~std::ofstream::goodbit);
+        f.open(absPath(file));
         
         for (const auto& p : _keyLua) {
             f << std::to_string(p.first) << ": " <<
                 p.second << std::endl;
         }
+    }
+    else if (type == "html") {
+        std::ofstream f;
+        f.exceptions(~std::ofstream::goodbit);
+        f.open(absPath(file));
+
+#ifdef JSON
+        std::stringstream json;
+        json << "[";
+        for (const auto& p : _keyLua) {
+            json << "{";
+            json << "\"key\": \"" << std::to_string(p.first) << "\",";
+            json << "\"script\": \"" << p.second << "\",";
+            json << "},";
+        }
+        json << "]";
+
+        std::string jsonText = json.str();
+
+#else
+        std::stringstream html;
+
+        html << "<html>\n"
+             << "\t<head>\n"
+             << "\t\t<title>Key Bindings</title>\n"
+             << "\t</head>\n"
+             << "<body>\n"
+             << "<table cellpadding=3 cellspacing=0 border=1>\n"
+             << "\t<caption>Key Bindings</caption>\n\n"
+             << "\t<thead>\n"
+             << "\t\t<tr>\n"
+             << "\t\t\t<td>Key</td>\n"
+             << "\t\t\t<td>Binding</td>\n"
+             << "\t\t</tr>\n"
+             << "\t</thead>\n"
+             << "\t<tbody>\n";
+
+        for (const auto& p : _keyLua) {
+            html << "\t\t<tr>\n"
+                 << "\t\t\t<td>" << std::to_string(p.first) << "</td>\n"
+                 << "\t\t\t<td>" << p.second << "</td>\n"
+                 << "\t\t</tr>\n";
+        }
+
+        html << "\t</tbody>\n"
+             << "</table>\n"
+             << "</html>";
+
+        f << html.str();
+#endif
+
     }
     else {
         throw ghoul::RuntimeError(
@@ -1202,7 +1442,25 @@ scripting::LuaLibrary InteractionHandler::luaLibrary() {
                 &luascriptfunctions::setInteractionMode,
                 "string",
                 "Set the interaction mode for the camera"
-            }
+            },
+            {
+                "saveCameraStateToFile",
+                &luascriptfunctions::saveCameraStateToFile,
+                "string",
+                "Save the current camera state to file"
+            },
+            {
+                "restoreCameraStateFromFile",
+                &luascriptfunctions::restoreCameraStateFromFile,
+                "string",
+                "Restore the camera state from file"
+            },
+            {
+                "resetCameraDirection",
+                &luascriptfunctions::resetCameraDirection,
+                "void",
+                "Reset the camera direction to point at the focus node"
+            },
         }
     };
 }
@@ -1213,6 +1471,20 @@ void InteractionHandler::addKeyframe(const network::datamessagestructures::Posit
 
 void InteractionHandler::clearKeyframes() {
     _inputState->clearKeyframes();
+}
+
+void InteractionHandler::serialize(SyncBuffer* syncBuffer) {
+    for (auto var : _interactionModes)
+    {
+        var.second->serialize(syncBuffer);
+    }
+}
+
+void InteractionHandler::deserialize(SyncBuffer* syncBuffer) {
+    for (auto var : _interactionModes)
+    {
+        var.second->deserialize(syncBuffer);
+    }
 }
 
 #endif // USE_OLD_INTERACTIONHANDLER

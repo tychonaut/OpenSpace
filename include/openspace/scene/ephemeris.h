@@ -29,6 +29,8 @@
 #include <ghoul/misc/dictionary.h>
 #include <openspace/util/updatestructures.h>
 
+#include <openspace/documentation/documentation.h>
+
 namespace openspace {
 
 class Ephemeris {
@@ -38,8 +40,10 @@ public:
     Ephemeris(const ghoul::Dictionary& dictionary);
     virtual ~Ephemeris();
     virtual bool initialize();
-    virtual const psc& position() const = 0;
+    virtual const glm::dvec3& position() const = 0;
     virtual void update(const UpdateData& data);
+
+    static openspace::Documentation Documentation();
 
 protected:
     Ephemeris();

@@ -24,7 +24,12 @@
 
 set(OPENSPACE_SOURCE
     ${OPENSPACE_BASE_DIR}/src/openspace.cpp
+    ${OPENSPACE_BASE_DIR}/src/documentation/core_registration.cpp
+    ${OPENSPACE_BASE_DIR}/src/documentation/documentation.cpp
+    ${OPENSPACE_BASE_DIR}/src/documentation/documentationengine.cpp
+    ${OPENSPACE_BASE_DIR}/src/documentation/verifier.cpp
     ${OPENSPACE_BASE_DIR}/src/engine/configurationmanager.cpp
+    ${OPENSPACE_BASE_DIR}/src/engine/configurationmanager_doc.inl
     ${OPENSPACE_BASE_DIR}/src/engine/downloadmanager.cpp
     ${OPENSPACE_BASE_DIR}/src/engine/logfactory.cpp
     ${OPENSPACE_BASE_DIR}/src/engine/moduleengine.cpp
@@ -36,6 +41,7 @@ set(OPENSPACE_SOURCE
     ${OPENSPACE_BASE_DIR}/src/interaction/controller.cpp
     ${OPENSPACE_BASE_DIR}/src/interaction/deviceidentifier.cpp
     ${OPENSPACE_BASE_DIR}/src/interaction/interactionhandler.cpp
+    ${OPENSPACE_BASE_DIR}/src/interaction/interactionmode.cpp
     ${OPENSPACE_BASE_DIR}/src/interaction/interactionhandler_lua.inl
     ${OPENSPACE_BASE_DIR}/src/interaction/keyboardcontroller.cpp
     ${OPENSPACE_BASE_DIR}/src/interaction/luaconsole.cpp
@@ -73,10 +79,14 @@ set(OPENSPACE_SOURCE
     ${OPENSPACE_BASE_DIR}/src/rendering/screenspacerenderable.cpp
     ${OPENSPACE_BASE_DIR}/src/rendering/transferfunction.cpp
     ${OPENSPACE_BASE_DIR}/src/scene/ephemeris.cpp
+    ${OPENSPACE_BASE_DIR}/src/scene/rotation.cpp
+    ${OPENSPACE_BASE_DIR}/src/scene/scale.cpp
     ${OPENSPACE_BASE_DIR}/src/scene/scene.cpp
+    ${OPENSPACE_BASE_DIR}/src/scene/scene_doc.inl
     ${OPENSPACE_BASE_DIR}/src/scene/scene_lua.inl
     ${OPENSPACE_BASE_DIR}/src/scene/scenegraph.cpp
     ${OPENSPACE_BASE_DIR}/src/scene/scenegraphnode.cpp
+    ${OPENSPACE_BASE_DIR}/src/scene/scenegraphnode_doc.inl
     ${OPENSPACE_BASE_DIR}/src/scripting/lualibrary.cpp
     ${OPENSPACE_BASE_DIR}/src/scripting/scriptengine.cpp
     ${OPENSPACE_BASE_DIR}/src/scripting/scriptengine_lua.inl
@@ -92,7 +102,6 @@ set(OPENSPACE_SOURCE
     ${OPENSPACE_BASE_DIR}/src/util/powerscaledsphere.cpp
     ${OPENSPACE_BASE_DIR}/src/util/progressbar.cpp
     ${OPENSPACE_BASE_DIR}/src/util/screenlog.cpp
-    ${OPENSPACE_BASE_DIR}/src/util/setscene.cpp
     ${OPENSPACE_BASE_DIR}/src/util/spicemanager.cpp
     ${OPENSPACE_BASE_DIR}/src/util/spicemanager_lua.inl
     ${OPENSPACE_BASE_DIR}/src/util/syncbuffer.cpp
@@ -104,6 +113,11 @@ set(OPENSPACE_SOURCE
 
 set(OPENSPACE_HEADER
     ${OPENSPACE_BASE_DIR}/include/openspace/openspace.h
+    ${OPENSPACE_BASE_DIR}/include/openspace/documentation/core_registration.h
+    ${OPENSPACE_BASE_DIR}/include/openspace/documentation/documentation.h
+    ${OPENSPACE_BASE_DIR}/include/openspace/documentation/documentationengine.h
+    ${OPENSPACE_BASE_DIR}/include/openspace/documentation/verifier.h
+    ${OPENSPACE_BASE_DIR}/include/openspace/documentation/verifier.inl
     ${OPENSPACE_BASE_DIR}/include/openspace/engine/configurationmanager.h
     ${OPENSPACE_BASE_DIR}/include/openspace/engine/downloadmanager.h
     ${OPENSPACE_BASE_DIR}/include/openspace/engine/logfactory.h
@@ -115,6 +129,7 @@ set(OPENSPACE_HEADER
     ${OPENSPACE_BASE_DIR}/include/openspace/interaction/controller.h
     ${OPENSPACE_BASE_DIR}/include/openspace/interaction/deviceidentifier.h
     ${OPENSPACE_BASE_DIR}/include/openspace/interaction/interactionhandler.h
+    ${OPENSPACE_BASE_DIR}/include/openspace/interaction/interactionmode.h
     ${OPENSPACE_BASE_DIR}/include/openspace/interaction/keyboardcontroller.h
     ${OPENSPACE_BASE_DIR}/include/openspace/interaction/luaconsole.h
     ${OPENSPACE_BASE_DIR}/include/openspace/interaction/mousecontroller.h
@@ -159,6 +174,8 @@ set(OPENSPACE_HEADER
     ${OPENSPACE_BASE_DIR}/include/openspace/rendering/volumeraycaster.h
     ${OPENSPACE_BASE_DIR}/include/openspace/rendering/transferfunction.h
     ${OPENSPACE_BASE_DIR}/include/openspace/scene/ephemeris.h
+    ${OPENSPACE_BASE_DIR}/include/openspace/scene/rotation.h
+    ${OPENSPACE_BASE_DIR}/include/openspace/scene/scale.h
     ${OPENSPACE_BASE_DIR}/include/openspace/scene/scene.h
     ${OPENSPACE_BASE_DIR}/include/openspace/scene/scenegraph.h
     ${OPENSPACE_BASE_DIR}/include/openspace/scene/scenegraphnode.h
@@ -179,7 +196,6 @@ set(OPENSPACE_HEADER
     ${OPENSPACE_BASE_DIR}/include/openspace/util/powerscaledsphere.h
     ${OPENSPACE_BASE_DIR}/include/openspace/util/progressbar.h
     ${OPENSPACE_BASE_DIR}/include/openspace/util/screenlog.h
-    ${OPENSPACE_BASE_DIR}/include/openspace/util/setscene.h
     ${OPENSPACE_BASE_DIR}/include/openspace/util/spicemanager.h
     ${OPENSPACE_BASE_DIR}/include/openspace/util/syncbuffer.h
     ${OPENSPACE_BASE_DIR}/include/openspace/util/time.h

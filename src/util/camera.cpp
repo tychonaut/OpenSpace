@@ -25,6 +25,10 @@
 // open space includes
 #include <openspace/util/camera.h>
 #include <openspace/util/syncbuffer.h>
+#include <openspace/query/query.h>
+#include <openspace/engine/openspaceengine.h>
+#include <openspace/interaction/interactionhandler.h>
+
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -32,8 +36,12 @@
 namespace openspace {
 
     //////////////////////////////////////////////////////////////////////////////////////
-    //								        CAMERA	                                    //
+    //                                        CAMERA                                        //
     //////////////////////////////////////////////////////////////////////////////////////
+
+    namespace {
+        const std::string _loggerCat = "Camera";
+    }
 
     const Camera::Vec3 Camera::_VIEW_DIRECTION_CAMERA_SPACE = Camera::Vec3(0, 0, -1);
     const Camera::Vec3 Camera::_LOOKUP_VECTOR_CAMERA_SPACE = Camera::Vec3(0, 1, 0);
@@ -42,7 +50,7 @@ namespace openspace {
         : _maxFov(0.f)
         , _focusPosition()
         , _parent("SolarSystemBarycenter")
-        , _displacementvector(0, 0, 0)
+        , _displacementvector(0.0, 0.0, 0.0)
 
     {
         _scaling.local = glm::vec2(1.f, 0.f);
@@ -55,6 +63,7 @@ namespace openspace {
         : sgctInternal(o.sgctInternal)
         , _focusPosition(o._focusPosition)
         , _cachedViewDirection(o._cachedViewDirection)
+        , _cachedLookupVector(o._cachedLookupVector)
         , _rotation(o._rotation)
         , _scaling(o._scaling)
         , _position(o._position)
@@ -65,13 +74,15 @@ namespace openspace {
 
     // Mutators
 
-    void Camera::setDisplacementVector(glm::vec3 distv)
+    void Camera::setDisplacementVector(const glm::dvec3 & distv)
     {
         _displacementvector = distv;
     }
     void Camera::setPositionVec3(Vec3 pos) {
         std::lock_guard<std::mutex> _lock(_mutex);
         _position.local = pos;
+      
+        _cachedCombinedViewMatrix.isDirty = true;
     }
 
     void Camera::setFocusPositionVec3(Vec3 pos) {
@@ -82,6 +93,8 @@ namespace openspace {
     void Camera::setRotation(Quat rotation) {
         std::lock_guard<std::mutex> _lock(_mutex);
         _rotation.local = rotation;
+        _cachedViewDirection.isDirty = true;
+        _cachedLookupVector.isDirty = true;
         _cachedViewRotationMatrix.isDirty = true;
         _cachedCombinedViewMatrix.isDirty = true;
     }
@@ -105,6 +118,11 @@ namespace openspace {
     void Camera::rotate(Quat rotation) {
         std::lock_guard<std::mutex> _lock(_mutex);
         _rotation.local = rotation * _rotation.local;
+      
+        _cachedViewDirection.isDirty = true;
+        _cachedLookupVector.isDirty = true;
+        _cachedViewRotationMatrix.isDirty = true;
+        _cachedCombinedViewMatrix.isDirty = true;
     }
 
     // Accessors
@@ -130,6 +148,7 @@ namespace openspace {
             _cachedViewDirection.datum =
                 _rotation.synced * Vec3(_VIEW_DIRECTION_CAMERA_SPACE);
             _cachedViewDirection.datum = glm::normalize(_cachedViewDirection.datum);
+            _cachedViewDirection.isDirty = true;
         }
         return _cachedViewDirection.datum;
     }
@@ -139,7 +158,13 @@ namespace openspace {
     }
 
     const Camera::Vec3& Camera::lookUpVectorWorldSpace() const {
-        return glm::normalize(_rotation.synced * Vec3(_LOOKUP_VECTOR_CAMERA_SPACE));
+        if (_cachedLookupVector.isDirty) {
+            _cachedLookupVector.datum =
+                _rotation.synced * Vec3(_LOOKUP_VECTOR_CAMERA_SPACE);
+            _cachedLookupVector.datum = glm::normalize(_cachedLookupVector.datum);
+            _cachedLookupVector.isDirty = true;
+        }
+        return _cachedLookupVector.datum;
     }
 
     const glm::vec2& Camera::scaling() const {
@@ -153,6 +178,7 @@ namespace openspace {
     float Camera::sinMaxFov() const {
         if (_cachedSinMaxFov.isDirty) {
             _cachedSinMaxFov.datum = sin(_maxFov);
+            _cachedSinMaxFov.isDirty = true;
         }
         return _cachedSinMaxFov.datum;
     }
@@ -171,16 +197,17 @@ namespace openspace {
     const Camera::Mat4& Camera::combinedViewMatrix() const {
         if (_cachedCombinedViewMatrix.isDirty) {
             Mat4 cameraTranslation =
-                glm::inverse(glm::translate(Mat4(1.0), _position.shared));
+                glm::inverse(glm::translate(Mat4(1.0), _position.synced));
             _cachedCombinedViewMatrix.datum =
                 Mat4(sgctInternal.viewMatrix()) *
                 Mat4(viewRotationMatrix()) *
                 cameraTranslation;
+            _cachedCombinedViewMatrix.isDirty = true;
         }
         return _cachedCombinedViewMatrix.datum;
     }
     
-    glm::vec3 Camera::getDisplacementVector() const {
+    glm::dvec3 Camera::displacementVector() const {
         return _displacementvector;
     }
     // Synchronization
@@ -208,6 +235,26 @@ namespace openspace {
         _scaling.postSynchronizationPreDraw();
 
         _cachedViewDirection.isDirty = true;
+        _cachedLookupVector.isDirty = true;
+        _cachedViewRotationMatrix.isDirty = true;
+        _cachedCombinedViewMatrix.isDirty = true;
+    }
+
+    
+    void Camera::serialize(std::ostream& os) const {
+        Vec3 p = positionVec3();
+        Quat q = rotationQuaternion();
+        os << p.x << " " << p.y << " " << p.z << std::endl;
+        os << q.x << " " << q.y << " " << q.z << " " << q.w << std::endl;
+    }
+
+    void Camera::deserialize(std::istream& is) {
+        Vec3 p;
+        Quat q;
+        is >> p.x >> p.y >> p.z;
+        is >> q.x >> q.y >> q.z >> q.w;
+        setPositionVec3(p);
+        setRotation(q);
     }
 
     void Camera::preSynchronization() {
@@ -222,7 +269,7 @@ namespace openspace {
 
 
     //////////////////////////////////////////////////////////////////////////////////////
-    //								    SGCT INTERNAL	                                //
+    //                                    SGCT INTERNAL                                    //
     //////////////////////////////////////////////////////////////////////////////////////
     Camera::SgctInternal::SgctInternal()
         : _viewMatrix()

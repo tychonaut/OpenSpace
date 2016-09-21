@@ -24,13 +24,10 @@
 
 #include <openspace/util/distancetoobject.h>
 #include <cassert>
-//#include <openspace/util/camera.h>
 #include <openspace/util/powerscaledcoordinate.h>
-//#include <assert.h>
 
 #include <openspace/engine/openspaceengine.h>
 #include <openspace/interaction/interactionhandler.h>
-//#include <openspace/util/constants.h>
 #include <openspace/util/spicemanager.h>
 #include <openspace/util/syncbuffer.h>
 
@@ -67,37 +64,24 @@ namespace openspace {
         return *_distInstance;
     }
 
-
-    /*
-    static bool isInitialized(){
-
-    return (_instance != nullptr);
-    }*/
-
-
-    /*
-    float DistanceToObject::distanceCalc(const psc& positionPSC, psc targetPosPSC) //psc& camerapos
+    double DistanceToObject::distanceCalc(const psc & positionPSC, const psc & targetPosPSC) const
     {
-        glm::dvec3 targetPos = targetPosPSC.dvec3();
-        glm::dvec3 position = positionPSC.dvec3();
+        glm::dvec3 targetPos(targetPosPSC.dvec3());
+        glm::dvec3 position(positionPSC.dvec3());
 
-        distance = sqrt(pow(position[0] - targetPos[0], 2) + pow(position[1] - targetPos[1], 2) + pow(position[2] - targetPos[2], 2));
-        //if (distance != nullptr)
+        // JCC: Changed the distance calculations from meters to killometers.
+        glm::dvec3 diffVec = (position / 1000.0) - (targetPos / 1000.0);    
         
-        return distance;
-
+        return glm::length(diffVec);
     }
-    */
 
-    double DistanceToObject::distanceCalc(const psc& positionPSC, psc targetPosPSC)
+    double DistanceToObject::distanceCalc(const glm::dvec3 & position, const glm::dvec3 & targetPos) const
     {
         // JCC: Changed the distance calculations from meters to killometers.
-        glm::dvec3 targetPos = targetPosPSC.dvec3()/1000.0;
-        glm::dvec3 position = positionPSC.dvec3()/1000.0;
+        glm::dvec3 diffVec = (position / 1000.0) - (targetPos / 1000.0);
 
-        return sqrt(pow(position[0] - targetPos[0], 2) + pow(position[1] - targetPos[1], 2) + pow(position[2] - targetPos[2], 2));		
+        return glm::length(diffVec);
     }
-
 
 
 }

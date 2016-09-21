@@ -36,12 +36,12 @@
 
 #include <modules/globebrowsing/meshes/grid.h>
 
-#include <modules/globebrowsing/tile/tileprovidermanager.h>
 #include <modules/globebrowsing/tile/layeredtextureshaderprovider.h>
 #include <modules/globebrowsing/tile/tileselector.h>
 
 #include <modules/globebrowsing/chunk/chunknode.h>
 
+#include <ghoul/opengl/textureunit.h>
 
 
 namespace ghoul {

@@ -45,16 +45,8 @@ public:
     */
 
     static DistanceToObject& ref();
-
-    // static bool isInitialized(); Not working?
-
-
-    //float distanceCalc(); //psc& camerapos
-    //const psc& camera
-    //const distancefromcamerato(int a);
-
-    //float distanceCalc(const psc& position, psc targetPos); //psc& camerapos //const ?
-    double distanceCalc(const psc& position, psc targetPos);
+    double distanceCalc(const psc & position, const psc & targetPos) const;
+    double distanceCalc(const glm::dvec3 & position, const glm::dvec3 & targetPos) const;
 private:
     /// Creates the distance object. Only used in the initialize() method
     DistanceToObject();
@@ -70,11 +62,5 @@ private:
                                             //static DistanceToObject* _distancefromcamera; ///< The singleton instance
 
 };
-
-    /**
-    * Returns the reference to the Time singleton object.
-    * \return The reference to the Time singleton object
-    */
-
 }
 #endif // __DISTANCETOOBJ_H__

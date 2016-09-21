@@ -97,8 +97,7 @@ namespace openspace {
         LayeredTexturePreprocessingData preprocessingData)
     {
         _updatedOnLastCall = false;
-        if (!(preprocessingData == _preprocessingData) || _programObject == nullptr)
-        { // No need to recompile shader. Shader is up to date and can be returned.
+        if (!(preprocessingData == _preprocessingData) || _programObject == nullptr) {
             recompileShaderProgram(preprocessingData);
             _updatedOnLastCall = true;
         }
@@ -134,8 +133,9 @@ namespace openspace {
         for (size_t i = 0; i < keyValuePairs.size(); i++) {
             shaderDictionary.setValue(keyValuePairs[i].first, keyValuePairs[i].second);
         }
+
         // Remove old program
-        _programObject.release();
+        OsEng.renderEngine().removeRenderProgram(_programObject);
 
         _programObject = OsEng.renderEngine().buildRenderProgram(
             _shaderName,

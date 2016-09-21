@@ -21,12 +21,23 @@ return {
     {
         Name = "PlutoBarycenter",
         Parent = "SolarSystemBarycenter",
+        --[[
         Ephemeris = {
             Type = "Spice",
             Body = "PLUTO BARYCENTER",
             Reference = "ECLIPJ2000",
             Observer = "SUN",
             Kernels = NewHorizonsKernels
+        },
+        ]]
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "PLUTO BARYCENTER",
+                Reference = "ECLIPJ2000",
+                Observer = "SUN",
+                Kernels = NewHorizonsKernels
+            },
         },
     },
     -- PlutoProjection module
@@ -56,6 +67,7 @@ return {
                 Observer       = "NEW HORIZONS",
                 Target         = "PLUTO",
                 Aberration     = "NONE",
+                AspectRatio = 2
             },
             DataInputTranslation = {
                 Instrument = {
@@ -153,6 +165,7 @@ return {
                  "P4",
             }            
         },
+        --[[
         Ephemeris = {
             Type = "Spice",
             Body = "PLUTO",
@@ -164,6 +177,21 @@ return {
             Type = "Spice",
             Frame = "IAU_PLUTO",
             Reference = "GALACTIC"
+        },
+        ]]
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "PLUTO",
+                Reference = "GALACTIC",
+                Observer = "PLUTO BARYCENTER",
+                Kernels = NewHorizonsKernels
+            },
+            Rotation = {
+                Type = "SpiceRotation",
+                SourceFrame = "IAU_PLUTO",
+                DestinationFrame = "GALACTIC",
+            }
         },
         GuiName = "/Solar/Planets/Pluto"
     },
@@ -181,10 +209,12 @@ return {
                MieColor = {1.0, 1.0, 1.0}
            }
        },
+        --[[
         Ephemeris = {
             Type = "Static",
             Position = {0, 0, 0, 1}
         },
+        ]]
     },
     {
         Name = "PlutoText",
@@ -194,12 +224,21 @@ return {
             Size = {1.0, 6.3},
             Origin = "Center",
             Billboard = true,
-            Texture = "textures/Pluto-Text.png"
+            Texture = "textures/Pluto-Text.png",
+            BlendMode = "Additive"
         },
+        Transform = {
+            Translation = {
+                Type = "StaticEphemeris",
+                Position = {0, -2000000, 0}
+            },
+        },
+        --[[
         Ephemeris = {
             Type = "Static",
             Position = {0, -20, 0, 5}
         }
+        ]]
     },
     {
         Name = "PlutoTexture",
@@ -212,10 +251,18 @@ return {
             ProjectionListener = false,
             Texture = "textures/Pluto-Text.png"
         },
+        Transform = {
+            Translation = {
+                Type = "StaticEphemeris",
+                Position = {0, -4000000, 0}
+            },
+        },
+        --[[
         Ephemeris = {
             Type = "Static",
             Position = {0, 0, 40, 5}
         }
+        ]]
     },
     {
         Name = "PlutoShadow",
@@ -230,10 +277,6 @@ return {
             MainFrame = "GALACTIC",
             Aberration = "NONE",
         },
-        Ephemeris = {
-            Type = "Static",
-            Position = {0, 0, 0, 5}
-        }
     },
     -- PlutoBarycentricTrail module
     {   

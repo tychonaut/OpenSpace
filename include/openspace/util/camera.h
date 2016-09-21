@@ -38,7 +38,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-
 namespace openspace {
     class SyncBuffer;
 
@@ -95,7 +94,7 @@ namespace openspace {
         void setScaling(glm::vec2 scaling);
         void setMaxFov(float fov);
         void setParent(std::string parent);
-        void setDisplacementVector(glm::vec3 distvec);
+        void setDisplacementVector(const glm::dvec3 & distvec);
         // Relative mutators
         void rotate(Quat rotation);
 
@@ -112,7 +111,7 @@ namespace openspace {
         const Vec3& lookUpVectorWorldSpace() const;
         const std::string getParent() const;
 
-        glm::vec3 getDisplacementVector() const; //make const?
+        glm::dvec3 displacementVector() const; //make const?
         const glm::vec2& scaling() const;
         const Mat4& viewRotationMatrix() const;
         const Quat& rotationQuaternion() const;
@@ -131,7 +130,10 @@ namespace openspace {
         void preSynchronization();
         void serialize(SyncBuffer* syncBuffer);
         void deserialize(SyncBuffer* syncBuffer);
-
+        
+        void serialize(std::ostream& os) const;
+        void deserialize(std::istream& is);
+        
         /**
         Handles SGCT's internal matrices. Also caches a calculated viewProjection
         matrix. This is the data that is different for different cameras within
@@ -181,6 +183,7 @@ namespace openspace {
         const glm::mat4& projectionMatrix() const;
         [[deprecated("Replaced by Camera::SgctInternal::viewProjectionMatrix()")]]
         const glm::mat4& viewProjectionMatrix() const;
+
     private:
         /**
         Class encapsulating data that needs to be synched between SGCT nodes.
@@ -207,10 +210,10 @@ namespace openspace {
         SyncData<Quat> _rotation;
         SyncData<glm::vec2> _scaling;
 
-        //Parent of camera, latches onto scenegraph node.
+        // Parent of camera, latches onto scenegraph node.
         std::string _parent;
-        //vector from closest parent to cameraposition. 
-        glm::vec3 _displacementvector;
+        // Vector from camera's parent node to camera position. 
+        glm::dvec3 _displacementvector;
 
         // _focusPosition to be removed
         Vec3 _focusPosition;
@@ -218,6 +221,7 @@ namespace openspace {
 
         // Cached data
         mutable Cached<Vec3> _cachedViewDirection;
+        mutable Cached<Vec3> _cachedLookupVector;
         mutable Cached<Mat4> _cachedViewRotationMatrix;
         mutable Cached<Mat4> _cachedCombinedViewMatrix;
         mutable Cached<float> _cachedSinMaxFov;

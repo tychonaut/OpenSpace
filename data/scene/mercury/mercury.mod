@@ -3,22 +3,33 @@ return {
     {
         Name = "MercuryBarycenter",
         Parent = "SolarSystemBarycenter",
-        Ephemeris = {
-            Type = "Static"
-        }
+        -- Scene Radius in KM:
+        SceneRadius = 1.0E+5,
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "MERCURY BARYCENTER",
+                Reference = "ECLIPJ2000",
+                Observer = "SUN",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
+        },
     },
-
     -- Mercury module
     {   
         Name = "Mercury",
         Parent = "MercuryBarycenter",
+        -- Scene Radius in KM:
+        SceneRadius = 5.0E+4,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_MERCURY",
             Body = "MERCURY",
             Geometry = {
                 Type = "SimpleSphere",
-                Radius = { 2.440, 6 },
+                Radius = { 2.4397, 6 },
                 Segments = 100
             },
             Textures = {
@@ -26,26 +37,32 @@ return {
                 Color = "textures/mercury.jpg",
             },
         },
-        Ephemeris = {
-            Type = "Spice",
-            Body = "MERCURY",
-            Reference = "ECLIPJ2000",
-            Observer = "SUN",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-            }
-        },
-        Rotation = {
-            Type = "Spice",
-            Frame = "IAU_MERCURY",
-            Reference = "ECLIPJ2000"
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "MERCURY",
+                Reference = "ECLIPJ2000",
+                Observer = "MERCURY BARYCENTER",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
+            Rotation = {
+                Type = "SpiceRotation",
+                SourceFrame = "IAU_MERCURY",
+                DestinationFrame = "ECLIPJ2000",
+            },
+            Scale = {
+                Type = "StaticScale",
+                Scale = 1,
+            },
         },
         GuiName = "/Solar/Planets/Mercury"
     },
     -- MercuryTrail module
     {   
         Name = "MercuryTrail",
-        Parent = "MercuryBarycenter",
+        Parent = "SolarSystemBarycenter",
         Renderable = {
             Type = "RenderableTrail",
             Body = "MERCURY",

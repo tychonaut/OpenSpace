@@ -4,7 +4,7 @@ return {
         Name = "SolarSystemBarycenter",
         Parent = "SolarSystem",
         -- SceneRadius unit is KM                
-		SceneRadius = 6000000000.0,
+		SceneRadius = 6.0E+9,
         Ephemeris = {
             Type = "Static",
         },
@@ -15,14 +15,14 @@ return {
         Name = "Sun",
         Parent = "SolarSystemBarycenter",
          -- SceneRadius unit is KM                
-		SceneRadius = 30000000.0,
+		SceneRadius = 7.0E+6,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_SUN",
             Body = "SUN", 
             Geometry = {
                 Type = "SimpleSphere",
-                Radius = { 2.783200, 9 },
+                Radius = { 6.957, 8 },
                 Segments = 100
             },
             Textures = {
@@ -54,7 +54,8 @@ return {
             Size = {1.3, 10.5},
             Origin = "Center",
             Billboard = true,
-            Texture = "textures/sun-glare.png"
+            Texture = "textures/sun-glare.png",
+            BlendMode = "Additive"
         },
         Ephemeris = {
             Type = "Spice",
@@ -74,7 +75,8 @@ return {
             Size = {3.0, 11.0},
             Origin = "Center",
             Billboard = true,
-            Texture = "textures/marker.png"
+            Texture = "textures/marker.png",
+            BlendMode = "Additive"
         },
         Ephemeris = {
             Type = "Static",

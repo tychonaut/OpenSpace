@@ -3,15 +3,27 @@ return {
     {
         Name = "VenusBarycenter",
         Parent = "SolarSystemBarycenter",
-        Ephemeris = {
-            Type = "Static"
-        }
+        -- Scene Radius in KM:
+        SceneRadius = 1.0E+5,
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "VENUS BARYCENTER",
+                Reference = "ECLIPJ2000",
+                Observer = "SUN",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
+        },
     },
 
     -- Venus module
     {   
         Name = "Venus",
         Parent = "VenusBarycenter",
+        -- Scene Radius in KM:
+        SceneRadius = 5.0E+4,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_VENUS",
@@ -26,26 +38,32 @@ return {
                 Color = "textures/venus.jpg",
             },
         },
-        Ephemeris = {
-            Type = "Spice",
-            Body = "VENUS",
-            Reference = "ECLIPJ2000",
-            Observer = "SUN",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-            }
-        },
-        Rotation = {
-            Type = "Spice",
-            Frame = "IAU_VENUS",
-            Reference = "ECLIPJ2000"
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "VENUS",
+                Reference = "ECLIPJ2000",
+                Observer = "VENUS BARYCENTER",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
+            Rotation = {
+                Type = "SpiceRotation",
+                SourceFrame = "IAU_VENUS",
+                DestinationFrame = "GALACTIC",
+            },
+            Scale = {
+                Type = "StaticScale",
+                Scale = 1,
+            },
         },
         GuiName = "/Solar/Planets/VENUS"
     },
     -- VenusTrail module
     {   
         Name = "VenusTrail",
-        Parent = "VenusBarycenter",
+        Parent = "SolarSystemBarycenter",
         Renderable = {
             Type = "RenderableTrail",
             Body = "VENUS",

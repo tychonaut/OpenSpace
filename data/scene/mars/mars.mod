@@ -3,22 +3,33 @@ return {
     {
         Name = "MarsBarycenter",
         Parent = "SolarSystemBarycenter",
-        Ephemeris = {
-            Type = "Static"
-        }
+        -- Scene Radius in KM:
+        SceneRadius = 1.0E+5,        
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "MARS BARYCENTER",
+                Reference = "ECLIPJ2000",
+                Observer = "SUN",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
+        },
     },
-
     -- Mars module
     {   
         Name = "Mars",
         Parent = "MarsBarycenter",
+        -- Scene Radius in KM:
+        SceneRadius = 5.0E+4,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_MARS",
-            Body = "MARS BARYCENTER",
+            Body = "MARS",
             Geometry = {
                 Type = "SimpleSphere",
-                Radius = { 6.390, 6 },
+                Radius = { 3.3895, 6 },
                 Segments = 100
             },
             Textures = {
@@ -26,26 +37,32 @@ return {
                 Color = "textures/mars.jpg",
             },
         },
-        Ephemeris = {
-            Type = "Spice",
-            Body = "MARS BARYCENTER",
-            Reference = "ECLIPJ2000",
-            Observer = "SUN",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-            }
-        },
-        Rotation = {
-            Type = "Spice",
-            Frame = "IAU_MARS",
-            Reference = "ECLIPJ2000"
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "MARS BARYCENTER",
+                Reference = "ECLIPJ2000",
+                Observer = "MARS BARYCENTER",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
+            Rotation = {
+                Type = "SpiceRotation",
+                SourceFrame = "IAU_MARS",
+                DestinationFrame = "ECLIPJ2000",
+            },
+            Scale = {
+                Type = "StaticScale",
+                Scale = 1,
+            },
         },
         GuiName = "/Solar/Planets/Mars"
     },
     -- MarsTrail module
     {   
         Name = "MarsTrail",
-        Parent = "MarsBarycenter",
+        Parent = "SolarSystemBarycenter",
         Renderable = {
             Type = "RenderableTrail",
             Body = "MARS BARYCENTER",

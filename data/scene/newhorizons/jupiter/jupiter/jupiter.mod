@@ -2,15 +2,17 @@ return {
     -- Jupiter barycenter module
     {
         Name = "JupiterBarycenter",
-        Parent = "SolarSystemBarycenter",     
-        Ephemeris = {
-            Type = "Spice",
-            Body = "JUPITER BARYCENTER",
-            Reference = "ECLIPJ2000",
-            Observer = "SUN",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp",
-            }
+        Parent = "SolarSystemBarycenter",
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "JUPITER BARYCENTER",
+                Reference = "ECLIPJ2000",
+                Observer = "SUN",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+                }
+            },
         },
     },
     -- JupiterProjection module
@@ -39,6 +41,7 @@ return {
                 Observer   = "NEW HORIZONS",
                 Target     = "JUPITER",
                 Aberration = "NONE",
+                AspectRatio = 2
             },
             DataInputTranslation = {
                 Instrument = {
@@ -87,14 +90,12 @@ return {
                 "JUPITER", "IO", "EUROPA", "GANYMEDE", "CALLISTO"
             }
         },
-        Ephemeris = {
-            Type = "Static"
-        },
-
-        Rotation = {
-            Type = "Spice",
-            Frame = "IAU_JUPITER",
-            Reference = "GALACTIC"
+        Transform = {
+            Rotation = {
+                Type = "SpiceRotation",
+                SourceFrame = "IAU_JUPITER",
+                DestinationFrame = "GALACTIC",
+            },
         },
         GuiName = "/Solar/Planets/Jupiter"
     },
@@ -106,12 +107,15 @@ return {
             Size = {1.0, 7.5},
             Origin = "Center",
             Billboard = true,
-            Texture = "textures/Jupiter-text.png"
+            Texture = "textures/Jupiter-text.png",
+            BlendMode = "Additive"
         },
-        Ephemeris = {
-            Type = "Static",
-            Position = {0, -1, 0, 8}
-        }
+        Transform = {
+            Translation = {
+                Type = "StaticEphemeris",
+                Position = {0, -100000000, 0}
+            },
+        },
     },    
     -- JupiterTrail module
      {   

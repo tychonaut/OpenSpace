@@ -31,83 +31,69 @@ namespace {
 
 
 namespace openspace {
-
+    /*
     // finds the current parent for the camera and sets returns the parent as a string. 
     std::string setScene(Scene* scene, Camera* camera, std::string _nameOfScene) 
     {        
         //psc cameraPos = camera->position();
-        glm::vec3 cp = scene->sceneGraphNode(camera->getParent())->worldPosition().vec3() + camera->getDisplacementVector();
-        psc cameraPos = PowerScaledCoordinate::CreatePowerScaledCoordinate(cp.x, cp.y, cp.z);
+        //glm::vec3 cp = scene->sceneGraphNode(camera->getParent())->worldPosition().vec3() + camera->getDisplacementVector();
+        //psc cameraPos = PowerScaledCoordinate::CreatePowerScaledCoordinate(cp.x, cp.y, cp.z);
         //sets the current node to the the node with the previous name. 
         SceneGraphNode* node = scene->sceneGraphNode(_nameOfScene);
 
         //Starts in the last scene we kow we were in, checks if we are still inside, if not check parent, continue until we are inside a scene
         double _distance = (DistanceToObject::ref().distanceCalc(camera->position(), node->worldPosition()));
 
-        std::vector<SceneGraphNode*> childrenScene = node->children();
-        int nrOfChildren = static_cast<int>(childrenScene.size());
-        //traverses the scenetree to find a scene we are within. 
-
-        while (_distance > node->sceneRadius()) {
-            _distance = (DistanceToObject::ref().distanceCalc(camera->position(), node->worldPosition()));
-
-            //LINFO("Check parent current scene whileloop");
-            //if ((node->parent() != NULL) && node->parent()->name() != "SolarSystem") {
-            if ((node->parent() != NULL) && node->name() != "Root") {
-                node = node->parent();
-
-                //_distance = (DistanceToObject::ref().distanceCalc(_mainCamera->position(), node->position()));
-                _nameOfScene = node->name();
+        std::vector<SceneGraphNode*> childrenScene(node->children());
+        size_t nrOfChildren = childrenScene.size();
+        
+        // Traverses the scenetree to find a scene we are within. 
+        while (_distance > node->sceneRadius()) 
+        {
+            if (node->parent() != nullptr) 
+            {
+                node          = node->parent();
+                _nameOfScene  = node->name();
                 childrenScene = node->children();
-                nrOfChildren = static_cast<int>(childrenScene.size());
-
-                //LINFO(" 1: Switching to parent node named: " << _nameOfScene << " Nr of new children: " << nrOfChildren);
+                nrOfChildren  = childrenScene.size();
+                _distance     = (DistanceToObject::ref().distanceCalc(camera->position(), node->worldPosition()));
                 break;
             }            
-            //else if (node->parent()->name() == "Root") {
-            else if (node->name() == "Root") {
-                //We have reached the root. 
-
-                // Don't think this is needed, should already be here if we arived inside this loop.
-
-                node = scene->allSceneGraphNodes()[0];
-                _nameOfScene = node->name();
+            else if (node->parent() == nullptr) 
+            {
+                // We have reached the root. 
+                //node = scene->allSceneGraphNodes()[0];
+                _nameOfScene  = node->name();
                 childrenScene = node->children();
-                nrOfChildren = static_cast<int>(childrenScene.size());
-
-
-                //LINFO("Reached Root: " << _nameOfScene << " Nr of new children: " << nrOfChildren);
-                //LINFO("Reached root node. _nameOfScene = " << _nameOfScene.c_str());
+                nrOfChildren  = childrenScene.size();
                 break;
             }
         }
-        //Now we know we are inside a scene. 
+
         //Check if we are inside a child scene of the current scene. 
+        bool outsideAllChildScenes = false;
 
-        bool outsideAllChildScenes = false; // remove.
-
-        while (!childrenScene.empty() && !outsideAllChildScenes) {
-
-            for (size_t i = 0; i < nrOfChildren; ++i) {
-                /*double _childDistance = DistanceToObject::ref().distanceCalc(camera->position(), 
-                    childrenScene.at(static_cast<int>(i))->worldPosition());*/
-                
+        while (!childrenScene.empty() && !outsideAllChildScenes) 
+        {
+            for (size_t i = 0; i < nrOfChildren; ++i) 
+            {
                 double _childDistance = DistanceToObject::ref().distanceCalc(camera->position(),
-                    childrenScene.at(static_cast<int>(i))->dynamicWorldPosition(*camera, childrenScene.at(static_cast<int>(i)), scene));
-
+                    childrenScene.at(i)->dynamicWorldPosition(*camera, childrenScene.at(i), scene));
                 double childSceneRadius = childrenScene.at(i)->sceneRadius();
-                if (_childDistance < childSceneRadius ) {
-                    //set new current scene
-                    node = childrenScene.at(i);
+                
+                // Set the new scene that we are inside the scene radius.
+                if (_childDistance < childSceneRadius ) 
+                {
+                    node          = childrenScene.at(i);
                     childrenScene = node->children();
-                    _nameOfScene = node->name();
-                    nrOfChildren = static_cast<int>(childrenScene.size());
+                    _nameOfScene  = node->name();
+                    nrOfChildren  = childrenScene.size();
                     break;
                 }
 
-                if (nrOfChildren - 1 == static_cast<int>(i)) {
+                if (nrOfChildren - 1 == i) 
+                {
                     outsideAllChildScenes = true;
-
                 }
             }
         }
@@ -115,45 +101,39 @@ namespace openspace {
         return _nameOfScene;
     }
 
-    //remove?
-
-    glm::mat4 collectorToMat4(glm::vec3 collector)
-    {
-        //glm::mat4 identityMatrix = glm::mat4(1.0f);
-        glm::mat4 vm = glm::translate(glm::mat4(1.f), collector);
-        return vm;
-    }
-
-    /**
-    * Calculates the wolrd position of target from the common node between camera's parent and target.
-    **/
     const glm::dvec3 vectorPosition(const std::string & cameraParent, const SceneGraphNode* target, const Scene* scene)
     {
-        std::string targetName(target->name());
+        if (target != nullptr) {
+            std::string targetName(target->name());
 
-        std::vector<SceneGraphNode*> cameraPath;
-        std::vector<SceneGraphNode*> targetPath;
+            std::vector<SceneGraphNode*> cameraPath;
+            std::vector<SceneGraphNode*> targetPath;
 
-        SceneGraphNode* cameraParentNode = scene->sceneGraphNode(cameraParent);
-        SceneGraphNode* commonParentNode;
-        std::vector<SceneGraphNode*> commonParentPath;
-        
-        //Find common parent for camera and object
-        std::string commonParentName(cameraParent);  // initiates to camera parent in case 
-                                                     // other path is not found
-        cameraPath = pathTo(cameraParentNode);
-        targetPath = pathTo(scene->sceneGraphNode(targetName));
+            SceneGraphNode* cameraParentNode = scene->sceneGraphNode(cameraParent);
+            SceneGraphNode* commonParentNode;
+            std::vector<SceneGraphNode*> commonParentPath;
 
-        commonParentNode = findCommonParentNode(cameraParent, targetName, scene);
-        commonParentName = commonParentNode->name();
-        commonParentPath = pathTo(commonParentNode);
+            //Find common parent for camera and object
+            std::string commonParentName(cameraParent);  // initiates to camera parent in case 
+                                                         // other path is not found
+            cameraPath = pathTo(cameraParentNode);
+            targetPath = pathTo(scene->sceneGraphNode(targetName));
+            //targetPath = pathTo(target);
 
-        //Find the path from the camera to the common parent
+            commonParentNode = findCommonParentNode(cameraParent, targetName, scene);
+            commonParentName = commonParentNode->name();
+            commonParentPath = pathTo(commonParentNode);
 
-        glm::dvec3 collectorCamera( pathCollector(cameraPath, commonParentName, true) );
-        glm::dvec3 collectorTarget( pathCollector(targetPath, commonParentName, false) );
+            //Find the path from the camera to the common parent
 
-        return collectorTarget + collectorCamera;
+            glm::dvec3 collectorCamera(pathCollector(cameraPath, commonParentName, true));
+            glm::dvec3 collectorTarget(pathCollector(targetPath, commonParentName, false));
+
+            return collectorTarget + collectorCamera;
+        }
+        else
+            return glm::dvec3(0.0, 0.0, 0.0);
+
     }
 
     const glm::mat4 setNewViewMatrix(const std::string & cameraParent, SceneGraphNode* target, Scene* scene)
@@ -257,11 +237,11 @@ namespace openspace {
         glm::vec3 newOrigin;
         camera->setDisplacementVector(displacementVector);
 
-        /*
-        newOrigin[0] = (origin[0] + displacementVector[0]);
-        newOrigin[1] = (origin[1] + displacementVector[1]);
-        newOrigin[2] = (origin[2] + displacementVector[2]);
-        */
+        
+        //newOrigin[0] = (origin[0] + displacementVector[0]);
+        //newOrigin[1] = (origin[1] + displacementVector[1]);
+        //newOrigin[2] = (origin[2] + displacementVector[2]);
+        
         newOrigin = origin + displacementVector;
         camera->setPosition(newOrigin);
         //return(newOrigin);
@@ -283,11 +263,10 @@ namespace openspace {
         SceneGraphNode* firstElement = path.front();
         glm::vec3 collector(path.back()->position().vec3());
 
-        /*
-
-        for (std::vector<int>::iterator it = myvector.begin(); *it != commonParent; ++it)
-        std::cout << ' ' << *it.;
-        */
+        //
+        //for (std::vector<int>::iterator it = myvector.begin(); *it != commonParent; ++it)
+        //std::cout << ' ' << *it.;
+        //
 
         int depth = 0;
         // adds all elements to the collector, continues untill commomParent is found.
@@ -300,14 +279,14 @@ namespace openspace {
             //collector = collector+firstElement->position().vec3();
             // if the line above does not work
 
-            /*for (int j = 0; j <= 2; j++) {
+            //for (int j = 0; j <= 2; j++) {
 
-                if (inverse)
-                    collector[j] = collector[j] - firstElement->position().vec3()[j];
-                else
-                    collector[j] = collector[j] + firstElement->position().vec3()[j];
+            //    if (inverse)
+            //        collector[j] = collector[j] - firstElement->position().vec3()[j];
+            //    else
+            //        collector[j] = collector[j] + firstElement->position().vec3()[j];
 
-            }*/
+            //}
 
             if (inverse)
                 collector = collector - firstElement->position().vec3();
@@ -328,10 +307,10 @@ namespace openspace {
     std::string commonParent(std::vector<SceneGraphNode*> t1, std::vector<SceneGraphNode*> t2) //Camera* camera, std::string nameOftarget, Scene* scene){
     {
         std::string commonParentReturn = "SolarSystem";
-        /*
-        std::vector<SceneGraphNode*> t1 = pathTo(target, scene);
-        std::vector<SceneGraphNode*> t2 = pathTo(nameOftarget, scene);
-        */
+        
+        //std::vector<SceneGraphNode*> t1 = pathTo(target, scene);
+        //std::vector<SceneGraphNode*> t2 = pathTo(nameOftarget, scene);
+        
 
         //traverse the list backwards, position before first difference = common parent.
         //int t1t = t1.size();
@@ -345,30 +324,28 @@ namespace openspace {
             t2.pop_back();
             iterator++;
         }
-        /*
-        int counter = std::min(t1.size(), t2.size());
-        for (int i = 0; i < counter-1; i++){
+        
+        //int counter = std::min(t1.size(), t2.size());
+        //for (int i = 0; i < counter-1; i++){
 
-        if (t1.back()->name() == t1.back()->name()){
-        commonParentReturn = t1.back()->name();
-
-
-        }
+        //if (t1.back()->name() == t1.back()->name()){
+        //commonParentReturn = t1.back()->name();
 
 
-        }
+        //}
 
-        */
-        /*
-        while (t1.back() != NULL && t2.back() != NULL && t1.back() == t2.back()) // && !t1.empty && !t2.empty
-        {
 
-        commonParentReturn = t1.back()->name().c_str();
-        ;
-        t2.pop_back();
+        //}
+        
+        //while (t1.back() != NULL && t2.back() != NULL && t1.back() == t2.back()) // && !t1.empty && !t2.empty
+        //{
 
-        }
-        */
+        //commonParentReturn = t1.back()->name().c_str();
+        //;
+        //t2.pop_back();
+
+        //}
+        
         //std::cout << "commonParentReturn" << commonParentReturn << "\n";
         return commonParentReturn;
     }
@@ -380,8 +357,8 @@ namespace openspace {
         //	path.push_back(node->parent());
         //std::vector<SceneGraphNode*> childrenScene = node->children();
         std::string name = node->name();
-
-        while (name != "Root") {
+        while (node->parent() != nullptr) {
+        //while (name != "Root") {
             path.push_back(node);
             node = node->parent();
             name = node->name();
@@ -399,7 +376,5 @@ namespace openspace {
 
         return scene->sceneGraphNode(strCommonParent);
     }
-
-
-
+    */
 }

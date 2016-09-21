@@ -3,6 +3,8 @@ return {
     {   
         Name = "Ganymede",
         Parent = "JupiterBarycenter",
+         -- SceneRadius unit is KM                
+		SceneRadius = 2.0E+4,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_GANYMEDE", -- should exist. 
@@ -17,19 +19,25 @@ return {
                 Color = "textures/ganymede.jpg",
             },
         },
-        Ephemeris = {
-            Type = "Spice",
-            Body = "GANYMEDE",
-            Reference = "ECLIPJ2000",
-            Observer = "JUPITER BARYCENTER",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-            }
-        },
-        Rotation = {
-            Type = "Spice",
-            Frame = "IAU_JUPITER",
-            Reference = "ECLIPJ2000"
+        Transform = {
+            Translation = {
+                Type = "SpiceEphemeris",
+                Body = "GANYMEDE",
+                Reference = "ECLIPJ2000",
+                Observer = "JUPITER BARYCENTER",
+                Kernels = {
+                    "${OPENSPACE_DATA}/spice/jup260.bsp"
+                }
+            },
+            Rotation = {
+                Type = "SpiceRotation",
+                SourceFrame = "IAU_GANYMEDE",
+                DestinationFrame = "IAU_JUPITER",
+            },
+            Scale = {
+                Type = "StaticScale",
+                Scale = 1,
+            },
         },
         GuiName = "/Solar/Planets/Ganymede"
     },

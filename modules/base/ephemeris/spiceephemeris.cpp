@@ -27,6 +27,8 @@
 #include <openspace/util/spicemanager.h>
 #include <openspace/util/time.h>
 
+#include <ghoul/filesystem/filesystem.h>
+
 namespace {
     const std::string _loggerCat = "SpiceEphemeris";
     //const std::string keyGhosting = "EphmerisGhosting";
@@ -59,8 +61,15 @@ SpiceEphemeris::SpiceEphemeris(const ghoul::Dictionary& dictionary)
     for (size_t i = 1; i <= kernels.size(); ++i) {
         std::string kernel;
         bool success = kernels.getValue(std::to_string(i), kernel);
-        if (!success)
+        if (!success) {
             LERROR("'" << KeyKernels << "' has to be an array-style table");
+            break;
+        }
+
+        if (!FileSys.fileExists(kernel)) {
+            LERROR("Kernel '" << kernel << "' does not exist");
+            continue;
+        }
 
         try {
             SpiceManager::ref().loadKernel(kernel);
@@ -73,7 +82,7 @@ SpiceEphemeris::SpiceEphemeris(const ghoul::Dictionary& dictionary)
     }
 }
     
-const psc& SpiceEphemeris::position() const {
+const glm::dvec3& SpiceEphemeris::position() const {
     return _position;
 }
 
@@ -82,7 +91,8 @@ void SpiceEphemeris::update(const UpdateData& data) {
         return;
 
     double lightTime = 0.0;
-    glm::dvec3 position = SpiceManager::ref().targetPosition(_targetName, _originName, "GALACTIC", {}, data.time, lightTime);
+    glm::dvec3 position = SpiceManager::ref().targetPosition(
+        _targetName, _originName, "GALACTIC", {}, data.time, lightTime);
     
     //double interval = openspace::ImageSequencer::ref().getIntervalLength();
     //if (_ghosting == "TRUE" && interval > 60){
@@ -91,8 +101,11 @@ void SpiceEphemeris::update(const UpdateData& data) {
     //        "GALACTIC", "NONE", _time, position, lightTime);
     //}
     //
-    _position = psc::CreatePowerScaledCoordinate(position.x, position.y, position.z);
-    _position[3] += 3;
+    
+    
+    //_position = psc::CreatePowerScaledCoordinate(position.x, position.y, position.z);
+    //_position[3] += 3;
+    _position = position * glm::pow(10.0, 3.0);
 }
 
 } // namespace openspace

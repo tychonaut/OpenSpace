@@ -35,28 +35,28 @@
 #include <iostream>
 
 namespace openspace {
-    std::string setScene(Scene* scene, Camera* camera, std::string _nameOfScene);
-
-    const glm::dvec3 vectorPosition(const std::string & cameraParent, const SceneGraphNode* target, const Scene* scene);
-
-    const glm::mat4 setNewViewMatrix(const std::string & cameraParent, SceneGraphNode* target, Scene*);
-
-    glm::vec3 pathCollector(const std::vector<SceneGraphNode*> & path, const std::string & commonParent, const bool inverse);
-
-    void setRelativeOrigin(Camera* camera, Scene* scene);
-
-    void newCameraOrigin(std::vector<SceneGraphNode*> commonParentPath, std::string commonParent, Camera* camera, Scene* scene);
-
-    glm::vec3 Vec3Subtract(glm::vec3 vec1, glm::vec3 vec2);
-
-    std::string commonParent(std::vector<SceneGraphNode*> t1, std::vector<SceneGraphNode*> t2);
-
-    SceneGraphNode* findCommonParentNode(const std::string & firstPath, const std::string & secondPath, const Scene* scene);
-
-    std::vector<SceneGraphNode*> pathTo(SceneGraphNode* node);
     
-    //std::string nameOfScene, Scene* scene)
+    //std::string setScene(Scene* scene, Camera* camera, std::string _nameOfScene);
 
-    //std::string findCommonParent(Camera* camera, Scene* scene);
+    ///**
+    //* Calculates the world position of target from the common node between camera's parent and target.
+    //*/
+    //const glm::dvec3 vectorPosition(const std::string & cameraParent, const SceneGraphNode* target, const Scene* scene);
+
+    //const glm::mat4 setNewViewMatrix(const std::string & cameraParent, SceneGraphNode* target, Scene*);
+
+    //glm::vec3 pathCollector(const std::vector<SceneGraphNode*> & path, const std::string & commonParent, const bool inverse);
+
+    //void setRelativeOrigin(Camera* camera, Scene* scene);
+
+    //void newCameraOrigin(std::vector<SceneGraphNode*> commonParentPath, std::string commonParent, Camera* camera, Scene* scene);
+
+    //glm::vec3 Vec3Subtract(glm::vec3 vec1, glm::vec3 vec2);
+
+    //std::string commonParent(std::vector<SceneGraphNode*> t1, std::vector<SceneGraphNode*> t2);
+
+    //SceneGraphNode* findCommonParentNode(const std::string & firstPath, const std::string & secondPath, const Scene* scene);
+
+    //std::vector<SceneGraphNode*> pathTo(SceneGraphNode* node);
 }
 #endif

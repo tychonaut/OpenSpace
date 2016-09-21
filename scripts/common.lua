@@ -22,6 +22,7 @@ helper.setCommonKeys = function()
     openspace.bindKey("COMMA", "openspace.setRenderer('Framebuffer');")
     openspace.bindKey("PERIOD", "openspace.setRenderer('ABuffer');")
 
+
     openspace.bindKey("f", helper.property.invert('Interaction.rotationalFriction'))
     openspace.bindKey("Shift+f", helper.property.invert('Interaction.zoomFriction'))
 
