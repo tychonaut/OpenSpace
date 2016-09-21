@@ -49,9 +49,7 @@ namespace openspace {
     Camera::Camera()
         : _maxFov(0.f)
         , _focusPosition()
-        , _parent("SolarSystemBarycenter")
-        , _displacementvector(0.0, 0.0, 0.0)
-
+        , _parent("SolarSystemBarycenter")        
     {
         _scaling.local = glm::vec2(1.f, 0.f);
         _position.local = Vec3(1.0, 1.0, 1.0);
@@ -74,10 +72,6 @@ namespace openspace {
 
     // Mutators
 
-    void Camera::setDisplacementVector(const glm::dvec3 & distv)
-    {
-        _displacementvector = distv;
-    }
     void Camera::setPositionVec3(Vec3 pos) {
         std::lock_guard<std::mutex> _lock(_mutex);
         _position.local = pos;
@@ -127,7 +121,7 @@ namespace openspace {
 
     // Accessors
 
-    const std::string Camera::getParent() const
+    const std::string Camera::parent() const
     {
         return _parent;
     }
@@ -207,9 +201,6 @@ namespace openspace {
         return _cachedCombinedViewMatrix.datum;
     }
     
-    glm::dvec3 Camera::displacementVector() const {
-        return _displacementvector;
-    }
     // Synchronization
     void Camera::serialize(SyncBuffer* syncBuffer) {
         std::lock_guard<std::mutex> _lock(_mutex);

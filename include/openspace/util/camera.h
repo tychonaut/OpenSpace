@@ -94,7 +94,6 @@ namespace openspace {
         void setScaling(glm::vec2 scaling);
         void setMaxFov(float fov);
         void setParent(std::string parent);
-        void setDisplacementVector(const glm::dvec3 & distvec);
         // Relative mutators
         void rotate(Quat rotation);
 
@@ -109,9 +108,8 @@ namespace openspace {
         const Vec3& viewDirectionWorldSpace() const;
         const Vec3& lookUpVectorCameraSpace() const;
         const Vec3& lookUpVectorWorldSpace() const;
-        const std::string getParent() const;
+        const std::string parent() const;
 
-        glm::dvec3 displacementVector() const; //make const?
         const glm::vec2& scaling() const;
         const Mat4& viewRotationMatrix() const;
         const Quat& rotationQuaternion() const;
@@ -212,9 +210,7 @@ namespace openspace {
 
         // Parent of camera, latches onto scenegraph node.
         std::string _parent;
-        // Vector from camera's parent node to camera position. 
-        glm::dvec3 _displacementvector;
-
+        
         // _focusPosition to be removed
         Vec3 _focusPosition;
         float _maxFov;

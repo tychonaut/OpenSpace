@@ -103,7 +103,6 @@ namespace {
     const std::string DefaultRenderingMethod = "ABuffer";
     const std::string RenderFsPath = "${SHADERS}/render.frag";
     const std::string PostRenderFsPath = "${SHADERS}/postrender.frag";
-    const std::string DefaultCameraParent = "SolarSystemBarycenter";
 }
 
 
@@ -132,7 +131,6 @@ RenderEngine::RenderEngine()
     , _currentFadeTime(0.f)
     , _fadeDirection(0)
     , _frametimeType(FrametimeType::DtTimeAvg)
-    , _nameOfScene(DefaultCameraParent)
     //    , _sgctRenderStatisticsVisible(false)
 {
     _onScreenInformation = {
@@ -367,9 +365,6 @@ void RenderEngine::postSynchronizationPreDraw() {
         }
     }
 
-    //if (_mainCamera)
-    //    _mainCamera->postSynchronizationPreDraw();
-
     bool windowResized = OsEng.windowWrapper().windowHasResized();
 
     if (windowResized) {
@@ -392,11 +387,23 @@ void RenderEngine::postSynchronizationPreDraw() {
     if (_mainCamera) {
         // New DynamicRootGraph System in action:
         //Sets the camera to its relative position depending on the common parent (when changed from worldPosition to position)
-        scene()->setRelativeOrigin(_mainCamera);
+        //scene()->setRelativeOrigin(_mainCamera);
         
         _mainCamera->postSynchronizationPreDraw();
     }
     _sceneGraph->evaluate(_mainCamera);
+
+    // DEBUG (JCC):
+    std::string oldSceneName(scene()->sceneName());
+    // New DynamicRootGraph system in action:
+    scene()->updateSceneName(_mainCamera);
+    _mainCamera->setParent(scene()->sceneName());
+    
+    // DEBUG (JCC):
+    if (oldSceneName.compare(scene()->sceneName())) {
+        std::cout << "=== New Scene Name (Camera's parent): " << scene()->sceneName() << " ===" << std::endl;
+        std::cout << "=== Camera Vector (position related to parent): " << glm::vec3(_mainCamera->positionVec3()) << " ===" << std::endl;
+    }
 
     _renderer->update();
 
@@ -423,20 +430,6 @@ void RenderEngine::postSynchronizationPreDraw() {
 }
 
 void RenderEngine::render(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix) {    
-    // DEBUG (JCC):
-    std::string oldSceneName(_nameOfScene);
-    // New DynamicRootGraph system in action:
-    _nameOfScene = scene()->currentSceneName(_mainCamera, _nameOfScene);       
-    _mainCamera->setParent(_nameOfScene);
-    glm::dvec3 displacementVector(_mainCamera->positionVec3() - scene()->sceneGraphNode(_mainCamera->getParent())->worldPosition());
-
-    // DEBUG (JCC):
-    if (oldSceneName.compare(_nameOfScene)) {
-        std::cout << "=== New Scene Name (Camera's parent): " << _nameOfScene << " ===" << std::endl;
-        std::cout << "=== Displacement Vector: " << glm::vec3(displacementVector) << " ===" << std::endl;
-    }
-
-    _mainCamera->setDisplacementVector(displacementVector);    
     _mainCamera->sgctInternal.setViewMatrix(viewMatrix);
     _mainCamera->sgctInternal.setProjectionMatrix(projectionMatrix);
 

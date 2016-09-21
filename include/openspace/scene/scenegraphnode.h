@@ -88,8 +88,7 @@ public:
     const glm::dmat3& worldRotationMatrix() const;
     double worldScale() const;
 
-    psc dynamicWorldPosition(const Camera& camera,
-        SceneGraphNode* target, const Scene* scene) const;
+    psc dynamicWorldPosition() const;
 
     SceneGraphNode* parent() const;
     const std::vector<SceneGraphNode*>& children() const;

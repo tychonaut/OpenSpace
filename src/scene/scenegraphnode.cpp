@@ -293,7 +293,9 @@ void SceneGraphNode::update(const UpdateData& data) {
     // Assumes _worldRotationCached and _worldScaleCached have been calculated for parent
     _worldPositionCached = calculateWorldPosition();
 
-    newUpdateData.modelTransform.translation = worldPosition();
+    //newUpdateData.modelTransform.translation = worldPosition();
+    newUpdateData.modelTransform.translation = dynamicWorldPosition().dvec3();
+    //newUpdateData.modelTransform.translation = dynamicWorldPosition();
     newUpdateData.modelTransform.rotation = worldRotationMatrix();
     newUpdateData.modelTransform .scale = worldScale();
 
@@ -357,7 +359,7 @@ void SceneGraphNode::render(const RenderData& data, RendererTasks& tasks) {
     
     // JCC: Implement a cache sytem to avoid calculate the same path while in the same camera parent.
     // Just update the displacement vector to the sum.
-    const psc thisPositionPSC = dynamicWorldPosition(data.camera, this, OsEng.renderEngine().scene());
+    const psc thisPositionPSC = dynamicWorldPosition();
     
     //const psc thisPositionPSC = psc::CreatePowerScaledCoordinate(_worldPositionCached.x, _worldPositionCached.y, _worldPositionCached.z);
 
@@ -511,10 +513,12 @@ double SceneGraphNode::calculateWorldScale() const {
     }
 }
 
-psc SceneGraphNode::dynamicWorldPosition(const Camera& camera, SceneGraphNode* target, const Scene* scene) const
+psc SceneGraphNode::dynamicWorldPosition() const
 {
-    glm::dvec3 currentDynamicPosition = scene->currentDisplacementPosition(camera.getParent(), this);
-    currentDynamicPosition -= camera.displacementVector();
+    const Scene * scene = OsEng.renderEngine().scene();
+    glm::dvec3 currentDynamicPosition = scene->currentDisplacementPosition(scene->sceneName(), this);
+    // The next line is not necessary, the position is measured from the parent's node.
+    //currentDynamicPosition -= camera.displacementVector();
     return PowerScaledCoordinate::CreatePowerScaledCoordinate(currentDynamicPosition.x,
         currentDynamicPosition.y,
         currentDynamicPosition.z);

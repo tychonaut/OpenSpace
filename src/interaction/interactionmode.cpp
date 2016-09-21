@@ -156,7 +156,8 @@ void InteractionMode::setFocusNode(SceneGraphNode* focusNode) {
     _focusNode = focusNode;
 
     if (_focusNode != nullptr) {
-        _previousFocusNodePosition = _focusNode->worldPosition();
+        //_previousFocusNodePosition = _focusNode->worldPosition();
+        _previousFocusNodePosition = _focusNode->dynamicWorldPosition().dvec3();
         _previousFocusNodeRotation = glm::quat_cast(_focusNode->worldRotationMatrix());
     }
 }
@@ -358,17 +359,16 @@ void OrbitalInteractionMode::updateCameraStateFromMouseStates(Camera& camera) {
 
     using namespace glm;
     if (_focusNode) {
-        // JCC: Distance from camera's parent node. It is now the current position of the camera.
-        // Working
-        glm::dvec3 camPos = OsEng.renderEngine().scene()->sceneGraphNode(camera.getParent())->worldPosition() +
-            camera.displacementVector();
-        glm::dvec3 centerPos = _focusNode->dynamicWorldPosition(camera, _focusNode, OsEng.renderEngine().scene()).dvec3();
-
+        // JCC: Distance from camera's parent node to camera is now the current position of the camera.
+        
         // Read the current state of the camera and focus node
-        //dvec3 camPos = camera.positionVec3();
+        dvec3 camPos = camera.positionVec3();
         
         // Follow focus nodes movement
         //dvec3 centerPos = _focusNode->worldPosition();
+
+        glm::dvec3 centerPos = _focusNode->dynamicWorldPosition().dvec3();
+
         dvec3 focusNodeDiff = centerPos - _previousFocusNodePosition;
         _previousFocusNodePosition = centerPos;
         camPos += focusNodeDiff;

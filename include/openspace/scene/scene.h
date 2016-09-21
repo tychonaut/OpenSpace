@@ -111,10 +111,18 @@ public:
     }
 
     /**
-    * Return the current scene name (new camera's node parent) based on the camera's position 
-    * and the former scene name.
+    * Returns the name of the scene node referred as the current center of coordinates of the system,
+    * i.e., the camera's parent.
     */
-    std::string currentSceneName(Camera* camera, std::string _nameOfScene) const;
+    const std::string & sceneName() const;
+
+    /**
+    * Sets the name of the scene node referred as the current center of coordinates of the system,
+    * i.e., the camera's parent.
+    */
+    void setSceneName(const std::string & sceneName);
+
+    void updateSceneName(const Camera* camera);
 
     /**
     * Calculates the world position of target from the common node between camera's parent and target.
@@ -152,6 +160,14 @@ private:
 
     void writePropertyDocumentation(const std::string& filename, const std::string& type);
 
+    /**
+    * Calculates the current scene name (new camera's node parent) based on the camera's position
+    * and the former scene name.
+    */
+    std::string currentSceneName(const Camera* camera, std::string _nameOfScene) const;
+
+
+    std::string _sceneName;
     std::string _focus;
 
     // actual scenegraph
