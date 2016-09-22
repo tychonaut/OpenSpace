@@ -70,6 +70,7 @@ return {
         Renderable = {
             Type = "RenderableTrail",
             Body = "EARTH",
+            --Reference = "ECLIPJ2000",
             Frame = "GALACTIC",
             Observer = "SUN",
             RGB = { 0.5, 0.8, 1.0},
