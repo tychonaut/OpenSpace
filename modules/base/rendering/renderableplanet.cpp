@@ -623,6 +623,10 @@ void RenderablePlanet::render(const RenderData& data)
     _programObject->setUniform("ViewProjection", data.camera.viewProjectionMatrix());
     _programObject->setUniform("ModelTransform", transform);
 
+    // Sun pos
+    _programObject->setUniform("sun_pos", 
+        OsEng.renderEngine().scene()->sceneGraphNode("Sun")->dynamicWorldPosition().vec3());
+
     // Normal Transformation
     glm::mat4 translateObjTrans = glm::translate(glm::mat4(1.0), data.position.vec3());
     glm::mat4 translateCamTrans = glm::translate(glm::mat4(1.0), -data.camera.position().vec3());
