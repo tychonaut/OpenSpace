@@ -3,6 +3,8 @@ return {
     {
         Name = "JupiterBarycenter",
         Parent = "SolarSystemBarycenter",
+        -- SceneRadius unit is KM                
+		SceneRadius = 2.0E+6,
         Transform = {
             Translation = {
                 Type = "SpiceEphemeris",
@@ -19,6 +21,8 @@ return {
     {   
         Name = "JupiterProjection",
         Parent = "JupiterBarycenter",
+        -- SceneRadius unit is KM
+		SceneRadius = 7.0E+5,
         Renderable = {
             Type = "RenderablePlanetProjection",
             Frame = "IAU_JUPITER",
