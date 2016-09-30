@@ -71,11 +71,12 @@ return {
             Geometry = {
                 Type = "SimpleSphere",
                 Radius = { 6.035 , 5 },
-                Segments = 100
+                Segments = 200
             },
             Textures = {
                 Type = "simple",
                 Color = "textures/Charon-Text.png",
+                --Color = "textures/charon-texture.jpg",
             },
         },
         Transform = {
@@ -128,21 +129,43 @@ return {
         Name = "PlutoTrail",
         Parent = "SolarSystemBarycenter",
         --Parent = "PlutoBarycenter",
+        --Renderable = {
+        --    Type = "RenderableTrail",
+        --    Body = "PLUTO BARYCENTER",
+        --    Frame = "GALACTIC",
+        --    --Frame = "ECLIPJ2000",
+        --    Observer = "SUN",
+        --    RGB = {0.58, 0.61, 1.00},
+        --    TropicalOrbitPeriod = 59799.9 ,
+        --    EarthOrbitRatio = 163.73,
+        --    DayLength = 16.11,
+        --    Textures = {
+        --        Type = "simple",
+        --        Color = "${COMMON_MODULE}/textures/glare_blue.png",
+        --        -- need to add different texture
+        --    },  
+        --},
         Renderable = {
-            Type = "RenderableTrail",
+            Type = "RenderableTrailNew",
+            -- Spice
             Body = "PLUTO BARYCENTER",
             Frame = "GALACTIC",
-            --Frame = "ECLIPJ2000",
             Observer = "SUN",
-            RGB = {0.58, 0.61, 1.00},
-            TropicalOrbitPeriod = 59799.9 ,
-            EarthOrbitRatio = 163.73,
-            DayLength = 16.11,
-            Textures = {
-                Type = "simple",
-                Color = "${COMMON_MODULE}/textures/glare_blue.png",
-                -- need to add different texture
-            },  
+            -- Optional rendering properties
+            LineColor = { 0.58, 0.61, 1.00 },
+            PointColor = { 0.58, 0.61, 1.00 },
+            LineFade = 0.0, -- [0,1]
+            RenderPart = 0.13,
+            LineWidth = 2,
+            ShowTimeStamps = false,
+            RenderFullTrail = false,
+            -- Time interval
+            TimeRange = {
+                Start = "2016 SEP 8 23:05:00.50",
+                End = "2023 SEP 24 12:00:00",
+            },
+            SampleDeltaTime = 3600, -- Seconds between each point
+            SubSamples = 0, 
         },
         GuiName = "/Solar/PlutoTrail"
     },
