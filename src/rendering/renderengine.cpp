@@ -386,37 +386,9 @@ void RenderEngine::postSynchronizationPreDraw() {
     });
 
     if (_mainCamera) {
-        // New DynamicRootGraph System in action:
-
-        // DEBUG (JCC):
-        std::string oldSceneName(scene()->sceneName());
-        // New DynamicRootGraph system in action:
-        scene()->updateSceneName(_mainCamera);
-        _mainCamera->setParent(scene()->sceneName());
-
-        // DEBUG (JCC):
-        if (oldSceneName.compare(scene()->sceneName())) {
-            std::cout << "=== New Scene Name (Camera's parent): " << scene()->sceneName() << " ===" << std::endl;
-            std::cout << "=== Camera Vector (position related to parent): " << glm::vec3(_mainCamera->positionVec3()) 
-                << " ===" << std::endl;
-        }
-
         _mainCamera->postSynchronizationPreDraw();
     }
     _sceneGraph->evaluate(_mainCamera);
-
-
-    //// DEBUG (JCC):
-    //std::string oldSceneName(scene()->sceneName());
-    //// New DynamicRootGraph system in action:
-    //scene()->updateSceneName(_mainCamera);
-    //_mainCamera->setParent(scene()->sceneName());
-    //
-    //// DEBUG (JCC):
-    //if (oldSceneName.compare(scene()->sceneName())) {
-    //    std::cout << "=== New Scene Name (Camera's parent): " << scene()->sceneName() << " ===" << std::endl;
-    //    std::cout << "=== Camera Vector (position related to parent): " << glm::vec3(_mainCamera->positionVec3()) << " ===" << std::endl;
-    //}
 
     _renderer->update();
 
@@ -458,6 +430,29 @@ void RenderEngine::render(const glm::mat4& projectionMatrix, const glm::mat4& vi
     for (auto screenSpaceRenderable : _screenSpaceRenderables) {
         if (screenSpaceRenderable->isEnabled() && screenSpaceRenderable->isReady())
             screenSpaceRenderable->render();
+    }
+}
+
+void RenderEngine::updateDynamicOrigin() {
+    if (_mainCamera && scene()->isUpdated()) {
+        // New DynamicRootGraph System in action:
+
+        // DEBUG (JCC):
+        //std::cout << "---> Camera Position Old Coord system: " << glm::vec3(_mainCamera->positionVec3()) << " <---" << std::endl;
+        std::string oldSceneName(scene()->sceneName());
+        // New DynamicRootGraph system in action:
+        scene()->updateSceneName(_mainCamera);
+        _mainCamera->setParent(scene()->sceneName());
+        /*std::cout << "--- Camera Position Calc: positionVec3 - parentPos =  " << glm::vec3(_mainCamera->positionVec3()) <<
+            " - " << glm::vec3(scene()->sceneGraphNode(scene()->sceneName())->position()) << "  = " << 
+            glm::vec3(_mainCamera->positionVec3() - scene()->sceneGraphNode(scene()->sceneName())->position()) << "---" << std::endl;*/
+        //_mainCamera->setPositionVec3(_mainCamera->positionVec3() - scene()->sceneGraphNode(scene()->sceneName())->position());
+
+        // DEBUG (JCC):
+        if (oldSceneName.compare(scene()->sceneName())) {
+            std::cout << "\n=== New Scene Name (Camera's parent): " << scene()->sceneName() << " ===" << std::endl;
+            std::cout << "---> Camera Position New Coord system: " << glm::vec3(_mainCamera->positionVec3()) << " <---" << std::endl;
+        }
     }
 }
 

@@ -98,6 +98,8 @@ public:
     void preSynchronization();
     void render(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
 
+    void updateDynamicOrigin();
+
     void renderScreenLog();
     void renderShutdownInformation(float timer, float fullTime);
     void postDraw();

@@ -144,7 +144,9 @@ namespace interaction {
 
 
 
-InteractionMode::InteractionMode() {
+InteractionMode::InteractionMode() :
+    _previousSceneName("SolarSystemBarycenter")
+{
 }
 
 
@@ -365,19 +367,17 @@ void OrbitalInteractionMode::updateCameraStateFromMouseStates(Camera& camera) {
         dvec3 camPos = camera.positionVec3();
         
         // Follow focus nodes movement
-        //dvec3 centerPos = _focusNode->worldPosition();
-
         glm::dvec3 centerPos = _focusNode->dynamicWorldPosition().dvec3();
-
         dvec3 focusNodeDiff = centerPos - _previousFocusNodePosition;
-        _previousFocusNodePosition = centerPos;
-        camPos += focusNodeDiff;
 
-        dquat totalRotation = camera.rotationQuaternion();
+        _previousFocusNodePosition = centerPos;
+        camPos                    += focusNodeDiff;
+
+        dquat totalRotation     = camera.rotationQuaternion();
         dvec3 directionToCenter = normalize(centerPos - camPos);
-        dvec3 lookUp = camera.lookUpVectorWorldSpace();
-        double boundingSphere = _focusNode->boundingSphere().lengthf();
-        dvec3 camDirection = camera.viewDirectionWorldSpace();
+        dvec3 lookUp            = camera.lookUpVectorWorldSpace();
+        double boundingSphere   = _focusNode->boundingSphere().lengthf();
+        dvec3 camDirection      = camera.viewDirectionWorldSpace();
 
         // Declare other variables used in interaction calculations
         double minHeightAboveBoundingSphere = 1;
@@ -390,7 +390,7 @@ void OrbitalInteractionMode::updateCameraStateFromMouseStates(Camera& camera) {
             directionToCenter,
             normalize(camDirection + lookUp)); // To avoid problem with lookup in up direction
         dquat globalCameraRotation = normalize(quat_cast(inverse(lookAtMat)));
-        dquat localCameraRotation = inverse(globalCameraRotation) * totalRotation;
+        dquat localCameraRotation  = inverse(globalCameraRotation) * totalRotation;
 
         { // Do local roll
             glm::dquat cameraRollRotation =
@@ -408,13 +408,13 @@ void OrbitalInteractionMode::updateCameraStateFromMouseStates(Camera& camera) {
             dvec3 eulerAngles(-smoothMouseVelocity.y, -smoothMouseVelocity.x, 0);
             dquat rotationDiffCamSpace = dquat(eulerAngles);
 
-            dquat newRotationCamspace = globalCameraRotation * rotationDiffCamSpace;
+            dquat newRotationCamspace    = globalCameraRotation * rotationDiffCamSpace;
             dquat rotationDiffWorldSpace = newRotationCamspace * inverse(globalCameraRotation); 
-            dvec3 rotationDiffVec3 = centerToCamera * rotationDiffWorldSpace - centerToCamera;
+            dvec3 rotationDiffVec3       = centerToCamera * rotationDiffWorldSpace - centerToCamera;
 
             camPos += rotationDiffVec3;
             dvec3 centerToCamera = camPos - centerPos;
-            directionToCenter = normalize(-centerToCamera);
+            directionToCenter    = normalize(-centerToCamera);
 
             dvec3 lookUpWhenFacingCenter =
                 globalCameraRotation * dvec3(camera.lookUpVectorCameraSpace());
@@ -429,7 +429,7 @@ void OrbitalInteractionMode::updateCameraStateFromMouseStates(Camera& camera) {
                 -directionToCenter *
                 boundingSphere;
             camPos += -(centerToCamera - centerToBoundingSphere) *
-                _mouseStates->synchedTruckMovementMouseVelocity().y;
+                _mouseStates->synchedTruckMovementMouseVelocity().y;            
         }
         { // Roll around sphere normal
             dquat cameraRollRotation =
@@ -444,6 +444,9 @@ void OrbitalInteractionMode::updateCameraStateFromMouseStates(Camera& camera) {
                 max(minHeightAboveBoundingSphere - distFromSphereSurfaceToCamera, 0.0);
         }
       
+        //DEBUG:
+        //std::cout << "****** CameraPos after calc: " << glm::vec3(camPos) << " *******" << std::endl;
+
         // Update the camera state
         camera.setPositionVec3(camPos);
         camera.setRotation(globalCameraRotation * localCameraRotation);

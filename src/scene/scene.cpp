@@ -76,7 +76,8 @@ namespace openspace {
 
 Scene::Scene() : 
     _focus(SceneGraphNode::RootNodeName),
-    _sceneName(_mostProbableSceneName)
+    _sceneName(_mostProbableSceneName),
+    _updated(false)
 {}
 
 Scene::~Scene() {
@@ -145,6 +146,8 @@ void Scene::update(const UpdateData& data) {
             LERRORC(e.component, e.what());
         }
     }
+
+    _updated = true;
 }
 
 void Scene::evaluate(Camera* camera) {
@@ -466,35 +469,27 @@ std::string Scene::currentSceneName(const Camera* camera, std::string _nameOfSce
         std::stringstream ss;
         ss << "There is no scenegraph node with name: " << _nameOfScene;
         LERROR(ss.str());
+        return _mostProbableSceneName;
     }
 
     //Starts in the last scene we kow we were in, checks if we are still inside, if not check parent, continue until we are inside a scene
-    //double _distance = (DistanceToObject::ref().distanceCalc(camera->positionVec3(), node->worldPosition()));
     double _distance = DistanceToObject::ref().distanceCalc(camera->positionVec3(), 
         node->dynamicWorldPosition().dvec3());
-
-    std::vector<SceneGraphNode*> childrenScene(node->children());
-    size_t nrOfChildren = childrenScene.size();
 
     // Traverses the scenetree to find a scene we are within. 
     while (_distance > node->sceneRadius()) {
         if (node->parent() != nullptr) {
             node          = node->parent();
-            _nameOfScene  = node->name();
-            childrenScene = node->children();
-            nrOfChildren  = childrenScene.size();
-            //_distance     = (DistanceToObject::ref().distanceCalc(camera->positionVec3(), node->worldPosition()));
             _distance     = DistanceToObject::ref().distanceCalc(camera->positionVec3(),
                 node->dynamicWorldPosition().dvec3());
-            //break;
-        } else if (node->parent() == nullptr) {
-            // We have reached the root. 
-            _nameOfScene  = node->name();
-            childrenScene = node->children();
-            nrOfChildren  = childrenScene.size();
+        } else {
             break;
         }
     }
+
+    _nameOfScene = node->name();
+    std::vector<SceneGraphNode*> childrenScene(node->children());
+    size_t nrOfChildren = childrenScene.size();
 
     //Check if we are inside a child scene of the current scene. 
     bool outsideAllChildScenes = false;
@@ -504,10 +499,9 @@ std::string Scene::currentSceneName(const Camera* camera, std::string _nameOfSce
             SceneGraphNode * childNode = childrenScene.at(i);
             double _childDistance      = DistanceToObject::ref().distanceCalc(camera->positionVec3(),
                 childNode->dynamicWorldPosition().dvec3());            
-            double childSceneRadius    = childNode->sceneRadius();
-
+            
             // Set the new scene that we are inside the scene radius.
-            if (_childDistance < childSceneRadius) {
+            if (_childDistance < childNode->sceneRadius()) {
                 node          = childNode;
                 childrenScene = node->children();
                 _nameOfScene  = node->name();
@@ -561,9 +555,9 @@ SceneGraphNode* Scene::findCommonParentNode(const std::string & firstPath, const
         LERROR("Empty scenegraph node name passed to the method.");
         return sceneGraphNode(_parentOfAllNodes); // This choice is controversal. Better to avoid a crash.
     }
-    std::vector<SceneGraphNode*> firstPathNode  = pathTo(sceneGraphNode(firstPath));
-    std::vector<SceneGraphNode*> secondPathNode = pathTo(sceneGraphNode(secondPath));
-    std::string strCommonParent = commonParent(firstPathNode, secondPathNode);
+    
+    std::string strCommonParent = commonParent(pathTo(sceneGraphNode(firstPath)), 
+        pathTo(sceneGraphNode(secondPath)));
 
     return sceneGraphNode(strCommonParent);
 }
@@ -585,7 +579,7 @@ std::vector<SceneGraphNode*> Scene::pathTo(SceneGraphNode* node) const {
     return path;
 }
 
-std::string Scene::commonParent(std::vector<SceneGraphNode*> t1, std::vector<SceneGraphNode*> t2) const {
+std::string Scene::commonParent(const std::vector<SceneGraphNode*> & t1, const std::vector<SceneGraphNode*> & t2) const {
     if (t1.empty() && t2.empty()) {
         LERROR("Empty paths passed to commonParent method.");
         return _parentOfAllNodes;
@@ -594,12 +588,20 @@ std::string Scene::commonParent(std::vector<SceneGraphNode*> t1, std::vector<Sce
     std::string commonParentReturn(_mostProbableSceneName);
     int iterator = 0;
     int min = std::min(t1.size(), t2.size());
-    while (iterator < min && t1.back()->name() == t2.back()->name()) {
+    int iteratorT1 = t1.size() - 1;
+    int iteratorT2 = t2.size() - 1;
+    while (iterator < min && t1[iteratorT1]->name() == t2[iteratorT2]->name()) {
+        commonParentReturn = t1[iteratorT1]->name();
+        --iteratorT1;
+        --iteratorT2;
+        iterator++;
+    }
+    /*while (iterator < min && t1.back()->name() == t2.back()->name()) {
         commonParentReturn = t1.back()->name();
         t1.pop_back();
         t2.pop_back();
         iterator++;
-    }
+    }*/
     
     return commonParentReturn;
 }
@@ -627,7 +629,7 @@ glm::dvec3 Scene::pathCollector(const std::vector<SceneGraphNode*> & path, const
 
     return collector;
 }
-
+/* not in use now */
 void Scene::setRelativeOrigin(Camera* camera) const {
     if (camera == nullptr) {
         LERROR("Camera object not allocated. Relative origin not set.");
@@ -639,7 +641,7 @@ void Scene::setRelativeOrigin(Camera* camera) const {
 
     newCameraOrigin(cameraParentPath, camera);
 }
-/* Not in use now*/
+/* Not in use now */
 void Scene::newCameraOrigin(const std::vector<SceneGraphNode*> & commonParentPath, Camera* camera) const {
     if (commonParentPath.empty() || camera == nullptr) {
         LERROR("Empty common parent path or not allocated camera passed to newCameraOrigin method.");
@@ -660,6 +662,10 @@ void Scene::newCameraOrigin(const std::vector<SceneGraphNode*> & commonParentPat
     //camera->setDisplacementVector(displacementVector);
     glm::dvec3 newOrigin(origin + displacementVector);
     camera->setPositionVec3(newOrigin);
+}
+
+bool Scene::isUpdated() const {
+    return _updated;
 }
 
 void Scene::writePropertyDocumentation(const std::string& filename, const std::string& type) {

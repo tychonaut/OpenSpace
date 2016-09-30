@@ -817,6 +817,8 @@ void OpenSpaceEngine::preSynchronization() {
         
         _renderEngine->preSynchronization();
 
+        _renderEngine->updateDynamicOrigin();
+
         // Update the mouse velocities for interaction handler
         _interactionHandler->preSynchronization(dt);
 
@@ -849,6 +851,7 @@ void OpenSpaceEngine::postSynchronizationPreDraw() {
     // Update the synched variables in the camera class
     _renderEngine->camera()->preSynchronization();
     _renderEngine->camera()->postSynchronizationPreDraw();
+
 
 #ifdef OPENSPACE_MODULE_ONSCREENGUI_ENABLED
     if (_isMaster && _gui->isEnabled() && _windowWrapper->isRegularRendering()) {

@@ -137,11 +137,13 @@ public:
     glm::dvec3 pathCollector(const std::vector<SceneGraphNode*> & path, const std::string & commonParentName,
         const bool inverse) const;
 
-    std::string commonParent(std::vector<SceneGraphNode*> t1, std::vector<SceneGraphNode*> t2) const;
+    std::string commonParent(const std::vector<SceneGraphNode*> & t1, const std::vector<SceneGraphNode*> & t2) const;
 
     void setRelativeOrigin(Camera* camera) const;
 
     void newCameraOrigin(const std::vector<SceneGraphNode*> & commonParentPath, Camera* camera) const;
+
+    bool isUpdated() const;
 
     /**
      * Returns the Lua library that contains all Lua functions available to change the
@@ -166,9 +168,10 @@ private:
     */
     std::string currentSceneName(const Camera* camera, std::string _nameOfScene) const;
 
-
     std::string _sceneName;
     std::string _focus;
+
+    bool _updated;
 
     // actual scenegraph
     SceneGraph _graph;
