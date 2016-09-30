@@ -28,6 +28,7 @@
 #include <openspace/documentation/documentation.h>
 
 #include <functional>
+#include <type_traits>
 
 namespace openspace {
 namespace documentation {
@@ -290,14 +291,28 @@ struct OperatorVerifier : public T {
  */
 template <typename T>
 struct LessVerifier : public OperatorVerifier<T, std::less<typename T::Type>> {
-    static_assert(!std::is_base_of_v<BoolVerifier, T>, "T cannot be BoolVerifier");
-    static_assert(!std::is_base_of_v<StringVerifier, T>, "T cannot be StringVerifier");
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
-    static_assert(!std::is_base_of_v<VectorVerifier, T>, "T cannot be VectorVerifier");
+    static_assert(
+        !std::is_base_of<BoolVerifier, T>::value,
+        "T cannot be BoolVerifier"
+    );
+    static_assert(
+        !std::is_base_of<StringVerifier, T>::value,
+        "T cannot be StringVerifier"
+    );
+    static_assert(
+        !std::is_base_of<TableVerifier, T>::value,
+        "T cannot be TableVerifier"
+    );
+    static_assert(
+        !std::is_base_of<VectorVerifier, T>::value,
+        "T cannot be VectorVerifier"
+    );
 
-    using OperatorVerifier::OperatorVerifier;
+    using OperatorVerifier<T, std::less<typename T::Type>>::OperatorVerifier;
 
     std::string documentation() const;
+
+    using OperatorVerifier<T, std::less<typename T::Type>>::value;
 };
 
 /**
@@ -307,14 +322,28 @@ struct LessVerifier : public OperatorVerifier<T, std::less<typename T::Type>> {
 */
 template <typename T>
 struct LessEqualVerifier : public OperatorVerifier<T, std::less_equal<typename T::Type>> {
-    static_assert(!std::is_base_of_v<BoolVerifier, T>, "T cannot be BoolVerifier");
-    static_assert(!std::is_base_of_v<StringVerifier, T>, "T cannot be StringVerifier");
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
-    static_assert(!std::is_base_of_v<VectorVerifier, T>, "T cannot be VectorVerifier");
+    static_assert(
+        !std::is_base_of<BoolVerifier, T>::value,
+        "T cannot be BoolVerifier"
+    );
+    static_assert(
+        !std::is_base_of<StringVerifier, T>::value,
+        "T cannot be StringVerifier"
+    );
+    static_assert(
+        !std::is_base_of<TableVerifier, T>::value,
+        "T cannot be TableVerifier"
+    );
+    static_assert(
+        !std::is_base_of<VectorVerifier, T>::value,
+        "T cannot be VectorVerifier"
+    );
 
-    using OperatorVerifier::OperatorVerifier;
+    using OperatorVerifier<T, std::less_equal<typename T::Type>>::OperatorVerifier;
 
     std::string documentation() const override;
+
+    using OperatorVerifier<T, std::less_equal<typename T::Type>>::value;
 };
 
 /**
@@ -324,14 +353,28 @@ struct LessEqualVerifier : public OperatorVerifier<T, std::less_equal<typename T
 */
 template <typename T>
 struct GreaterVerifier : public OperatorVerifier<T, std::greater<typename T::Type>> {
-    static_assert(!std::is_base_of_v<BoolVerifier, T>, "T cannot be BoolVerifier");
-    static_assert(!std::is_base_of_v<StringVerifier, T>, "T cannot be StringVerifier");
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
-    static_assert(!std::is_base_of_v<VectorVerifier, T>, "T cannot be VectorVerifier");
+    static_assert(
+        !std::is_base_of<BoolVerifier, T>::value,
+        "T cannot be BoolVerifier"
+        );
+    static_assert(
+        !std::is_base_of<StringVerifier, T>::value,
+        "T cannot be StringVerifier"
+        );
+    static_assert(
+        !std::is_base_of<TableVerifier, T>::value,
+        "T cannot be TableVerifier"
+        );
+    static_assert(
+        !std::is_base_of<VectorVerifier, T>::value,
+        "T cannot be VectorVerifier"
+        );
 
-    using OperatorVerifier::OperatorVerifier;
+    using OperatorVerifier<T, std::greater<typename T::Type>>::OperatorVerifier;
 
     std::string documentation() const override;
+
+    using OperatorVerifier<T, std::greater<typename T::Type>>::value;
 };
 
 /**
@@ -341,14 +384,28 @@ struct GreaterVerifier : public OperatorVerifier<T, std::greater<typename T::Typ
 */
 template <typename T>
 struct GreaterEqualVerifier : public OperatorVerifier<T, std::greater_equal<typename T::Type>> {
-    static_assert(!std::is_base_of_v<BoolVerifier, T>, "T cannot be BoolVerifier");
-    static_assert(!std::is_base_of_v<StringVerifier, T>, "T cannot be StringVerifier");
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
-    static_assert(!std::is_base_of_v<VectorVerifier, T>, "T cannot be VectorVerifier");
+    static_assert(
+        !std::is_base_of<BoolVerifier, T>::value,
+        "T cannot be BoolVerifier"
+    );
+    static_assert(
+        !std::is_base_of<StringVerifier, T>::value,
+        "T cannot be StringVerifier"
+    );
+    static_assert(
+        !std::is_base_of<TableVerifier, T>::value,
+        "T cannot be TableVerifier"
+    );
+    static_assert(
+        !std::is_base_of<VectorVerifier, T>::value,
+        "T cannot be VectorVerifier"
+    );
 
-    using OperatorVerifier::OperatorVerifier;
+    using OperatorVerifier<T, std::greater_equal<typename T::Type>>::OperatorVerifier;
 
     std::string documentation() const override;
+
+    using OperatorVerifier<T, std::greater_equal<typename T::Type>>::value;
 };
 
 /**
@@ -357,11 +414,13 @@ struct GreaterEqualVerifier : public OperatorVerifier<T, std::greater_equal<type
 */
 template <typename T>
 struct EqualVerifier : public OperatorVerifier<T, std::equal_to<typename T::Type>> {
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
+    static_assert(!std::is_base_of<TableVerifier, T>::value, "T cannot be TableVerifier");
 
-    using OperatorVerifier::OperatorVerifier;
+    using OperatorVerifier<T, std::equal_to<typename T::Type>>::OperatorVerifier;
 
     std::string documentation() const override;
+
+    using OperatorVerifier<T, std::equal_to<typename T::Type>>::value;
 };
 
 /**
@@ -371,11 +430,13 @@ struct EqualVerifier : public OperatorVerifier<T, std::equal_to<typename T::Type
 */
 template <typename T>
 struct UnequalVerifier : public OperatorVerifier<T, std::not_equal_to<typename T::Type>> {
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
+    static_assert(!std::is_base_of<TableVerifier, T>::value, "T cannot be TableVerifier");
 
-    using OperatorVerifier::OperatorVerifier;
+    using OperatorVerifier<T, std::not_equal_to<typename T::Type>>::OperatorVerifier;
 
     std::string documentation() const override;
+
+    using OperatorVerifier<T, std::not_equal_to<typename T::Type>>::value;
 };
 
 //----------------------------------------------------------------------------------------
@@ -390,7 +451,7 @@ struct UnequalVerifier : public OperatorVerifier<T, std::not_equal_to<typename T
  */
 template <typename T>
 struct InListVerifier : public T {
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
+    static_assert(!std::is_base_of<TableVerifier, T>::value, "T cannot be TableVerifier");
 
     /**
      * Constructs an InListVerifier that checks whether the incoming value is of the
@@ -428,7 +489,7 @@ struct InListVerifier : public T {
 */
 template <typename T>
 struct NotInListVerifier : public T {
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
+    static_assert(!std::is_base_of<TableVerifier, T>::value, "T cannot be TableVerifier");
 
     /**
     * Constructs a NotInListVerifier that checks whether the incoming value is of the
@@ -469,10 +530,22 @@ struct NotInListVerifier : public T {
 */
 template <typename T>
 struct InRangeVerifier : public T {
-    static_assert(!std::is_base_of_v<BoolVerifier, T>, "T cannot be BoolVerifier");
-    static_assert(!std::is_base_of_v<StringVerifier, T>, "T cannot be StringVerifier");
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
-    static_assert(!std::is_base_of_v<VectorVerifier, T>, "T cannot be VectorVerifier");
+    static_assert(
+        !std::is_base_of<BoolVerifier, T>::value,
+        "T cannot be BoolVerifier"
+    );
+    static_assert(
+        !std::is_base_of<StringVerifier, T>::value,
+        "T cannot be StringVerifier"
+    );
+    static_assert(
+        !std::is_base_of<TableVerifier, T>::value,
+        "T cannot be TableVerifier"
+    );
+    static_assert(
+        !std::is_base_of<VectorVerifier, T>::value,
+        "T cannot be VectorVerifier"
+    );
 
     /**
     * Constructs a InRangeVerifier that checks whether the incoming value is of the
@@ -515,10 +588,22 @@ struct InRangeVerifier : public T {
 */
 template <typename T>
 struct NotInRangeVerifier : public T {
-    static_assert(!std::is_base_of_v<BoolVerifier, T>, "T cannot be BoolVerifier");
-    static_assert(!std::is_base_of_v<StringVerifier, T>, "T cannot be StringVerifier");
-    static_assert(!std::is_base_of_v<TableVerifier, T>, "T cannot be TableVerifier");
-    static_assert(!std::is_base_of_v<VectorVerifier, T>, "T cannot be VectorVerifier");
+    static_assert(
+        !std::is_base_of<BoolVerifier, T>::value,
+        "T cannot be BoolVerifier"
+    );
+    static_assert(
+        !std::is_base_of<StringVerifier, T>::value,
+        "T cannot be StringVerifier"
+    );
+    static_assert(
+        !std::is_base_of<TableVerifier, T>::value,
+        "T cannot be TableVerifier"
+    );
+    static_assert(
+        !std::is_base_of<VectorVerifier, T>::value,
+        "T cannot be VectorVerifier"
+    );
 
     /**
     * Constructs a InRangeVerifier that checks whether the incoming value is of the
@@ -578,6 +663,33 @@ struct AnnotationVerifier : public T {
 
     /// The annotation that is returned to the user in the documentation
     std::string annotation;
+};
+
+/**
+ * This Verifier is a marker that performs the same testing as the \c T parameter, but
+ * also adds a warning to the test result informing the user of the deprecation.
+ * Furthermore, the documentation will contain the word <code>(deprecated)</code> in
+ * addition to the documentation returned by \c
+ * \tparam T The Verifier that is to be marked deprecated
+ */
+template <typename T>
+struct DeprecatedVerifier : public T {
+    /**
+     * Tests the \p dictionary%s \p key using the Verifier \c T and adds a warning to the
+     * TestResult informing the caller of the deprecation.
+     * \param dictionary The ghoul::Dictionary whose \p key should be tested
+     * \param key The key inside the \p dictionary that is to be tested
+     * \return A TestResult that contains the results of the testing
+     */
+    TestResult operator()(const ghoul::Dictionary& dictionary,
+                          const std::string& key) const override;
+
+    /**
+     * Returns the documentation as reported by \c T and adds the word
+     * <code>(deprecated)</code> to it.
+     * \return The deprecated version of \c T%'s documentation
+     */
+    std::string documentation() const override;
 };
 
 /**
@@ -799,6 +911,18 @@ using StringAnnotationVerifier = AnnotationVerifier<StringVerifier>;
 /// <code>ghoul::Dictionary</code>
 using TableAnnotationVerifier = AnnotationVerifier<TableVerifier>;
 
+/// A short-hand definition for a DeprecatedVerifier with a type check for \c bool
+using BoolDeprecatedVerifier = DeprecatedVerifier<BoolVerifier>;
+/// A short-hand definition for a DeprecatedVerifier with a type check for \c int
+using IntDeprecatedVerifier = DeprecatedVerifier<IntVerifier>;
+/// A short-hand definition for a DeprecatedVerifier with a type check for \c double
+using DoubleDeprecatedVerifier = DeprecatedVerifier<DoubleVerifier>;
+/// A short-hand definition for a DeprecatedVerifier with a type check for \c string
+using StringDeprecatedVerifier = DeprecatedVerifier<StringVerifier>;
+/// A short-hand definition for a DeprecatedVerifier with a type check for
+/// <code>ghoul::Dictionary</code>
+using TableDeprecatedVerifier = DeprecatedVerifier<TableVerifier>;
+
 // Definitions of external templates that are instantiated in the cpp file
 // This cuts down the compilation times as almost all of the possible template types do
 // not need to be instantiated multiple times
@@ -848,7 +972,30 @@ extern template struct AnnotationVerifier<IntVerifier>;
 extern template struct AnnotationVerifier<DoubleVerifier>;
 extern template struct AnnotationVerifier<StringVerifier>;
 extern template struct AnnotationVerifier<TableVerifier>;
+extern template struct AnnotationVerifier<BoolVector2Verifier>;
+extern template struct AnnotationVerifier<IntVector2Verifier>;
+extern template struct AnnotationVerifier<DoubleVector2Verifier>;
+extern template struct AnnotationVerifier<BoolVector3Verifier>;
+extern template struct AnnotationVerifier<IntVector3Verifier>;
+extern template struct AnnotationVerifier<DoubleVector3Verifier>;
+extern template struct AnnotationVerifier<BoolVector4Verifier>;
+extern template struct AnnotationVerifier<IntVector4Verifier>;
+extern template struct AnnotationVerifier<DoubleVector4Verifier>;
 
+extern template struct DeprecatedVerifier<BoolVerifier>;
+extern template struct DeprecatedVerifier<IntVerifier>;
+extern template struct DeprecatedVerifier<DoubleVerifier>;
+extern template struct DeprecatedVerifier<StringVerifier>;
+extern template struct DeprecatedVerifier<TableVerifier>;
+extern template struct DeprecatedVerifier<BoolVector2Verifier>;
+extern template struct DeprecatedVerifier<IntVector2Verifier>;
+extern template struct DeprecatedVerifier<DoubleVector2Verifier>;
+extern template struct DeprecatedVerifier<BoolVector3Verifier>;
+extern template struct DeprecatedVerifier<IntVector3Verifier>;
+extern template struct DeprecatedVerifier<DoubleVector3Verifier>;
+extern template struct DeprecatedVerifier<BoolVector4Verifier>;
+extern template struct DeprecatedVerifier<IntVector4Verifier>;
+extern template struct DeprecatedVerifier<DoubleVector4Verifier>;
 
 } // namespace documentation
 } // namespace openspace

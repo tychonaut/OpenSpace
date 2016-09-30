@@ -41,13 +41,10 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "IO",
-                Reference = "ECLIPJ2000",
                 Observer = "JUPITER BARYCENTER",
-                Kernels = {
-                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-                }
+                Kernels = "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
             },
             Rotation = {
                 Type = "SpiceRotation",
@@ -71,7 +68,6 @@ return {
             Reference = "ECLIPJ2000"
         },
         ]]
-        GuiName = "/Solar/Planets/Jupiter"
     },
     {
         Name = "IoText",
@@ -86,7 +82,7 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "StaticEphemeris",
+                Type = "StaticTranslation",
                 Position = {0, -10000000, 0}
             },
         },
@@ -111,6 +107,5 @@ return {
                 -- need to add different texture
             },  
         },
-        GuiName = "/Solar/IoTrail"
     }
 }

@@ -8,7 +8,7 @@ return {
         Renderable = {
             Type = "RenderablePlanetProjection",
             Frame = "IAU_CALLISTO",
-            Body = "CALLISTO",            
+            Body = "CALLISTO",
             Geometry = {
                 Type = "SimpleSphere",
                 Radius = { 1.8213, 6 },
@@ -39,31 +39,12 @@ return {
                 "JUPITER", "IO", "EUROPA", "GANYMEDE", "CALLISTO"
             }            
         },
-        --[[
-        Ephemeris = {
-            Type = "Spice",
-            Body = "CALLISTO",
-            Reference = "ECLIPJ2000",
-            Observer = "JUPITER BARYCENTER",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-            }
-        },
-        Rotation = {
-            Type = "Spice",
-            Frame = "IAU_CALLISTO",
-            Reference = "ECLIPJ2000"
-        },
-        ]]
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "CALLISTO",
-                Reference = "ECLIPJ2000",
                 Observer = "JUPITER BARYCENTER",
-                Kernels = {
-                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-                }
+                Kernels = "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
             },
             Rotation = {
                 Type = "SpiceRotation",
@@ -71,7 +52,6 @@ return {
                 DestinationFrame = "ECLIPJ2000",
             },
         },
-        GuiName = "/Solar/Planets/Jupiter"
     },
     {
         Name = "CallistoText",
@@ -92,7 +72,7 @@ return {
         ]]
         Transform = {
             Translation = {
-                Type = "StaticEphemeris",
+                Type = "StaticTranslation",
                 Position = {0, -10000000, 0}
             },
         },
@@ -117,6 +97,5 @@ return {
                 -- need to add different texture
             },  
         },
-        GuiName = "/Solar/CallistoTrail"
     }
 }

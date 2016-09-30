@@ -59,6 +59,7 @@ void main() {
         if (inRange(uv.x, 0.0, 1.0) && inRange(uv.y, 0.0, 1.0) &&
             dot(n, boresight) < 0 && thisDepth <= closestDepth + epsilon)
         {
+            // color = texture(projectionTexture, projected.xy);
             color = texture(projectionTexture, vec2(1.0) - uv);
             color.a = 1.0;
             stencil = vec4(1.0);
@@ -72,6 +73,7 @@ void main() {
         if (inRange(uv.x, 0.0, 1.0) && inRange(uv.y, 0.0, 1.0) &&
             dot(n, boresight) < 0)
         {
+            // color = texture(projectionTexture, projected.xy);
             color = texture(projectionTexture, vec2(1.0) - uv);
             color.a = 1.0;
             stencil = vec4(1.0);

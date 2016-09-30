@@ -7,9 +7,9 @@ return {
         SceneRadius = 1.0E+5,
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "MERCURY BARYCENTER",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "SUN",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -39,9 +39,9 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "MERCURY",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "MERCURY BARYCENTER",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -56,8 +56,7 @@ return {
                 Type = "StaticScale",
                 Scale = 1,
             },
-        },
-        GuiName = "/Solar/Planets/Mercury"
+        }
     },
     -- MercuryTrail module
     {   
@@ -77,7 +76,6 @@ return {
                 Color = "${COMMON_MODULE}/textures/glare_blue.png",
                 -- need to add different texture
             },  
-        },
-        GuiName = "/Solar/MercuryTrail"
+        }
     }
 }

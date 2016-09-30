@@ -40,7 +40,7 @@ public:
     static openspace::Documentation Documentation();
 
 private:
-    double _scaleValue;
+    properties::FloatProperty _scaleValue;
 };
     
 } // namespace openspace

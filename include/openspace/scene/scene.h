@@ -160,7 +160,7 @@ public:
 private:
     bool loadSceneInternal(const std::string& sceneDescriptionFilePath);
 
-    void writePropertyDocumentation(const std::string& filename, const std::string& type);
+    void writePropertyDocumentation(const std::string& filename, const std::string& type, const std::string& sceneFilename);
 
     /**
     * Calculates the current scene name (new camera's node parent) based on the camera's position

@@ -34,11 +34,8 @@ return {
         Ephemeris = {
             Type = "Spice",
             Body = "SUN",
-            Reference = "GALACTIC",
             Observer = "SSB",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-            }
+            Kernels = "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
         },
         Rotation = {
             Type = "Spice",
@@ -60,12 +57,9 @@ return {
         Ephemeris = {
             Type = "Spice",
             Body = "SUN",
-            Reference = "GALACTIC",
             Observer = "SSB",
-            Kernels = {
-                "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-            }
-        },        
+            Kernels = "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
+        },
     },
     {
         Name = "SunMarker",

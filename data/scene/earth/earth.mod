@@ -7,9 +7,9 @@ return {
 		SceneRadius = 4.0E+5, 
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "EARTH BARYCENTER",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "SUN",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -41,10 +41,9 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "EARTH",
-                Reference = "ECLIPJ2000",
-                --Observer = "SUN",
+                --Reference = "ECLIPJ2000",
                 Observer = "EARTH BARYCENTER",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"

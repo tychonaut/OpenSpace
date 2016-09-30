@@ -3,13 +3,13 @@ return {
     {
         Name = "PlutoBarycenter",
         Parent = "SolarSystemBarycenter",
-         -- Scene Radius in KM:
+        -- Scene Radius in KM:
         SceneRadius = 1.0E+6,
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "PLUTO BARYCENTER",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "SUN",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -39,9 +39,9 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "PLUTO BARYCENTER",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "PLUTO BARYCENTER",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -57,7 +57,6 @@ return {
                 Scale = 1,
             },
         },
-        GuiName = "/Solar/Planets/Pluto"
     },
     {   
         Name = "Charon",
@@ -81,9 +80,9 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "CHARON",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "PLUTO BARYCENTER",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/plu055.bsp"
@@ -99,9 +98,7 @@ return {
                 Scale = 1,
             },
         },
-        GuiName = "/Solar/Planets/Charon"
     },
-
     -- CharonTrail module
     {   
         Name = "CharonTrail",

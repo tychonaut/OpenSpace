@@ -7,9 +7,9 @@ return {
         SceneRadius = 1.0E+5,
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "VENUS BARYCENTER",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "SUN",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -40,9 +40,9 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "VENUS",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "VENUS BARYCENTER",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -58,7 +58,6 @@ return {
                 Scale = 1,
             },
         },
-        GuiName = "/Solar/Planets/VENUS"
     },
     -- VenusTrail module
     {   
@@ -79,6 +78,5 @@ return {
                 -- need to add different texture
             },  
         },
-        GuiName = "/Solar/VenusTrail"
     }
 }

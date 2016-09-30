@@ -96,23 +96,39 @@ bool InstrumentTimesParser::create() {
         std::string instrumentID = it->first;
         for (std::string filename: it->second) {
             std::string filepath = FileSys.pathByAppendingComponent(sequenceDir.path(), filename);
+            
+            if (!FileSys.fileExists(filepath)) {
+                LERROR("Unable to read file " << filepath << ". Skipping file.");
+                continue;
+            }
 
             // Read file into string 
-            std::ifstream in(filepath);
+            std::ifstream inFile(filepath);
             std::string line;
             std::smatch matches;
-
             TimeRange instrumentActiveTimeRange;
-
-            while (std::getline(in, line)) {
+            bool successfulRead = true;
+            while (std::getline(inFile, line)) {
                 if (std::regex_match(line, matches, _pattern)) {
-                    ghoul_assert(matches.size() == 3, "Bad event data formatting. Must have regex 3 matches (source string, start time, stop time).");
-                    std::string start = matches[1].str();
-                    std::string stop = matches[2].str();
-
+                    if (matches.size() != 3) {
+                        LERROR("Bad event data formatting. Must \
+                                have regex 3 matches (source string, start time, stop time).");
+                        successfulRead = false;
+                        break;
+                    }
+                    
                     TimeRange captureTimeRange;
-                    captureTimeRange.start = SpiceManager::ref().ephemerisTimeFromDate(start);
-                    captureTimeRange.end = SpiceManager::ref().ephemerisTimeFromDate(stop);
+                    try { // parse date strings
+                        std::string start = matches[1].str();
+                        std::string stop = matches[2].str();
+                        captureTimeRange.start = SpiceManager::ref().ephemerisTimeFromDate(start);
+                        captureTimeRange.end = SpiceManager::ref().ephemerisTimeFromDate(stop);
+                    }
+                    catch (const SpiceManager::SpiceException& e){
+                        LERROR(e.what());
+                        successfulRead = false;
+                        break;
+                    }
 
                     instrumentActiveTimeRange.include(captureTimeRange);
 
@@ -131,8 +147,10 @@ bool InstrumentTimesParser::create() {
                     _subsetMap[_target]._subset.push_back(image);
                 }
             }
-            _subsetMap[_target]._range = instrumentActiveTimeRange;
-            _instrumentTimes.push_back({ instrumentID, instrumentActiveTimeRange });
+            if (successfulRead){
+                _subsetMap[_target]._range.include(instrumentActiveTimeRange);
+                _instrumentTimes.push_back({ instrumentID, instrumentActiveTimeRange });
+            }
         }
     }
     

@@ -7,13 +7,10 @@ return {
 		SceneRadius = 2.0E+6,
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "JUPITER BARYCENTER",
-                Reference = "ECLIPJ2000",
                 Observer = "SUN",
-                Kernels = {
-                    "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-                }
+                Kernels = "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
             },
         },
     },
@@ -101,7 +98,6 @@ return {
                 DestinationFrame = "GALACTIC",
             },
         },
-        GuiName = "/Solar/Planets/Jupiter"
     },
     {
         Name = "JupiterText",
@@ -116,7 +112,7 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "StaticEphemeris",
+                Type = "StaticTranslation",
                 Position = {0, -100000000, 0}
             },
         },
@@ -140,7 +136,6 @@ return {
                  -- need to add different texture
              },  
          },
-         GuiName = "/Solar/JupiterTrail"
      }
     
 }

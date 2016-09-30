@@ -62,9 +62,8 @@ return {
         Parent = "SolarSystemBarycenter",
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "ROSETTA",
-                Reference = "GALACTIC",
                 Observer = "SUN",
                 Kernels = RosettaKernels
             },  
@@ -274,9 +273,8 @@ return {
         -- translated
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "PHILAE",
-                Reference = "GALACTIC",
                 Observer = "CHURYUMOV-GERASIMENKO",
                 Kernels = RosettaKernels
             },
@@ -361,7 +359,6 @@ return {
                 Color = "textures/tex_01.png"
             },
             Rotation = { ModelTransform = RotationMatrix }
-
         }
     },
     {
@@ -389,7 +386,6 @@ return {
             SampleDeltaTime = 3600, -- Seconds between each point
             SubSamples = 3,
         },
-        GuiName = "/Solar/RosettaCometTrail"
     },
     {
         Name = "PhilaeTrail",
@@ -416,12 +412,10 @@ return {
             SampleDeltaTime = 2, -- Seconds between each point
             SubSamples = 0,
         },
-        GuiName = "/Solar/RosettaCometTrail"
     },    
     {
         Name = "NAVCAM",
         Parent = "Rosetta",
-        GuiName = "/Solar/Rosetta_navcam"
     },
     {   
         Name = "NAVCAM FOV",
@@ -445,7 +439,6 @@ return {
                 "CHURYUMOV-GERASIMENKO"
             }
         },
-        GuiName = "/Solar/Rosetta_navcam"
     },
     -- Latest image taken by NAVCAM
     { 

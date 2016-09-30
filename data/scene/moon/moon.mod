@@ -7,8 +7,8 @@ return {
         SceneRadius = 2.0E+4,                
         Renderable = {
             Type = "RenderablePlanet",
-			Frame = "IAU_MOON",
-			Body = "MOON",
+            Frame = "IAU_MOON",
+            Body = "MOON",
             Geometry = {
                 Type = "SimpleSphere",
                 Radius = { 1.737, 6},
@@ -30,20 +30,11 @@ return {
                 --Color = "textures/moonmap4k.jpg",
             },
         },
-        --Ephemeris = {
-        --    Type = "Spice",
-        --    Body = "MOON",
-        --    Reference = "ECLIPJ2000",
-        --    Observer = "EARTH BARYCENTER",
-        --    Kernels = {
-        --        "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
-        --    }
-        --},
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "MOON",
-                Reference = "ECLIPJ2000",
+                --Reference = "ECLIPJ2000",
                 Observer = "EARTH BARYCENTER",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -51,11 +42,10 @@ return {
             },
         },
         Rotation = {
-            Type = "Spice",
+            Type = "SpiceRotation",
             Frame = "IAU_MOON",
             Reference = "ECLIPJ2000"
         },
-        GuiName = "/Solar/Planets/MOON"
     },
     -- MoonTrail module
     {   
@@ -76,6 +66,5 @@ return {
                 -- need to add different texture
             },  
         },
-        GuiName = "/Solar/MoonTrail"
     }
 }

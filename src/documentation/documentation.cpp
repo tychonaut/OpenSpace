@@ -31,8 +31,7 @@ namespace {
     // Structure used to make offenses unique
     struct OffenseCompare {
         using Offense = openspace::documentation::TestResult::Offense;
-        bool operator()(const Offense& lhs, const Offense& rhs) const
-        {
+        bool operator()(const Offense& lhs, const Offense& rhs) const {
             if (lhs.offender != rhs.offender) {
                 return lhs.offender < rhs.offender;
             }
@@ -41,8 +40,21 @@ namespace {
                     std::underlying_type_t<Offense::Reason>(rhs.reason);
             }
         }
-
     };
+
+    struct WarningCompare {
+        using Warning = openspace::documentation::TestResult::Warning;
+        bool operator()(const Warning& lhs, const Warning& rhs) const {
+            if (lhs.offender != rhs.offender) {
+                return lhs.offender < rhs.offender;
+            }
+            else {
+                return std::underlying_type_t<Warning::Reason>(lhs.reason) <
+                    std::underlying_type_t<Warning::Reason>(rhs.reason);
+            }
+        }
+    };
+
 } // namespace
 
 // Unfortunately, the standard library does not contain a no-op for the to_string method
@@ -51,6 +63,22 @@ namespace std {
 std::string to_string(std::string value) {
     return value; 
 }
+
+std::string to_string(openspace::documentation::TestResult::Offense::Reason reason) {
+    switch (reason) {
+        case openspace::documentation::TestResult::Offense::Reason::ExtraKey:
+            return "Extra key";
+        case openspace::documentation::TestResult::Offense::Reason::MissingKey:
+            return "Missing key";
+        case openspace::documentation::TestResult::Offense::Reason::UnknownIdentifier:
+            return "Unknown identifier";
+        case openspace::documentation::TestResult::Offense::Reason::Verification:
+            return "Verification failed";
+        case openspace::documentation::TestResult::Offense::Reason::WrongType:
+            return "Wrong type";
+    }
+}
+
 } // namespace std
 
 namespace openspace {
@@ -112,6 +140,11 @@ TestResult testSpecification(const Documentation& d, const ghoul::Dictionary& di
                 res.offenses.end()
             );
         }
+        result.warnings.insert(
+            result.warnings.end(),
+            res.warnings.begin(),
+            res.warnings.end()
+        );
     };
 
     for (const auto& p : d.entries) {
@@ -164,6 +197,28 @@ TestResult testSpecification(const Documentation& d, const ghoul::Dictionary& di
     );
     result.offenses = std::vector<TestResult::Offense>(
         uniqueOffenders.begin(), uniqueOffenders.end()
+    );
+    // Remove duplicate warnings. This should normally not happen, but we want to be sure
+    std::set<TestResult::Warning, WarningCompare> uniqueWarnings(
+        result.warnings.begin(), result.warnings.end()
+    );
+    result.warnings = std::vector<TestResult::Warning>(
+        uniqueWarnings.begin(), uniqueWarnings.end()
+    );
+
+    std::sort(
+        result.offenses.begin(),
+        result.offenses.end(),
+        [](const TestResult::Offense& lhs, const TestResult::Offense& rhs) {
+            return OffenseCompare()(lhs, rhs);
+        }
+    );
+    std::sort(
+        result.warnings.begin(),
+        result.warnings.end(),
+        [](const TestResult::Warning& lhs, const TestResult::Warning& rhs) {
+            return WarningCompare()(lhs, rhs);
+        }
     );
 
     return result;

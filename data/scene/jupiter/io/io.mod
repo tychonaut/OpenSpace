@@ -21,13 +21,10 @@ return {
         },
         Transform = {
             Translation = {
-                Type = "SpiceEphemeris",
+                Type = "SpiceTranslation",
                 Body = "IO",
-                Reference = "ECLIPJ2000",
                 Observer = "JUPITER BARYCENTER",
-                Kernels = {
-                    "${OPENSPACE_DATA}/spice/jup260.bsp"
-                }
+                Kernels = "${OPENSPACE_DATA}/spice/jup260.bsp"
             },
             Rotation = {
                 Type = "SpiceRotation",
@@ -38,8 +35,7 @@ return {
                 Type = "StaticScale",
                 Scale = 1,
             },
-        },
-        GuiName = "/Solar/Planets/Jupiter"
+        }
     },
     -- IoTrail module
     {   
@@ -59,7 +55,6 @@ return {
                 Color = "${COMMON_MODULE}/textures/glare_blue.png",
                 -- need to add different texture
             },  
-        },
-        GuiName = "/Solar/IoTrail"
+        }
     }
 }

@@ -56,15 +56,16 @@ namespace interaction {
         void mouseScrollWheelCallback(double mouseScrollDelta);
 
         // Mutators
-        void addKeyframe(const network::datamessagestructures::PositionKeyframe &kf);
+        void addKeyframe(const datamessagestructures::CameraKeyframe &kf);
         void clearKeyframes();
+        void clearOldKeyframes();
 
         // Accessors
         const std::list<std::pair<Key, KeyModifier> >& getPressedKeys() const;
         const std::list<MouseButton>& getPressedMouseButtons() const;
         glm::dvec2 getMousePosition() const;
         double getMouseScrollDelta() const;
-        std::vector<network::datamessagestructures::PositionKeyframe>& getKeyFrames() const;
+        const std::vector<datamessagestructures::CameraKeyframe>& keyframes() const;
 
         bool isKeyPressed(std::pair<Key, KeyModifier> keyModPair) const;
         bool isMouseButtonPressed(MouseButton mouseButton) const;
@@ -76,8 +77,7 @@ namespace interaction {
         double _mouseScrollDelta;
 
         // Remote input via keyframes
-        std::vector<network::datamessagestructures::PositionKeyframe> _keyframes;
-        std::mutex _keyframeMutex;
+        std::vector<datamessagestructures::CameraKeyframe> _keyframes;
     };
 
 
@@ -96,9 +96,6 @@ public:
 
     virtual void updateMouseStatesFromInput(const InputState& inputState, double deltaTime) = 0;
     virtual void updateCameraStateFromMouseStates(Camera& camera) = 0;
-
-    virtual void serialize(SyncBuffer* syncBuffer) = 0;
-    virtual void deserialize(SyncBuffer* syncBuffer) = 0;
 
 protected:
     /**
@@ -171,11 +168,8 @@ public:
     virtual void updateMouseStatesFromInput(const InputState& inputState, double deltaTime);
     virtual void updateCameraStateFromMouseStates(Camera& camera);
 
-    // Need implementation
-
-    virtual void serialize(SyncBuffer* syncBuffer) {};
-    virtual void deserialize(SyncBuffer* syncBuffer) {};
 private:
+    std::vector<datamessagestructures::CameraKeyframe> _keyframes;
     double _currentKeyframeTime;
 };
 
@@ -206,11 +200,6 @@ public:
         glm::dvec2 synchedLocalRollMouseVelocity();
         glm::dvec2 synchedGlobalRollMouseVelocity();
 
-        void preSynchronization();
-        void postSynchronizationPreDraw();
-
-        void serialize(SyncBuffer* syncBuffer);
-        void deserialize(SyncBuffer* syncBuffer);
     private:
         double _sensitivity;
 
@@ -219,19 +208,6 @@ public:
         MouseState _truckMovementMouseState;
         MouseState _localRollMouseState;
         MouseState _globalRollMouseState;
-
-        // MouseStates have synched variables
-        glm::dvec2 _sharedGlobalRotationMouseVelocity;
-        glm::dvec2 _sharedLocalRotationMouseVelocity;
-        glm::dvec2 _sharedTruckMovementMouseVelocity;
-        glm::dvec2 _sharedLocalRollMouseVelocity;
-        glm::dvec2 _sharedGlobalRollMouseVelocity;
-
-        glm::dvec2 _synchedGlobalRotationMouseVelocity;
-        glm::dvec2 _synchedLocalRotationMouseVelocity;
-        glm::dvec2 _synchedTruckMovementMouseVelocity;
-        glm::dvec2 _synchedLocalRollMouseVelocity;
-        glm::dvec2 _synchedGlobalRollMouseVelocity;
     };
 
     OrbitalInteractionMode(std::shared_ptr<MouseStates> mouseStates);
@@ -241,9 +217,6 @@ public:
 
     virtual void updateMouseStatesFromInput(const InputState& inputState, double deltaTime);
     virtual void updateCameraStateFromMouseStates(Camera& camera);
-
-    virtual void serialize(SyncBuffer* syncBuffer);
-    virtual void deserialize(SyncBuffer* syncBuffer);
 
 protected:
     //void updateCameraStateFromMouseStates(Camera& camera);

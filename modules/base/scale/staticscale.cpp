@@ -27,6 +27,7 @@
 #include <openspace/documentation/verifier.h>
 
 namespace {
+    const std::string _loggerCat = "StaticScale";
     const std::string KeyValue = "Scale";
 }
 
@@ -36,6 +37,7 @@ Documentation StaticScale::Documentation() {
     using namespace openspace::documentation;
     return {
         "Static Scaling",
+        "base_scale_static",
         {{
             KeyValue,
             new DoubleVerifier,
@@ -45,15 +47,17 @@ Documentation StaticScale::Documentation() {
 }
 
 StaticScale::StaticScale()
-    : _scaleValue(1.0) 
-{}
+    : _scaleValue("scale", "Scale", 1.0, 1.0, 1000.0)
+{
+    addProperty(_scaleValue);
+}
 
 
 StaticScale::StaticScale(const ghoul::Dictionary& dictionary)
-    : _scaleValue(1.0)
+    : StaticScale()
 {
     documentation::testSpecificationAndThrow(Documentation(), dictionary, "StaticScale");
-
+    
     _scaleValue = dictionary.value<double>(KeyValue);
 }
 
