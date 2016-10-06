@@ -19,7 +19,7 @@ return {
         Name = "Jupiter",
         Parent = "JupiterBarycenter",
         -- SceneRadius unit is KM
-        SceneRadius = 7.0E+5,
+        SceneRadius = 4.0E+5,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_JUPITER",
