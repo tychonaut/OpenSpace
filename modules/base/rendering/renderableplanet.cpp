@@ -866,9 +866,7 @@ void RenderablePlanet::loadTexture() {
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
         const GLubyte * errString = gluErrorString(err);
-        std::stringstream ss;
-        ss << "Error after loading color texture. OpenGL error: " << errString << std::endl;
-        LERROR(ss.str());
+        LERROR("Error after loading color texture. OpenGL error: " << errString);
     }
 
     if (_hasNightTexture) {
@@ -886,9 +884,7 @@ void RenderablePlanet::loadTexture() {
 
     while ((err = glGetError()) != GL_NO_ERROR) {
         const GLubyte * errString = gluErrorString(err);
-        std::stringstream ss;
-        ss << "Error after loading night texture. OpenGL error: " << errString << std::endl;
-        LERROR(ss.str());
+        LERROR("Error after loading night texture. OpenGL error: " << errString);
     }
 
     if (_hasReflectanceTexture) {
@@ -906,9 +902,7 @@ void RenderablePlanet::loadTexture() {
 
     while ((err = glGetError()) != GL_NO_ERROR) {
         const GLubyte * errString = gluErrorString(err);
-        std::stringstream ss;
-        ss << "Error after loading reflectance texture. OpenGL error: " << errString << std::endl;
-        LERROR(ss.str());
+        LERROR("Error after loading reflectance texture. OpenGL error: " << errString);
     }
 
     if (_hasHeightTexture) {
@@ -926,9 +920,7 @@ void RenderablePlanet::loadTexture() {
 
     while ((err = glGetError()) != GL_NO_ERROR) {
         const GLubyte * errString = gluErrorString(err);
-        std::stringstream ss;
-        ss << "Error after loading height texture. OpenGL error: " << errString << std::endl;
-        LERROR(ss.str());
+        LERROR("Error after loading height texture. OpenGL error: " << errString);
     }
 
     if (_hasCloudsTexture) {
@@ -946,9 +938,7 @@ void RenderablePlanet::loadTexture() {
 
     while ((err = glGetError()) != GL_NO_ERROR) {
         const GLubyte * errString = gluErrorString(err);
-        std::stringstream ss;
-        ss << "Error after loading clouds texture. OpenGL error: " << errString << std::endl;
-        LERROR(ss.str());
+        LERROR("Error after loading clouds texture. OpenGL error: " << errString);
     }
 
 }
