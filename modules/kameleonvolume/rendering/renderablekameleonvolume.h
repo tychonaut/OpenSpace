@@ -22,39 +22,74 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_MODULE_VOLUME___RAWVOLUME___H__
-#define __OPENSPACE_MODULE_VOLUME___RAWVOLUME___H__
+#ifndef __RENDERABLEKAMELEONVOLUME_H__
+#define __RENDERABLEKAMELEONVOLUME_H__
 
-#include <ghoul/glm.h>
-#include <functional>
-#include <vector>
+#include <openspace/properties/vectorproperty.h>
+#include <openspace/properties/optionproperty.h>
+#include <openspace/util/boxgeometry.h>
+#include <openspace/util/blockplaneintersectiongeometry.h>
+
+#include <openspace/rendering/renderable.h>
+
+#include <openspace/rendering/transferfunction.h>
+#include <modules/kameleon/include/kameleonwrapper.h>
+#include <modules/volume/rawvolume.h>
+#include <modules/kameleonvolume/rendering/kameleonvolumeraycaster.h>
+
 
 namespace openspace {
 
-template <typename Voxel>
-class RawVolume {
+struct RenderData;
+    
+class RenderableKameleonVolume : public Renderable {
 public:
-    typedef Voxel VoxelType;
-    RawVolume(const glm::uvec3& dimensions);
-    glm::uvec3 dimensions() const;
-    void setDimensions(const glm::uvec3& dimensions);
-    size_t nCells() const;
-    VoxelType get(const glm::uvec3& coordinates) const;
-    VoxelType get(const size_t index) const;
-    void set(const glm::uvec3& coordinates, const VoxelType& value);
-    void set(size_t index, const VoxelType& value);
-    void forEachVoxel(const std::function<void(const glm::uvec3&, const VoxelType&)>& fn);
-    const VoxelType* data() const;
-    size_t coordsToIndex(const glm::uvec3& cartesian) const;
-    glm::uvec3 indexToCoords(size_t linear) const;
-    VoxelType* data();
+    RenderableKameleonVolume(const ghoul::Dictionary& dictionary);
+    ~RenderableKameleonVolume();
+    
+    bool initialize() override;
+    bool deinitialize() override;
+    bool isReady() const override;
+    void render(const RenderData& data, RendererTasks& tasks) override;
+    void update(const UpdateData& data) override;
+    bool cachingEnabled();
+
 private:
-    glm::uvec3 _dimensions;
-    std::vector<VoxelType> _data;
+    void load();
+    void loadFromPath(const std::string& path);
+    void loadRaw(const std::string& path);
+    void loadCdf(const std::string& path);
+    void storeRaw(const std::string& path);
+
+    std::string cacheSuffix();
+    void updateTextureFromVolume();
+
+    properties::UVec3Property _dimensions;
+    properties::StringProperty _variable;
+    properties::Vec3Property _lowerDomainBound;
+    properties::Vec3Property _upperDomainBound;
+    bool _autoDomainBounds;
+
+    properties::FloatProperty _lowerValueBound;
+    properties::FloatProperty _upperValueBound;
+    bool _autoValueBounds;
+
+    properties::OptionProperty _gridType;
+    bool _autoGridType;
+
+    properties::FloatProperty _stepSize;
+    properties::StringProperty _sourcePath;
+    properties::StringProperty _transferFunctionPath;
+    properties::BoolProperty _cache;
+
+
+    std::unique_ptr<RawVolume<float>> _rawVolume;
+    std::unique_ptr<RawVolume<GLfloat>> _normalizedVolume;
+    std::unique_ptr<KameleonVolumeRaycaster> _raycaster;
+
+    std::shared_ptr<ghoul::opengl::Texture> _volumeTexture;
+    std::shared_ptr<TransferFunction> _transferFunction;
 };
+}
 
-} // namespace openspace
-
-#include "rawvolume.inl"
-
-#endif // __OPENSPACE_MODULE_VOLUME___RAWVOLUME___H__
+#endif // __RENDERABLETOYVOLUME_H__

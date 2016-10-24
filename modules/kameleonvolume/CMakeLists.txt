@@ -2,7 +2,7 @@
 #                                                                                       #
 # OpenSpace                                                                             #
 #                                                                                       #
-# Copyright (c) 2014-2015                                                               #
+# Copyright (c) 2014-2016                                                               #
 #                                                                                       #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this  #
 # software and associated documentation files (the "Software"), to deal in the Software #
@@ -25,37 +25,25 @@
 include(${OPENSPACE_CMAKE_EXT_DIR}/module_definition.cmake)
 
 set(HEADER_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolume.h
-<<<<<<< HEAD
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolume.inl
-=======
->>>>>>> 4bf7b71... Add support for converting and rendering volumetric data in the cdf format. Replace DataConverter by a more general purpose TaskRunner.
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolumereader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolumereader.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolumewriter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolumewriter.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/textureslicevolumereader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/textureslicevolumereader.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/lrucache.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/linearlrucache.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/volumesampler.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/volumesampler.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/volumeutils.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/kameleonvolumereader.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/kameleonvolumereader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablekameleonvolume.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/kameleonvolumeraycaster.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/tasks/kameleondocumentationtask.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/tasks/kameleonmetadatatojsontask.h
 )
 source_group("Header Files" FILES ${HEADER_FILES})
 
 set(SOURCE_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolume.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolumereader.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/rawvolumewriter.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/textureslicevolumereader.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/volumesampler.inl
-    ${CMAKE_CURRENT_SOURCE_DIR}/volumeutils.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablekameleonvolume.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/kameleonvolumeraycaster.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/tasks/kameleondocumentationtask.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/tasks/kameleonmetadatatojsontask.cpp
 )
 source_group("Source Files" FILES ${SOURCE_FILES})
 
 create_new_module(
-    "Volume"
-    volume_module
-    ${HEADER_FILES} ${SOURCE_FILES} ${SHADER_FILES}
+    "KameleonVolume"
+    kameleonvolume_module
+    ${HEADER_FILES} ${SOURCE_FILES}
 )

@@ -22,35 +22,68 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#include "volumeutils.h"
+#ifndef __KAMELEONVOLUMERAYCASTER_H__
+#define __KAMELEONVOLUMERAYCASTER_H__
+
+
+#include <string>
+#include <vector>
+
+#include <ghoul/glm.h>
+#include <ghoul/opengl/texture.h>
+
+#include <openspace/rendering/volumeraycaster.h>
+#include <openspace/util/boxgeometry.h>
+#include <openspace/util/blockplaneintersectiongeometry.h>
+#include <openspace/rendering/transferfunction.h>
+
+#include <modules/volume/volumegridtype.h>
+
+namespace ghoul {
+    namespace opengl {
+        class Texture;
+        class ProgramObject;
+    }
+}
 
 namespace openspace {
-namespace volumeutils {
-    
-size_t coordsToIndex(const glm::uvec3& coords, const glm::uvec3& dims) {
-    size_t w = dims.x;
-    size_t h = dims.y;
-    size_t d = dims.z;
-    
-    size_t x = coords.x;
-    size_t y = coords.y;
-    size_t z = coords.z;
-    
-    return coords.z * (h * w) + coords.y * w + coords.x;
-}
 
-glm::uvec3 indexToCoords(size_t index, const glm::uvec3& dims) {
-    size_t w = dims.x;
-    size_t h = dims.y;
-    size_t d = dims.z;
-    
-    size_t x = index % w;
-    size_t y = (index / w) % h;
-    size_t z = index / w / h;
-    
-    return glm::uvec3(x, y, z);
-}
-    
-} // namespace volumeutils
+class RenderData;
+class RaycastData;
 
-} // namespace openspace
+class KameleonVolumeRaycaster : public VolumeRaycaster {
+public:
+
+    KameleonVolumeRaycaster(
+        std::shared_ptr<ghoul::opengl::Texture> texture,
+        std::shared_ptr<TransferFunction> transferFunction);
+
+    virtual ~KameleonVolumeRaycaster();
+    void initialize();
+    void deinitialize();
+    void renderEntryPoints(const RenderData& data, ghoul::opengl::ProgramObject& program) override;
+    void renderExitPoints(const RenderData& data, ghoul::opengl::ProgramObject& program) override;
+    void preRaycast(const RaycastData& data, ghoul::opengl::ProgramObject& program) override;
+    void postRaycast(const RaycastData& data, ghoul::opengl::ProgramObject& program) override;
+
+    std::string getBoundsVsPath() const override;
+    std::string getBoundsFsPath() const override;
+    std::string getRaycastPath() const override;
+    std::string getHelperPath() const override;
+
+    void setStepSize(float stepSize);
+    void setGridType(VolumeGridType gridType);
+private:
+    std::shared_ptr<ghoul::opengl::Texture> _volumeTexture;
+    std::shared_ptr<TransferFunction> _transferFunction;
+    BoxGeometry _boundingBox;
+    VolumeGridType _gridType;
+
+    std::unique_ptr<ghoul::opengl::TextureUnit> _tfUnit;
+    std::unique_ptr<ghoul::opengl::TextureUnit> _textureUnit;
+    float _stepSize;
+};
+
+} // openspace
+
+#endif  // __KAMELEONVOLUMERAYCASTER_H__ 

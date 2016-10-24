@@ -22,35 +22,73 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#include "volumeutils.h"
+#include <modules/kameleonvolume/tasks/kameleonmetadatatojsontask.h>
+#include <modules/kameleonvolume/kameleonvolumereader.h>
+#include <string>
+#include <openspace/documentation/verifier.h>
+#include <ghoul/misc/dictionaryjsonformatter.h>
+#include <ghoul/filesystem/filesystem.h>
+#include <fstream>
+
+namespace {
+    const std::string KeyInput = "Input";
+    const std::string KeyOutput = "Output";
+}
 
 namespace openspace {
-namespace volumeutils {
-    
-size_t coordsToIndex(const glm::uvec3& coords, const glm::uvec3& dims) {
-    size_t w = dims.x;
-    size_t h = dims.y;
-    size_t d = dims.z;
-    
-    size_t x = coords.x;
-    size_t y = coords.y;
-    size_t z = coords.z;
-    
-    return coords.z * (h * w) + coords.y * w + coords.x;
+
+KameleonMetadataToJsonTask::KameleonMetadataToJsonTask(const ghoul::Dictionary& dictionary) {
+    openspace::documentation::testSpecificationAndThrow(
+        documentation(),
+        dictionary,
+        "KameleonMetadataToJsonTask"
+    );
+
+    _inputPath = absPath(dictionary.value<std::string>(KeyInput));
+    _outputPath = absPath(dictionary.value<std::string>(KeyOutput));
 }
 
-glm::uvec3 indexToCoords(size_t index, const glm::uvec3& dims) {
-    size_t w = dims.x;
-    size_t h = dims.y;
-    size_t d = dims.z;
-    
-    size_t x = index % w;
-    size_t y = (index / w) % h;
-    size_t z = index / w / h;
-    
-    return glm::uvec3(x, y, z);
+std::string KameleonMetadataToJsonTask::description() {
+    return "Extract metadata from cdf-file " + _inputPath + " and write as json to " + _outputPath;
 }
-    
-} // namespace volumeutils
+
+void KameleonMetadataToJsonTask::perform(const Task::ProgressCallback & progressCallback) {
+    KameleonVolumeReader reader(_inputPath);
+    ghoul::Dictionary dictionary = reader.readMetaData();
+    progressCallback(0.5f);
+    ghoul::DictionaryJsonFormatter formatter;
+    std::string json = formatter.format(dictionary);
+    std::ofstream output(_outputPath);
+    output << json;
+    progressCallback(1.0f);
+}
+
+Documentation KameleonMetadataToJsonTask::documentation()
+{
+    using namespace documentation;
+    return {
+        "KameleonMetadataToJsonTask",
+        "kameleon_metadata_to_json_task",
+        {
+            {
+                "Type",
+                new StringEqualVerifier("KameleonMetadataToJsonTask"),
+                "The type of this task"
+            },
+            {
+                KeyInput,
+                new StringAnnotationVerifier("A file path to a cdf file"),
+                "The cdf file to extract data from"
+            },
+            {
+                KeyOutput,
+                new StringAnnotationVerifier("A valid filepath"),
+                "The json file to export data into"
+            }
+        }
+    };
+}
+
+
 
 } // namespace openspace
