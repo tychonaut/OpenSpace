@@ -404,7 +404,17 @@ bool OpenSpaceEngine::initialize() {
             verbosity = verbosityMap[v];
     }
     SysCap.logCapabilities(verbosity);
-    
+
+    // Check the required OpenGL versions of the registered modules
+    ghoul::systemcapabilities::OpenGLCapabilitiesComponent::Version version =
+        _engine->_moduleEngine->requiredOpenGLVersion();
+    LINFO("Required OpenGL version: " << version.toString());
+
+    if (OpenGLCap.openGLVersion() < version) {
+        LFATAL("Module required higher OpenGL version than is supported");
+        return false;
+    }
+
     std::string requestURL = "";
     bool success = configurationManager().getValue(ConfigurationManager::KeyDownloadRequestURL, requestURL);
     if (success) {
@@ -465,13 +475,13 @@ bool OpenSpaceEngine::initialize() {
     _renderEngine->setGlobalBlackOutFactor(0.0);
     _renderEngine->startFading(1, 3.0);
 
-
-    //_interactionHandler->setKeyboardController(new interaction::KeyboardControllerFixed);
-    //_interactionHandler->setMouseController(new interaction::OrbitalMouseController);
-
     // Run start up scripts
-    runPreInitializationScripts(scenePath);
-
+    try {
+        runPreInitializationScripts(scenePath);
+    }
+    catch (const ghoul::RuntimeError& e) {
+        LFATALC(e.component, e.message);
+    }
 
 #ifdef OPENSPACE_MODULE_ONSCREENGUI_ENABLED
     LINFO("Initializing GUI");
@@ -636,24 +646,6 @@ void OpenSpaceEngine::runScripts(const ghoul::Dictionary& scripts) {
         scripts.getValue(key, scriptPath);
         std::string&& absoluteScriptPath = absPath(scriptPath);
         _engine->scriptEngine().runScriptFile(absoluteScriptPath);
-        
-        //@JK
-        //temporary solution to ensure that startup scripts may be syncrhonized over parallel connection
-        /*
-        std::ifstream scriptFile;
-        scriptFile.open(absoluteScriptPath.c_str());
-        std::string line;
-       
-        while(getline(scriptFile,line)){
-            //valid line and not a comment
-            if(line.size() > 0 && line.at(0) != '-'){
-                std::string lib, func;
-                if(_engine->scriptEngine().parseLibraryAndFunctionNames(lib, func, line) &&
-                   _engine->scriptEngine().shouldScriptBeSent(lib, func)){
-                    _engine->scriptEngine().cacheScript(lib, func, line);
-                }
-            }
-        }*/
     }
 }
 
@@ -743,14 +735,18 @@ void OpenSpaceEngine::loadFonts() {
             LERROR("Error registering font '" << font << "' with key '" << key << "'");
     }
     
-    bool initSuccess = ghoul::fontrendering::FontRenderer::initialize();
-    if (!initSuccess)
-        LERROR("Error initializing default font renderer");
-    
-    ghoul::fontrendering::FontRenderer::defaultRenderer().setFramebufferSize(
-        glm::vec2(_windowWrapper->currentWindowSize())
-    );
-    
+    try {
+        bool initSuccess = ghoul::fontrendering::FontRenderer::initialize();
+        if (!initSuccess)
+            LERROR("Error initializing default font renderer");
+
+        ghoul::fontrendering::FontRenderer::defaultRenderer().setFramebufferSize(
+            _renderEngine->fontResolution()
+        );
+    }
+    catch (const ghoul::RuntimeError& err) {
+        LERRORC(err.component, err.message);
+    }
 }
     
 void OpenSpaceEngine::configureLogging() {
@@ -894,31 +890,20 @@ void OpenSpaceEngine::postSynchronizationPreDraw() {
     // Step the camera using the current mouse velocities which are synced
     //_interactionHandler->updateCamera();
     
-    
-
-
-
 #ifdef OPENSPACE_MODULE_ONSCREENGUI_ENABLED
     if (_isMaster && _gui->isEnabled() && _windowWrapper->isRegularRendering()) {
         glm::vec2 mousePosition = _windowWrapper->mousePosition();
         //glm::ivec2 drawBufferResolution = _windowWrapper->currentDrawBufferResolution();
         glm::ivec2 windowSize = _windowWrapper->currentWindowSize();
+        glm::ivec2 renderingSize = _windowWrapper->currentWindowResolution();
         uint32_t mouseButtons = _windowWrapper->mouseButtons(2);
-
-        //glm::vec2 windowBufferCorrectionFactor = glm::vec2(
-        //    static_cast<float>(drawBufferResolution.x) / static_cast<float>(windowSize.x),
-        //    static_cast<float>(drawBufferResolution.y) / static_cast<float>(windowSize.y)
-        //);
-
-        //LINFO("DrawBufferResolution: " << std::to_string(drawBufferResolution));
-        //LINFO("Window Size: " << std::to_string(windowSize));
         
         double dt = _windowWrapper->averageDeltaTime();
 
         _gui->startFrame(
             static_cast<float>(dt),
             glm::vec2(windowSize),
-            glm::vec2(1.f),
+            _windowWrapper->dpiScaling(),
             mousePosition,
             mouseButtons
         );

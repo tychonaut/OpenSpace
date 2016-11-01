@@ -4,12 +4,11 @@ return {
         Name = "SaturnBarycenter",
         Parent = "SolarSystemBarycenter",
         -- Scene Radius in KM:
-        SceneRadius = 1.0E+6,
+        SceneRadius = 4.0E+6,
         Transform = {
             Translation = {
                 Type = "SpiceTranslation",
                 Body = "SATURN BARYCENTER",
-                --Reference = "ECLIPJ2000",
                 Observer = "SUN",
                 Kernels = {
                     "${OPENSPACE_DATA}/spice/de430_1850-2150.bsp"
@@ -23,7 +22,7 @@ return {
         Name = "Saturn",
         Parent = "SaturnBarycenter",
         -- Scene Radius in KM:
-        SceneRadius = 6.0E+5,
+        SceneRadius = 1.5E+5,
         Renderable = {
             Type = "RenderablePlanet",
             Frame = "IAU_SATURN",
@@ -51,7 +50,7 @@ return {
             Rotation = {
                 Type = "SpiceRotation",
                 SourceFrame = "IAU_SATURN",
-                DestinationFrame = "ECLIPJ2000",
+                DestinationFrame = "GALACTIC",
             },
             Scale = {
                 Type = "StaticScale",
@@ -59,10 +58,21 @@ return {
             },
         },
     },
+    {
+        Name = "SaturnRings",
+        Parent = "Saturn",
+        Renderable = {
+            Type = "RenderableRings",
+            Texture = "textures/saturn_rings.png",
+            Size = 140220000,
+            Offset = { 74500 / 140445.100671159, 1.0 } -- min / max extend
+
+        },
+
+    },
     -- SaturnTrail module
     {   
         Name = "SaturnTrail",
-        --Parent = "SaturnBarycenter",
         Parent = "SolarSystemBarycenter",
         Renderable = {
             Type = "RenderableTrail",
