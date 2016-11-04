@@ -260,8 +260,7 @@ void RenderableModel::update(const UpdateData& data) {
     //    _time = futureTime;
     //}
 
-    double  lt;
-    _sunPos = openspace::SpiceManager::ref().targetPosition("SUN", "SUN", "GALACTIC", {}, _time, lt);
+    _sunPos = OsEng.renderEngine().scene()->sceneGraphNode("Sun")->dynamicWorldPosition().dvec3();
 }
 
 void RenderableModel::loadTexture() {
