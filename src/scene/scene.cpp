@@ -472,36 +472,34 @@ void Scene::updateSceneName(const Camera* camera) {
     _sceneName = currentSceneName(camera, _sceneName);
 }
 
-std::string Scene::currentSceneName(const Camera* camera, std::string _nameOfScene) const {
-    if (camera == nullptr || _nameOfScene.empty()) {
+std::string Scene::currentSceneName(const Camera* camera, std::string nameOfScene) const {
+    if (camera == nullptr || nameOfScene.empty()) {
         LERROR("Camera object not allocated or empty name scene passed to the method.");
         return _mostProbableSceneName; // This choice is controversal. Better to avoid a crash.
     }
-    const SceneGraphNode* node = sceneGraphNode(_nameOfScene);
+    const SceneGraphNode* node = sceneGraphNode(nameOfScene);
 
     if (node == nullptr) {
-        std::stringstream ss;
-        ss << "There is no scenegraph node with name: " << _nameOfScene;
-        LERROR(ss.str());
+        LERROR("There is no scenegraph node with name: " << nameOfScene);
         return _mostProbableSceneName;
     }
 
     //Starts in the last scene we kow we were in, checks if we are still inside, if not check parent, continue until we are inside a scene
-    double _distance = DistanceToObject::ref().distanceCalc(camera->positionVec3(), 
+    double distance = DistanceToObject::ref().distanceCalc(camera->positionVec3(), 
         node->dynamicWorldPosition().dvec3());
 
     // Traverses the scenetree to find a scene we are within. 
-    while (_distance > node->sceneRadius()) {
+    while (distance > node->sceneRadius()) {
         if (node->parent() != nullptr) {
-            node          = node->parent();
-            _distance     = DistanceToObject::ref().distanceCalc(camera->positionVec3(),
+            node         = node->parent();
+            distance     = DistanceToObject::ref().distanceCalc(camera->positionVec3(),
                 node->dynamicWorldPosition().dvec3());
         } else {
             break;
         }
     }
 
-    _nameOfScene = node->name();
+    nameOfScene = node->name();
     std::vector<SceneGraphNode*> childrenScene(node->children());
     size_t nrOfChildren = childrenScene.size();
 
@@ -509,27 +507,38 @@ std::string Scene::currentSceneName(const Camera* camera, std::string _nameOfSce
     bool outsideAllChildScenes = false;
 
     while (!childrenScene.empty() && !outsideAllChildScenes) {
+        double lastChildDistanceValid = std::numeric_limits<double>::max();
+        bool changedChild = false;
         for (size_t i = 0; i < nrOfChildren; ++i) {
             SceneGraphNode * childNode = childrenScene.at(i);
-            double _childDistance      = DistanceToObject::ref().distanceCalc(camera->positionVec3(),
+            double childDistance      = DistanceToObject::ref().distanceCalc(camera->positionVec3(),
                 childNode->dynamicWorldPosition().dvec3());            
             
             // Set the new scene that we are inside the scene radius.
-            if (_childDistance < childNode->sceneRadius()) {
-                node          = childNode;
-                childrenScene = node->children();
-                _nameOfScene  = node->name();
+            if ((childDistance < lastChildDistanceValid) && (childDistance < childNode->sceneRadius())) {
+                lastChildDistanceValid = childDistance;
+                node                   = childNode;
+                /*childrenScene = node->children();
+                nameOfScene  = node->name();
                 nrOfChildren  = childrenScene.size();
-                break;
+                break;*/
+                changedChild = true;
             }
 
             if (nrOfChildren - 1 == i) {
-                outsideAllChildScenes = true;
+                if (!changedChild) {
+                    outsideAllChildScenes = true;
+                }
+                else {
+                    childrenScene = node->children();
+                    nameOfScene   = node->name();
+                    nrOfChildren  = childrenScene.size();
+                }
             }
         }
     }
 
-    return _nameOfScene;
+    return nameOfScene;
 }
 const glm::dvec3 Scene::currentDisplacementPosition(const std::string & cameraParent,
     const SceneGraphNode* target) const {

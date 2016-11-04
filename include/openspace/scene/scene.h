@@ -166,7 +166,7 @@ private:
     * Calculates the current scene name (new camera's node parent) based on the camera's position
     * and the former scene name.
     */
-    std::string currentSceneName(const Camera* camera, std::string _nameOfScene) const;
+    std::string currentSceneName(const Camera* camera, std::string nameOfScene) const;
 
     std::string _sceneName;
     std::string _focus;
