@@ -59,12 +59,16 @@ RotationMatrix = {
 return {
     {
         Name = "Rosetta",
-        Parent = "SolarSystemBarycenter",
+        --Parent = "SolarSystemBarycenter",
+        Parent = "67PBarycenter",
+        -- SceneRadius unit is KM                
+		SceneRadius = 1.0E+1,
         Transform = {
             Translation = {
                 Type = "SpiceTranslation",
                 Body = "ROSETTA",
-                Observer = "SUN",
+                --Observer = "SUN",
+                Observer = "CHURYUMOV-GERASIMENKO",
                 Kernels = RosettaKernels
             },  
             Rotation = {

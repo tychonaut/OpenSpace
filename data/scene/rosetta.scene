@@ -59,7 +59,7 @@ return {
         "earth",
         "mars",
         "jupiter/jupiter",
-        "saturn",
+        "saturn/saturn",
         "uranus",
         "neptune",
         "stars",

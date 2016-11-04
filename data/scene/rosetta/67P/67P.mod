@@ -2,7 +2,9 @@ return {
     -- Comet 67P Body module
     {   
         Name = "67PBarycenter",
-        Parent = "SolarSystemBarycenter", 
+        Parent = "SolarSystemBarycenter",
+        -- SceneRadius unit is KM                
+		SceneRadius = 1.0E+6,                
         Transform = {
             Translation = {
                 Type = "SpiceTranslation",
@@ -14,7 +16,8 @@ return {
     {   
         Name = "67P",
         Parent = "67PBarycenter", 
-
+        -- SceneRadius unit is KM                
+		SceneRadius = 1.0E+2,
         Renderable = {
             Type = "RenderableModelProjection",
             Geometry = {
