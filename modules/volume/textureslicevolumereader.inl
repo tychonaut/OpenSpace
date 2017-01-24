@@ -29,7 +29,7 @@ namespace openspace {
 template <typename VoxelType>
 VoxelType TextureSliceVolumeReader<VoxelType>::get(const glm::ivec3& coordinates) const {
     ghoul::opengl::Texture& slice = getSlice(coordinates.z);
-    return slice.texel<VoxelType>(coordinates.xy());
+    return slice.texel<VoxelType>(glm::uvec2(coordinates.x, coordinates.y));
 }
 
 template <typename VoxelType>
