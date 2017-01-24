@@ -22,7 +22,7 @@
 * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
 ****************************************************************************************/
 
-#include <modules/galaxy/milkywayconversiontask.h>
+#include <modules/galaxy/tasks/milkywayconversiontask.h>
 #include <modules/volume/textureslicevolumereader.h>
 #include <modules/volume/rawvolumewriter.h>
 #include <modules/volume/volumesampler.h>
