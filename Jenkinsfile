@@ -1,6 +1,6 @@
 node {
-	mkdir build -p
-	cd build
-	python ../support/jenkins/buildAllModules.py
-	make
+	sh 'mkdir build -p'
+	sh 'cd build'
+	sh 'python ../support/jenkins/buildAllModules.py'
+	sh 'make'
 }
