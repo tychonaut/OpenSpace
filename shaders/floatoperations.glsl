@@ -2,7 +2,7 @@
  *                                                                                       *
  * OpenSpace                                                                             *
  *                                                                                       *
- * Copyright (c) 2014 - 2016                                                             *
+ * Copyright (c) 2017                                                                   *
  *                                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this  *
  * software and associated documentation files (the "Software"), to deal in the Software *
@@ -22,57 +22,72 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#include "fragment.glsl"
-#include <#{fragmentPath}>
-#include "abufferfragment.glsl"
-#include "abufferresources.glsl"
-#include "floatoperations.glsl"
+#ifndef _FLOATOPERATIONS_GLSL_
+#define _FLOATOPERATIONS_GLSL_
 
-out vec4 _out_color_;
 
-void main() {
-    Fragment frag = getFragment();
-    int sampleMask = gl_SampleMaskIn[0];
-
-    if (frag.depth < 0) {
-//         discard;
-    }
-
-    bool storeInAbuffer = false;
-
-    if (frag.forceFboRendering) {
-        storeInAbuffer = false;
+/**
+ * Convert a positive floating point distance [0, 10^27]
+ * (size of observable universe)
+ * to a float in the range [-1, 1], suitable for depth buffer storage.
+ * Note: This needs to be a monotonic function, so that the value can
+ * still be used for depth comparison.
+ */
+float normalizeFloat(float inpt) {
+    if (inpt > 1.0) {
+        return inpt / pow(10, 27);
     } else {
-        storeInAbuffer = frag.color.a < 1.0 ||
-                          sampleMask != 255 ||
-                          frag.blend != BLEND_MODE_NORMAL;
-        // todo: calculate full sample mask from nAaSamples instead of hardcoded 255.
+        return inpt - 1.0;
     }
-
-    if (storeInAbuffer) {
-        uint newHead = atomicCounterIncrement(atomicCounterBuffer);
-        if (newHead >= #{rendererData.maxTotalFragments}) {
-            discard; // ABuffer is full!
-        }
-        uint prevHead = imageAtomicExchange(anchorPointerTexture, ivec2(gl_FragCoord.xy), newHead);
-
-        ABufferFragment aBufferFrag;
-        _color_(aBufferFrag, frag.color);
-        _depth_(aBufferFrag, frag.depth);
-        _blend_(aBufferFrag, frag.blend);
-
-        _type_(aBufferFrag, 0); // 0 = geometry type
-        _msaa_(aBufferFrag, gl_SampleMaskIn[0]);
-        _next_(aBufferFrag, prevHead);
-
-        storeFragment(newHead, aBufferFrag);
-        discard;
-    } else {
-        _out_color_ = frag.color;
-        gl_FragDepth = normalizeFloat(frag.depth);
-    }
-
-    //gl_FragDepth = 1;
-
 }
 
+float denormalizeFloat(float inpt) {
+    if (inpt < 0.0) {
+        return inpt + 1.0;
+    } else {
+        return inpt * pow(10, 27);
+    }
+}
+
+/**
+ * Compute the length of a vector.
+ * Supporting huge vectors, where the square of any of the components is too large to represent as a float. 
+ */
+float safeLength(vec4 v) {
+    float m = max(max(max(abs(v.x), abs(v.y)), abs(v.z)), abs(v.w));
+    if (m > 0.0) {
+        return length(v / m) * m;
+    } else {
+        return 0;
+    }
+}
+
+float safeLength(vec3 v) {
+    float m = max(max(abs(v.x), abs(v.y)), abs(v.z));
+    if (m > 0.0) {
+        return length(v / m) * m;
+    } else {
+        return 0;
+    }
+}
+
+float safeLength(vec2 v) {
+    float m = max(abs(v.x), abs(v.y));
+    if (m > 0.0) {
+        return length(v / m) * m;
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * Normalize a vector
+ * Supporting huge vectors, where the square of any of the components is too large to represent as a float. 
+ */
+vec3 safeNormalize(vec3 v) {
+    float m = max(max(abs(v.x), abs(v.y)), abs(v.z));
+    return normalize(v / m);
+}
+
+
+#endif
