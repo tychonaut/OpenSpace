@@ -32,7 +32,7 @@ namespace openspace {
 class SpaceModule : public OpenSpaceModule {
 public:
     SpaceModule();
-    
+    virtual ~SpaceModule() = default;
     std::vector<Documentation> documentations() const override;
 
 protected:
