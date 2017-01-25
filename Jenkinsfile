@@ -10,7 +10,8 @@ stage('Build') {
 		node('windows') {
 			checkout scm
 			bat 'git submodule update --init --recursive'
-			bat 'mkdir -p build && cd build && python ../support/jenkins/buildAllModules.py && make'
+			bat 'mkdir build'
+			bat 'cd build && python ../support/jenkins/buildAllModules.py && make'
 		}
 	}
 	mac: {
