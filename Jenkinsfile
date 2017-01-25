@@ -14,7 +14,7 @@ stage('Build') {
 		}
 	}
 	mac: {
-		node('mac') {
+		node('osx') {
 			checkout scm
 			sh 'git submodule update --init --recursive'
 			sh 'mkdir build && cd build && python ../support/jenkins/buildAllModules.py && make'
