@@ -17,7 +17,7 @@ def modules = [
 
 def flags = "-DGHOUL_USE_DEVIL=OFF "
 
-for (module : modules) {
+for (module in modules) {
 	flags += -DOPENSPACE_OPENSPACE_MODULE_ " + module.toUpperCase() + "=ON "
 }
 
