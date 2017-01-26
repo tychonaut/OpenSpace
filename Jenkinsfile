@@ -31,7 +31,7 @@ stage('Build') {
 			sh '''
 				mkdir -p build
 				cd build 
-				cmake -G ''' +
+				cmake ''' +
 				flags + ''' ..
 			make
 			'''
