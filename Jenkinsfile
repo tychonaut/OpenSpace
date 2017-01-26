@@ -66,7 +66,9 @@ stage('Build') {
 				fi
 				cd ${srcDir}/build
 				/Applications/CMake.app/Contents/bin/cmake -G Xcode -D NASM=/usr/local/Cellar/nasm/2.11.08/bin/nasm ${srcDir} ''' +
-				flags + ' xcodebuild'
+				flags + '''
+				xcodebuild
+				'''
 		}
 	}
 }	
