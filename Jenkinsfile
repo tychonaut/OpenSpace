@@ -17,7 +17,7 @@ stage('Build') {
 				msbuild.exe OpenSpace.sln /m:8 /p:Configuration=Debug
 			'''
 		}
-	}
+	},
 	osx: {
 		node('osx') {
 			checkout scm
