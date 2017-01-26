@@ -6,9 +6,22 @@ stage('Build') {
 			sh 'mkdir -p build && cd build && python ../support/jenkins/buildAllModules.py && make'
 		}
 	},
+	windows: {
+		node('windows') {
+			checkout scm
+			bat '''
+				git submodule update --init --recursive
+				if not exist "build" mkdir "build"
+				cd build
+				cmake -G "Visual Studio 14 2015 Win64" ..
+				"\"${tool 'MSBuild'}\" OpenSpace.sln /m:8 /p:Configuration=Debug"
+			'''
+		}
+	}
 	osx: {
 		node('osx') {
 			checkout scm
+			sh 'git submodule update --init --recursive'
 			sh '''
 				export PATH=${PATH}:/usr/local/bin:/Applications/CMake.app/Contents/bin
 				export CMAKE_BUILD_TOOL=/Applications/CMake.app/Contents/bin/CMake
