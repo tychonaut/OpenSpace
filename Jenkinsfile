@@ -15,7 +15,7 @@ def modules = [
 	"volume"
 ];
 
-flags = '-DGHOUL_USE_DEVIL=OFF' + modules.collect( "-DOPENSPACE_OPENSPACE_MODULE_ " + it.toUpperCase() + "=ON").join(' ');
+flags = '-DGHOUL_USE_DEVIL=OFF' + (modules.collect{it -> return "-DOPENSPACE_OPENSPACE_MODULE_ " + it.toUpperCase() + "=ON"}).join(' ');
 echo flags
 
 stage('Build') {
