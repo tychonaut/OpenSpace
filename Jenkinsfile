@@ -1,9 +1,35 @@
+def modules = [
+	"base",
+	"debugging",
+	"fieldlines",
+	"galaxy",
+	"globebrowsing",
+	"iswa",
+	"kameleon",
+	"kameleonvolume",
+	"multiresvolume",
+	"newhorizons",
+	"onscreengui",
+	"space",
+	"toyvolume",
+	"volume"
+];
+
+flags = '-DGHOUL_USE_DEVIL=OFF' + modules.collect( "-DOPENSPACE_OPENSPACE_MODULE_ " + it.toUpperCase() + "=ON").join(' ');
+echo flags
+
 stage('Build') {
 	parallel linux: {
 		node('linux') {
 			checkout scm
 			sh 'git submodule update --init --recursive'
-			sh 'mkdir -p build && cd build && python ../support/jenkins/buildAllModules.py && make'
+			sh '''
+				mkdir -p build
+				cd build 
+				cmake -G ''' +
+				flags + ''' ..
+			make
+			'''
 		}
 	},
 	windows: {
@@ -13,7 +39,8 @@ stage('Build') {
 				git submodule update --init --recursive
 				if not exist "build" mkdir "build"
 				cd build
-				cmake -G "Visual Studio 14 2015 Win64" ..
+				cmake -G "Visual Studio 14 2015 Win64" ''' +
+				flags + ' ..'
 				msbuild.exe OpenSpace.sln /m:8 /p:Configuration=Debug
 			'''
 		}
@@ -33,9 +60,8 @@ stage('Build') {
 				  mkdir ${srcDir}/build
 				fi
 				cd ${srcDir}/build
-				/Applications/CMake.app/Contents/bin/cmake -G Xcode -D NASM=/usr/local/Cellar/nasm/2.11.08/bin/nasm ${srcDir}
-				xcodebuild
-		 	'''
+				/Applications/CMake.app/Contents/bin/cmake -G Xcode -D NASM=/usr/local/Cellar/nasm/2.11.08/bin/nasm ${srcDir} ''' +
+				flags + ' xcodebuild'
 		}
 	}
 }	
