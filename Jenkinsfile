@@ -14,7 +14,7 @@ stage('Build') {
 				if not exist "build" mkdir "build"
 				cd build
 				cmake -G "Visual Studio 14 2015 Win64" ..
-				${tool 'MSBuild'} OpenSpace.sln /m:8 /p:Configuration=Debug
+				msbuild.exe OpenSpace.sln /m:8 /p:Configuration=Debug
 			'''
 		}
 	}
