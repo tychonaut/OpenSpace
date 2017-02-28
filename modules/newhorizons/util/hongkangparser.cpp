@@ -2,7 +2,7 @@
  *                                                                                       *
  * OpenSpace                                                                             *
  *                                                                                       *
- * Copyright (c) 2014-2016                                                               *
+ * Copyright (c) 2014-2017                                                               *
  *                                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this  *
  * software and associated documentation files (the "Software"), to deal in the Software *
@@ -273,12 +273,11 @@ bool HongKangParser::augmentWithSpice(Image& image, std::string spacecraft,
     }
 
     for (int i = 0; i < potentialTargets.size(); ++i) {
-        bool _withinFOV = false;
         for (int j = 0; j < image.activeInstruments.size(); ++j) {
             double time = image.timeRange.start;
             for (int k = 0; k < exposureTime; k++) {
                 time += k;
-                _withinFOV = SpiceManager::ref().isTargetInFieldOfView(
+                bool withinFOV = SpiceManager::ref().isTargetInFieldOfView(
                     potentialTargets[i],
                     spacecraft,
                     image.activeInstruments[j],
@@ -287,9 +286,8 @@ bool HongKangParser::augmentWithSpice(Image& image, std::string spacecraft,
                     time
                 );
 
-                if (_withinFOV) {
+                if (withinFOV) {
                     image.target = potentialTargets[i];
-                    _withinFOV = false;
                 }
             }
         }

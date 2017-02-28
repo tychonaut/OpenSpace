@@ -2,7 +2,11 @@
  *                                                                                       *
  * OpenSpace                                                                             *
  *                                                                                       *
+<<<<<<< HEAD:modules/volume/rendering/volumeclipplanes.h
  * Copyright (c) 2014-2016                                                               *
+=======
+ * Copyright (c) 2014-2017                                                               *
+>>>>>>> 6199289e9166d0d4063cdfc289395c78f7dc9ad8:modules/volume/rendering/renderablevolume.h
  *                                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this  *
  * software and associated documentation files (the "Software"), to deal in the Software *
@@ -22,8 +26,8 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __VOLUMECLIPPLANES_H__
-#define __VOLUMECLIPPLANES_H__
+#ifndef __OPENSPACE_MODULE_VOLUME___VOLUMECLIPPLANES_H__
+#define __OPENSPACE_MODULE_VOLUME___VOLUMECLIPPLANES_H__
 
 #include <openspace/properties/propertyowner.h>
 #include <openspace/properties/scalarproperty.h>
@@ -55,4 +59,4 @@ private:
 
 }  // namespace openspace
 
-#endif  // __VOLUMECLIPPLANES_H__
+#endif // __OPENSPACE_MODULE_VOLUME___VOLUMECLIPPLANES_H__

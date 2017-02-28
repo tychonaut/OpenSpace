@@ -2,7 +2,7 @@
  *                                                                                       *
  * OpenSpace                                                                             *
  *                                                                                       *
- * Copyright (c) 2014-2016                                                               *
+ * Copyright (c) 2014-2017                                                               *
  *                                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this  *
  * software and associated documentation files (the "Software"), to deal in the Software *
@@ -74,15 +74,12 @@ public:
         FPSAvg
     };
 
-    static const std::string KeyFontMono;
-    static const std::string KeyFontLight;
-    static const std::vector<FrametimeType> FrametimeTypes;
-
     RenderEngine();
     ~RenderEngine();
     
-    bool initialize();
-    bool deinitialize();
+    void initialize();
+    void initializeGL();
+    void deinitialize();
 
     void setSceneGraph(Scene* sceneGraph);
     Scene* scene();
@@ -93,14 +90,13 @@ public:
     RaycasterManager& raycasterManager();
 
     // sgct wrapped functions
-    bool initializeGL();
     
     void updateSceneGraph();
     void updateShaderPrograms();
     void updateFade();
     void updateRenderer();
     void updateScreenSpaceRenderables();
-    void render(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix);
+    void render(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
 
     void renderScreenLog();
     void renderShutdownInformation(float timer, float fullTime);
@@ -174,9 +170,6 @@ public:
      */
     static scripting::LuaLibrary luaLibrary();
 
-    // This is a temporary method to change the origin of the coordinate system ---abock
-    void changeViewPoint(std::string origin);
-
     // Temporary fade functionality
     void startFading(int direction, float fadeDuration);
 
@@ -221,7 +214,7 @@ private:
     float _currentFadeTime;
     int _fadeDirection;
     int _nAaSamples;
-    unsigned int _frameNumber;
+    uint64_t _frameNumber;
 
     std::vector<ghoul::opengl::ProgramObject*> _programs;
     std::vector<std::shared_ptr<ScreenSpaceRenderable>> _screenSpaceRenderables;

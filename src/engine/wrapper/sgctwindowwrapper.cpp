@@ -2,7 +2,7 @@
  *                                                                                       *
  * OpenSpace                                                                             *
  *                                                                                       *
- * Copyright (c) 2014-2016                                                               *
+ * Copyright (c) 2014-2017                                                               *
  *                                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this  *
  * software and associated documentation files (the "Software"), to deal in the Software *
@@ -110,9 +110,9 @@ glm::ivec2 SGCTWindowWrapper::currentWindowSize() const {
 }
     
 glm::ivec2 SGCTWindowWrapper::currentWindowResolution() const {
-    auto window = sgct::Engine::instance()->getCurrentWindowPtr();
     int x, y;
-    sgct::Engine::instance()->getCurrentWindowPtr()->getFinalFBODimensions(x, y);
+    auto window = sgct::Engine::instance()->getCurrentWindowPtr();
+    window->getFinalFBODimensions(x, y);
     return glm::ivec2(x, y);
 }
 
@@ -162,6 +162,10 @@ bool SGCTWindowWrapper::hasGuiWindow() const {
 bool SGCTWindowWrapper::isGuiWindow() const {
     return sgct::Engine::instance()->getCurrentWindowPtr()->getName() == GuiWindowName;
 }
+    
+bool SGCTWindowWrapper::isMaster() const {
+    return sgct::Engine::instance()->isMaster();
+}
 
 bool SGCTWindowWrapper::isSwapGroupMaster() const {
     return sgct::Engine::instance()->getCurrentWindowPtr()->isSwapGroupMaster();
@@ -170,7 +174,6 @@ bool SGCTWindowWrapper::isSwapGroupMaster() const {
 bool SGCTWindowWrapper::isUsingSwapGroups() const {
     return sgct::Engine::instance()->getCurrentWindowPtr()->isUsingSwapGroups();
 }
-
     
 glm::mat4 SGCTWindowWrapper::viewProjectionMatrix() const {
     return sgct::Engine::instance()->getCurrentModelViewProjectionMatrix();

@@ -2,7 +2,7 @@
  *                                                                                       *
  * OpenSpace                                                                             *
  *                                                                                       *
- * Copyright (c) 2014-2016                                                               *
+ * Copyright (c) 2014-2017                                                               *
  *                                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this  *
  * software and associated documentation files (the "Software"), to deal in the Software *
@@ -51,9 +51,10 @@ void TextureSliceVolumeReader<VoxelType>::initialize() {
 
     std::shared_ptr<ghoul::opengl::Texture> firstSlice =
         ghoul::io::TextureReader::ref().loadTexture(_paths[0]);
-    
+
     glm::uvec3 dimensions = firstSlice->dimensions();
     _sliceDimensions = glm::uvec2(dimensions.x, dimensions.y);
+
     _initialized = true;
     _cache.set(0, firstSlice);
 }
@@ -72,9 +73,10 @@ ghoul::opengl::Texture& TextureSliceVolumeReader<VoxelType>::getSlice(int sliceI
     if (!_cache.has(sliceIndex)) {
         std::shared_ptr<ghoul::opengl::Texture> texture =
             ghoul::io::TextureReader::ref().loadTexture(_paths[sliceIndex]);
-        
+
         glm::uvec3 dimensions = texture->dimensions();
         glm::ivec2 dims = glm::uvec2(dimensions.x, dimensions.y);
+
         ghoul_assert(dims == _sliceDimensions, "Slice dimensions do not agree.");
         _cache.set(sliceIndex, std::move(texture));
     }
