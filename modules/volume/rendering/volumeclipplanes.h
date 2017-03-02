@@ -2,11 +2,7 @@
  *                                                                                       *
  * OpenSpace                                                                             *
  *                                                                                       *
-<<<<<<< HEAD:modules/volume/rendering/volumeclipplanes.h
- * Copyright (c) 2014-2016                                                               *
-=======
  * Copyright (c) 2014-2017                                                               *
->>>>>>> 6199289e9166d0d4063cdfc289395c78f7dc9ad8:modules/volume/rendering/renderablevolume.h
  *                                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this  *
  * software and associated documentation files (the "Software"), to deal in the Software *
@@ -37,7 +33,6 @@
 #include <vector>
 #include <memory>
 
-// Forward declare to minimize dependencies
 namespace ghoul {
     class Dictionary;
 }
