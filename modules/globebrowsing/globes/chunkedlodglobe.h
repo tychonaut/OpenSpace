@@ -150,6 +150,16 @@ public:
     */
     void setLabelsColor(const glm::vec4 & color);
 
+    /**
+     * Labels Fade In starting distance. 
+     */
+    void setLabelFadeInDistance(const float dist);
+
+    /**
+    * Labels's min size.
+    */
+    void setLabelsMinSize(const int size);
+
     const int minSplitDepth;
     const int maxSplitDepth;
 
@@ -190,11 +200,13 @@ private:
     // Label Rendering
     bool _labelsEnabled;
     int _fontSize;
+    int _labelsMinSize;
     float _labelsSize;
     float _labelsMinHeight;
     RenderableGlobe::Labels _labels;
     std::shared_ptr<ghoul::fontrendering::Font> _font;
     glm::vec4 _labelsColor;
+    float _labelsFadeInDistance;
 };
 
 } // namespace openspace::globebrowsing

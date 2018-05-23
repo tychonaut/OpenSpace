@@ -74,9 +74,11 @@ ChunkedLodGlobe::ChunkedLodGlobe(const RenderableGlobe& owner, size_t segmentsPe
     , _shadersNeedRecompilation(true)
     , _labelsEnabled(false)
     , _fontSize(30)
+    , _labelsMinSize(4)
     , _labelsSize(2.5f)
     , _labelsMinHeight(100.f)
     , _labelsColor(1.f)
+    , _labelsFadeInDistance(1000000.f)
 {
     auto geometry = std::make_shared<SkirtedGrid>(
         static_cast<unsigned int>(segmentsPerPatch),
@@ -334,6 +336,14 @@ void ChunkedLodGlobe::setLabelsColor(const glm::vec4 & color) {
     _labelsColor = std::move(color);
 }
 
+void ChunkedLodGlobe::setLabelFadeInDistance(const float dist) {
+    _labelsFadeInDistance = std::move(dist);
+}
+
+void ChunkedLodGlobe::setLabelsMinSize(const int size) {
+    _labelsMinSize = std::move(size);
+}
+
 void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
     
     // Calculate the MVP matrix
@@ -384,7 +394,23 @@ void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
         glm::dmat4 invMVP = glm::inverse(mvp);
         glm::dvec3 orthoRight = glm::dvec3(glm::normalize(glm::dvec3(invMVP * glm::dvec4(1.0, 0.0, 0.0, 0.0))));
         glm::dvec3 orthoUp = glm::dvec3(glm::normalize(glm::dvec3(invMVP * glm::dvec4(0.0, 1.0, 0.0, 0.0))));
-        renderLabels(data, mvp, orthoRight, orthoUp, 1.0);
+
+        float fadeInVariable = 1.f;
+        if (true) {
+            float distCamera = glm::length(data.camera.positionVec3() - glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0)));
+            glm::vec2 fadeRange = glm::vec2(static_cast<float>(_owner.ellipsoid().averageRadius()) + _labelsMinHeight);//_fadeInDistance;
+            fadeRange.x += _labelsFadeInDistance;
+            float a = 1.0f / (fadeRange.y - fadeRange.x);
+            float b = -(fadeRange.x / (fadeRange.y - fadeRange.x));
+            float funcValue = a * distCamera + b;
+            fadeInVariable *= funcValue > 1.f ? 1.f : funcValue;
+
+            if (fadeInVariable < 0.01) {
+                return;
+            }
+        }
+
+        renderLabels(data, mvp, orthoRight, orthoUp, fadeInVariable);
     }
 }
 
@@ -396,28 +422,34 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     textColor.a *= fadeInVariable;
     // first position
     // second text
+    glm::dvec3 oP = glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
     for (const RenderableGlobe::LabelEntry lEntry: _labels.labelsArray) {
         glm::vec3 position = lEntry.geoPosition;
-        position += _labelsMinHeight;
-        ghoul::fontrendering::FontRenderer::defaultProjectionRenderer().render(
-            *_font,
-            //lEntry.geoPosition,
-            position,
-            textColor,
-            powf(2.f, _labelsSize),
-            //_textMinSize,
-            //_textMaxSize,
-            4,
-            500,
-            modelViewProjectionMatrix,
-            orthoRight,
-            orthoUp,
-            data.camera.positionVec3(),
-            data.camera.lookUpVectorWorldSpace(),
-            0,
-            "%s",
-            lEntry.feature
-        );
+        float distCameraCenter = glm::length(data.camera.positionVec3() - oP);
+        float distCameraPoint = glm::length(data.camera.positionVec3() - 
+            glm::dvec3(_owner.modelTransform() * glm::vec4(position, 1.0)));
+        if (distCameraCenter > distCameraPoint + 1000.0) {
+            position += _labelsMinHeight;
+            ghoul::fontrendering::FontRenderer::defaultProjectionRenderer().render(
+                *_font,
+                //lEntry.geoPosition,
+                position,
+                textColor,
+                powf(2.f, _labelsSize),
+                //_textMinSize,
+                //_textMaxSize,
+                _labelsMinSize,
+                500,
+                modelViewProjectionMatrix,
+                orthoRight,
+                orthoUp,
+                data.camera.positionVec3(),
+                data.camera.lookUpVectorWorldSpace(),
+                0,
+                "%s",
+                lEntry.feature
+            );
+        }
     }
  }
 

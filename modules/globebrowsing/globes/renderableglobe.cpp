@@ -222,6 +222,12 @@ namespace {
         "Labels Color",
         "Labels Color"
     };
+
+    static const openspace::properties::Property::PropertyInfo FadeInStartingDistanceInfo = {
+        "FadeInStartingDistance",
+        "Fade In Starting Distance for Labels",
+        "Fade In Starting Distance for Labels"
+    };
 } // namespace
 
 using namespace openspace::properties;
@@ -257,11 +263,12 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
         BoolProperty(LabelsInfo, false),
         IntProperty(LabelsFontSizeInfo, 30, 1, 50),
         IntProperty(LabelsMaxSizeInfo, 300, 10, 1000),
-        IntProperty(LabelsMinSizeInfo, 30, 1, 100),
+        IntProperty(LabelsMinSizeInfo, 4, 1, 100),
         FloatProperty(LabelsSizeInfo, 2.5, 0, 30),
         FloatProperty(LabelsMinHeightInfo, 100.0, 0.0, 10000.0),
         Vec4Property(LabelsColorInfo, glm::vec4(1.f, 1.f, 0.f, 1.f), 
-            glm::vec4(0.f), glm::vec4(1.f))
+            glm::vec4(0.f), glm::vec4(1.f)),
+        FloatProperty(FadeInStartingDistanceInfo, 1E6, 1E3, 1E8)
     })
     , _debugPropertyOwner({ "Debug" })
 {
@@ -323,6 +330,8 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
     addProperty(_generalProperties.labelsMinHeight);
     _generalProperties.labelsColor.setViewOption(properties::Property::ViewOptions::Color);
     addProperty(_generalProperties.labelsColor);
+    addProperty(_generalProperties.labelsFadeInDist);
+    addProperty(_generalProperties.labelsMinSize);
 
     _debugPropertyOwner.addProperty(_debugProperties.saveOrThrowCamera);
     _debugPropertyOwner.addProperty(_debugProperties.showChunkEdges);
@@ -482,6 +491,26 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 _generalProperties.labelsColor.onChange([&]() {
                     _labelsColor = _generalProperties.labelsColor;
                     _chunkedLodGlobe->setLabelsColor(_labelsColor);
+                });
+
+                if (labelsDictionary.hasKey(FadeInStartingDistanceInfo.identifier)) {
+                    float dist = labelsDictionary.value<float>(FadeInStartingDistanceInfo.identifier);
+                    _chunkedLodGlobe->setLabelFadeInDistance(dist);
+                    _generalProperties.labelsFadeInDist.set(dist);
+                }
+
+                _generalProperties.labelsFadeInDist.onChange([&]() {
+                    _chunkedLodGlobe->setLabelFadeInDistance(_generalProperties.labelsFadeInDist);
+                });
+
+                if (labelsDictionary.hasKey(LabelsMinSizeInfo.identifier)) {
+                    float size = labelsDictionary.value<float>(LabelsMinSizeInfo.identifier);
+                    _chunkedLodGlobe->setLabelsMinSize(size);
+                    _generalProperties.labelsMinSize.set(size);
+                }
+
+                _generalProperties.labelsMinSize.onChange([&]() {
+                    _chunkedLodGlobe->setLabelsMinSize(_generalProperties.labelsMinSize);
                 });
             }
         }
