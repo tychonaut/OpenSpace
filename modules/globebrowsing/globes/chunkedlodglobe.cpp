@@ -61,8 +61,8 @@ const TileIndex ChunkedLodGlobe::RIGHT_HEMISPHERE_INDEX = TileIndex(1, 0, 1);
 const GeodeticPatch ChunkedLodGlobe::COVERAGE = GeodeticPatch(0, 0, 90, 180);
 
 ChunkedLodGlobe::ChunkedLodGlobe(const RenderableGlobe& owner, size_t segmentsPerPatch,
-                                 std::shared_ptr<LayerManager> layerManager,
-                                 Ellipsoid& ellipsoid)
+    std::shared_ptr<LayerManager> layerManager,
+    Ellipsoid& ellipsoid)
     : Renderable({ { "Identifier", owner.identifier() }, { "Name", owner.guiName() } })
     , minSplitDepth(2)
     , maxSplitDepth(22)
@@ -79,6 +79,7 @@ ChunkedLodGlobe::ChunkedLodGlobe(const RenderableGlobe& owner, size_t segmentsPe
     , _labelsMinHeight(100.f)
     , _labelsColor(1.f)
     , _labelsFadeInDistance(1000000.f)
+    , _labelsFadeInEnabled(true)
 {
     auto geometry = std::make_shared<SkirtedGrid>(
         static_cast<unsigned int>(segmentsPerPatch),
@@ -344,6 +345,10 @@ void ChunkedLodGlobe::setLabelsMinSize(const int size) {
     _labelsMinSize = std::move(size);
 }
 
+void ChunkedLodGlobe::enableLabelsFadeIn(const bool enabled) {
+    _labelsFadeInEnabled = std::move(enabled);
+}
+
 void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
     
     // Calculate the MVP matrix
@@ -392,54 +397,58 @@ void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
     // Render labels
     if (_labelsEnabled) {
         glm::dmat4 invMVP = glm::inverse(mvp);
-        glm::dvec3 orthoRight = glm::dvec3(glm::normalize(glm::dvec3(invMVP * glm::dvec4(1.0, 0.0, 0.0, 0.0))));
-        glm::dvec3 orthoUp = glm::dvec3(glm::normalize(glm::dvec3(invMVP * glm::dvec4(0.0, 1.0, 0.0, 0.0))));
+        glm::dvec3 orthoRight = glm::dvec3(
+            glm::normalize(glm::dvec3(invMVP * glm::dvec4(1.0, 0.0, 0.0, 0.0)))
+        );
+        glm::dvec3 orthoUp = glm::dvec3(
+            glm::normalize(glm::dvec3(invMVP * glm::dvec4(0.0, 1.0, 0.0, 0.0)))
+        );
+
+        float distToCamera = glm::length(data.camera.positionVec3() - 
+            glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0)));
 
         float fadeInVariable = 1.f;
-        if (true) {
-            float distCamera = glm::length(data.camera.positionVec3() - glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0)));
-            glm::vec2 fadeRange = glm::vec2(static_cast<float>(_owner.ellipsoid().averageRadius()) + _labelsMinHeight);//_fadeInDistance;
+        if (_labelsFadeInEnabled) {
+            glm::vec2 fadeRange = glm::vec2(
+                static_cast<float>(_owner.ellipsoid().averageRadius()) + _labelsMinHeight
+            );
             fadeRange.x += _labelsFadeInDistance;
             float a = 1.0f / (fadeRange.y - fadeRange.x);
             float b = -(fadeRange.x / (fadeRange.y - fadeRange.x));
-            float funcValue = a * distCamera + b;
+            float funcValue = a * distToCamera + b;
             fadeInVariable *= funcValue > 1.f ? 1.f : funcValue;
 
-            if (fadeInVariable < 0.01) {
+            if (fadeInVariable < 0.005f) {
                 return;
             }
         }
 
-        renderLabels(data, mvp, orthoRight, orthoUp, fadeInVariable);
+        renderLabels(data, mvp, orthoRight, orthoUp, distToCamera, fadeInVariable);
     }
 }
 
 void ChunkedLodGlobe::renderLabels(const RenderData& data,
     const glm::dmat4& modelViewProjectionMatrix, const glm::dvec3& orthoRight,
-    const glm::dvec3& orthoUp, float fadeInVariable) {
+    const glm::dvec3& orthoUp, const float distToCamera, const float fadeInVariable) {
     
     glm::vec4 textColor = _labelsColor;
     textColor.a *= fadeInVariable;
-    // first position
-    // second text
+    const float DIST_EPS = 1000.f;
+    
     glm::dvec3 oP = glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
     for (const RenderableGlobe::LabelEntry lEntry: _labels.labelsArray) {
         glm::vec3 position = lEntry.geoPosition;
-        float distCameraCenter = glm::length(data.camera.positionVec3() - oP);
-        float distCameraPoint = glm::length(data.camera.positionVec3() - 
+        float distCameraToPoint = glm::length(data.camera.positionVec3() - 
             glm::dvec3(_owner.modelTransform() * glm::vec4(position, 1.0)));
-        if (distCameraCenter > distCameraPoint + 1000.0) {
+        if (distToCamera > distCameraToPoint + DIST_EPS) { // culling
             position += _labelsMinHeight;
             ghoul::fontrendering::FontRenderer::defaultProjectionRenderer().render(
                 *_font,
-                //lEntry.geoPosition,
                 position,
                 textColor,
                 powf(2.f, _labelsSize),
-                //_textMinSize,
-                //_textMaxSize,
                 _labelsMinSize,
-                500,
+                800,
                 modelViewProjectionMatrix,
                 orthoRight,
                 orthoUp,

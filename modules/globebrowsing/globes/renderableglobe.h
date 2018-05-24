@@ -95,6 +95,7 @@ public:
         properties::FloatProperty labelsMinHeight;
         properties::Vec4Property labelsColor;
         properties::FloatProperty labelsFadeInDist;
+        properties::BoolProperty labelsFadeInEnabled;
     };
 
     // Shadow structure

@@ -160,6 +160,11 @@ public:
     */
     void setLabelsMinSize(const int size);
 
+    /**
+    * Labels's Fade In.
+    */
+    void enableLabelsFadeIn(const bool enabled);
+
     const int minSplitDepth;
     const int maxSplitDepth;
 
@@ -170,7 +175,8 @@ public:
 private:
     void debugRenderChunk(const Chunk& chunk, const glm::dmat4& data) const;
     void renderLabels(const RenderData& data, const glm::dmat4& modelViewProjectionMatrix,
-        const glm::dvec3& orthoRight, const glm::dvec3& orthoUp, float fadeInVariable);
+        const glm::dvec3& orthoRight, const glm::dvec3& orthoUp, 
+        const float distToCamera, const float fadeInVariable);
 
     static const GeodeticPatch COVERAGE;
     static const TileIndex LEFT_HEMISPHERE_INDEX;
@@ -207,6 +213,7 @@ private:
     std::shared_ptr<ghoul::fontrendering::Font> _font;
     glm::vec4 _labelsColor;
     float _labelsFadeInDistance;
+    bool _labelsFadeInEnabled;
 };
 
 } // namespace openspace::globebrowsing
