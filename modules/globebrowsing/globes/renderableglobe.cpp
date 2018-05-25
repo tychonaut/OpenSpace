@@ -474,7 +474,9 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 });
 
                 if (labelsDictionary.hasKey(LabelsSizeInfo.identifier)) {
-                    float size = static_cast<float>(labelsDictionary.value<double>(LabelsSizeInfo.identifier));
+                    float size = static_cast<float>(
+                        labelsDictionary.value<double>(LabelsSizeInfo.identifier)
+                        );
                     _chunkedLodGlobe->setLabelsSize(size);
                     _generalProperties.labelsSize.set(size);
                 }
@@ -483,6 +485,12 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                     _chunkedLodGlobe->setLabelsSize(_generalProperties.labelsSize);
                 });
                 
+                if (labelsDictionary.hasKey(LabelsMinHeightInfo.identifier)) {
+                    float height = labelsDictionary.value<float>(LabelsMinHeightInfo.identifier);
+                    _chunkedLodGlobe->setLabelsMinHeight(height);
+                    _generalProperties.labelsMinHeight.set(height);
+                }
+
                 _generalProperties.labelsMinHeight.onChange([&]() {
                     _chunkedLodGlobe->setLabelsMinHeight(_generalProperties.labelsMinHeight);
                 });
@@ -492,7 +500,9 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 });*/
 
                 if (labelsDictionary.hasKey(LabelsColorInfo.identifier)) {
-                    _labelsColor = labelsDictionary.value<glm::vec4>(LabelsColorInfo.identifier);
+                    _labelsColor = labelsDictionary.value<glm::vec4>(
+                        LabelsColorInfo.identifier
+                        );
                     _chunkedLodGlobe->setLabelsColor(_labelsColor);
                 }
                 
@@ -502,13 +512,17 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 });
 
                 if (labelsDictionary.hasKey(FadeInStartingDistanceInfo.identifier)) {
-                    float dist = labelsDictionary.value<float>(FadeInStartingDistanceInfo.identifier);
+                    float dist = labelsDictionary.value<float>(
+                        FadeInStartingDistanceInfo.identifier
+                        );
                     _chunkedLodGlobe->setLabelFadeInDistance(dist);
                     _generalProperties.labelsFadeInDist.set(dist);
                 }
 
                 _generalProperties.labelsFadeInDist.onChange([&]() {
-                    _chunkedLodGlobe->setLabelFadeInDistance(_generalProperties.labelsFadeInDist);
+                    _chunkedLodGlobe->setLabelFadeInDistance(
+                        _generalProperties.labelsFadeInDist
+                    );
                 });
 
                 if (labelsDictionary.hasKey(LabelsMinSizeInfo.identifier)) {
@@ -522,13 +536,17 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 });
 
                 if (labelsDictionary.hasKey(LabelsFadeInEnabledInfo.identifier)) {
-                    bool enabled = labelsDictionary.value<bool>(LabelsFadeInEnabledInfo.identifier);
+                    bool enabled = labelsDictionary.value<bool>(
+                        LabelsFadeInEnabledInfo.identifier
+                        );
                     _chunkedLodGlobe->enableLabelsFadeIn(enabled);
                     _generalProperties.labelsFadeInEnabled.set(enabled);
                 }
 
                 _generalProperties.labelsFadeInEnabled.onChange([&]() {
-                    _chunkedLodGlobe->enableLabelsFadeIn(_generalProperties.labelsFadeInEnabled);
+                    _chunkedLodGlobe->enableLabelsFadeIn(
+                        _generalProperties.labelsFadeInEnabled
+                    );
                 });
             }
         }
