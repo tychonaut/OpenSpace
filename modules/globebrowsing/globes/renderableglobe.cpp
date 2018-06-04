@@ -39,6 +39,7 @@
 
 #include <fstream>
 #include <cstdlib>
+#include <locale>
 
 namespace {
     constexpr const char* _loggerCat = "RenderableGlobe";
@@ -267,7 +268,7 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
         FloatProperty(CameraMinHeightInfo, 100.f, 0.f, 1000.f),
         FloatProperty(OrenNayarRoughnessInfo, 0.f, 0.f, 1.f),
         BoolProperty(LabelsInfo, false),
-        IntProperty(LabelsFontSizeInfo, 30, 1, 50),
+        IntProperty(LabelsFontSizeInfo, 30, 1, 120),
         IntProperty(LabelsMaxSizeInfo, 300, 10, 1000),
         IntProperty(LabelsMinSizeInfo, 4, 1, 100),
         FloatProperty(LabelsSizeInfo, 2.5, 0, 30),
@@ -765,6 +766,20 @@ bool RenderableGlobe::readLabelsFile(const std::string& file) {
                         continue;
                     }
                     strncpy(lEntry.feature, token, 256);
+                    // Removing non ASCII characters:
+                    int tokenChar = 0;
+                    while (tokenChar < 256) {
+                        if ((lEntry.feature[tokenChar] < 0 || 
+                            lEntry.feature[tokenChar] > 127) &&
+                            lEntry.feature[tokenChar] != '\0') {
+                            lEntry.feature[tokenChar] = '*';
+                        }
+                        else if (lEntry.feature[tokenChar] == '\"') {
+                            lEntry.feature[tokenChar] = '=';
+                        }
+                        tokenChar++;
+                    }
+
                     strtok(NULL, ","); // Target is not used
                     lEntry.diameter = static_cast<float>(atof(strtok(NULL, ",")));
                     lEntry.latitude = static_cast<float>(atof(strtok(NULL, ",")));
@@ -774,6 +789,9 @@ bool RenderableGlobe::readLabelsFile(const std::string& file) {
                     if (strstr(coordinateSystem, "West") != NULL) {
                         lEntry.longitude = 360.0f - lEntry.longitude;
                     }
+
+                    // Clean white spaces
+                    strncpy(lEntry.feature, strtok(lEntry.feature, "="), 256);
 
                     GlobeBrowsingModule* _globeBrowsingModule =
                         OsEng.moduleEngine().module<openspace::GlobeBrowsingModule>();

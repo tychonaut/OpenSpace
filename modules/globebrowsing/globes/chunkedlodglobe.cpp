@@ -433,14 +433,14 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     
     glm::vec4 textColor = _labelsColor;
     textColor.a *= fadeInVariable;
-    const float DIST_EPS = 1000.f;
+    const float DIST_EPS = 2500.f;
     
     glm::dvec3 oP = glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
     for (const RenderableGlobe::LabelEntry lEntry: _labels.labelsArray) {
         glm::vec3 position = lEntry.geoPosition;
         float distCameraToPoint = glm::length(data.camera.positionVec3() - 
             glm::dvec3(_owner.modelTransform() * glm::vec4(position, 1.0)));
-        if (distToCamera > distCameraToPoint + DIST_EPS) { // culling
+        if (distToCamera >= (distCameraToPoint + DIST_EPS)) { // culling
             position += _labelsMinHeight;
             ghoul::fontrendering::FontRenderer::defaultProjectionRenderer().render(
                 *_font,
@@ -448,7 +448,7 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
                 textColor,
                 powf(2.f, _labelsSize),
                 _labelsMinSize,
-                800,
+                1000,
                 modelViewProjectionMatrix,
                 orthoRight,
                 orthoUp,
