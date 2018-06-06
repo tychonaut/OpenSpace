@@ -527,12 +527,27 @@ namespace openspace {
         glm::dmat4 mvp = vp * _globe->modelTransform();
         // Render labels
         if (_labelsEnabled) {
-            glm::dmat4 invMVP = glm::inverse(mvp);
-            glm::dvec3 orthoRight = glm::dvec3(
-                glm::normalize(glm::dvec3(invMVP * glm::dvec4(1.0, 0.0, 0.0, 0.0)))
+            glm::dmat4 invModelMatrix = glm::inverse(_globe->modelTransform());
+
+            glm::dvec3 cameraViewDirectionObj = glm::dvec3(
+                invModelMatrix * glm::dvec4(data.camera.viewDirectionWorldSpace(), 0.0)
             );
-            glm::dvec3 orthoUp = glm::dvec3(
-                glm::normalize(glm::dvec3(invMVP * glm::dvec4(0.0, 1.0, 0.0, 0.0)))
+            glm::dvec3 cameraUpDirectionObj = glm::dvec3(
+                invModelMatrix * glm::dvec4(data.camera.lookUpVectorWorldSpace(), 0.0)
+            );
+            glm::dvec3 orthoRight = glm::normalize(
+                glm::cross(cameraViewDirectionObj, cameraUpDirectionObj)
+            );
+            if (orthoRight == glm::dvec3(0.0)) {
+                glm::dvec3 otherVector(
+                    cameraUpDirectionObj.y,
+                    cameraUpDirectionObj.x,
+                    cameraUpDirectionObj.z
+                );
+                orthoRight = glm::normalize(glm::cross(otherVector, cameraViewDirectionObj));
+            }
+            glm::dvec3 orthoUp = glm::normalize(
+                glm::cross(orthoRight, cameraViewDirectionObj)
             );
 
             double distToCamera = glm::length(data.camera.positionVec3() -
@@ -566,6 +581,10 @@ namespace openspace {
         textColor.a *= fadeInVariable;
         const float DIST_EPS = 2500.f;
 
+        glm::dmat4 invMP = glm::inverse(_globe->modelTransform());
+        glm::dvec3 cameraPosObj = glm::dvec3(invMP * glm::dvec4(data.camera.positionVec3(), 1.0));
+        glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * glm::dvec4(data.camera.lookUpVectorWorldSpace(), 0.0));
+
         glm::dvec3 oP = glm::dvec3(_globe->modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
         for (const LabelEntry lEntry : _labels.labelsArray) {
             glm::vec3 position = lEntry.geoPosition;
@@ -583,8 +602,8 @@ namespace openspace {
                     modelViewProjectionMatrix,
                     orthoRight,
                     orthoUp,
-                    data.camera.positionVec3(),
-                    data.camera.lookUpVectorWorldSpace(),
+                    cameraPosObj,
+                    cameraLookUpObj,
                     0,
                     "%s",
                     lEntry.feature
