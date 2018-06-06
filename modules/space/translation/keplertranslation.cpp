@@ -106,6 +106,8 @@ T solveIteration(const Func& function, T x0, const T& err = 0.0, int maxIter = 1
         "Orbit period",
         "Specifies the orbital period (in seconds)."
     };
+    
+    const double GravitationalConstant = 6.67408E-11;
 } // namespace
 
 namespace openspace {
@@ -115,6 +117,11 @@ KeplerTranslation::RangeError::RangeError(std::string off)
     , offender(std::move(off))
 {}
 
+double KeplerTranslation::KeplerOrbit::period() const {
+    return 2.0*glm::pi<double>() *
+    glm::sqrt(glm::pow(semiMajorAxis * 1000.0, 3.0) / (GravitationalConstant * massiveBodyMass) );
+}
+    
 documentation::Documentation KeplerTranslation::Documentation() {
     using namespace openspace::documentation;
     return {
@@ -216,6 +223,8 @@ KeplerTranslation::KeplerTranslation()
     addProperty(_period);
 }
 
+
+
 KeplerTranslation::KeplerTranslation(const ghoul::Dictionary& dictionary)
     : KeplerTranslation()
 {
@@ -236,6 +245,21 @@ KeplerTranslation::KeplerTranslation(const ghoul::Dictionary& dictionary)
         dictionary.value<std::string>(EpochInfo.identifier)
     );
 }
+
+KeplerTranslation::KeplerTranslation(const KeplerOrbit& keplerOrbit)
+    : KeplerTranslation()
+{
+
+    setKeplerElements(keplerOrbit.eccentricity,
+                      keplerOrbit.semiMajorAxis,
+                      keplerOrbit.inclination,
+                      keplerOrbit.ascendingNode,
+                      keplerOrbit.argumentOfPeriapsis,
+                      keplerOrbit.meanAnomalyAtEpoch,
+                      keplerOrbit.period(),
+                      keplerOrbit.epoch);
+}
+
 
 double KeplerTranslation::eccentricAnomaly(double meanAnomaly) const {
     // Compute the eccentric anomaly (the location of the spacecraft taking the

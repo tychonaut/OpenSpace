@@ -37,6 +37,8 @@
 #include <ghoul/filesystem/filesystem.h>
 #include <ghoul/logging/logmanager.h>
 
+#include <thread>
+
 namespace {
     constexpr const char* KeyAsset = "Asset";
     constexpr const char* _loggerCat = "SyncAssetTask";

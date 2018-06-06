@@ -25,6 +25,7 @@
 #include <modules/volume/envelope.h>
 
 #include <ghoul/lua/ghoul_lua.h>
+#include <ghoul/lua/lua_helper.h>
 
 using json = nlohmann::json;
 

@@ -29,6 +29,7 @@
 #include <openspace/util/syncdata.h>
 #include <ghoul/glm.h>
 #include <mutex>
+#include <iostream>
 
 namespace openspace {
 

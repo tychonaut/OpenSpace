@@ -28,6 +28,7 @@
 #include <modules/space/rendering/renderableplanet.h>
 #include <modules/space/rendering/renderablerings.h>
 #include <modules/space/rendering/renderablestars.h>
+#include <modules/space/rendering/renderablekeplerorbits.h>
 #include <modules/space/rendering/simplespheregeometry.h>
 #include <modules/space/translation/keplertranslation.h>
 #include <modules/space/translation/spicetranslation.h>
@@ -61,6 +62,7 @@ void SpaceModule::internalInitialize(const ghoul::Dictionary&) {
     fRenderable->registerClass<RenderablePlanet>("RenderablePlanet");
     fRenderable->registerClass<RenderableRings>("RenderableRings");
     fRenderable->registerClass<RenderableStars>("RenderableStars");
+    fRenderable->registerClass<RenderableKeplerOrbits>("RenderableKeplerOrbits");
 
     auto fTranslation = FactoryManager::ref().factory<Translation>();
     ghoul_assert(fTranslation, "Ephemeris factory was not created");

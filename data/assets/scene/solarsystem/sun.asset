@@ -1,2 +1,1 @@
 asset.request('./sun/sun')
-asset.request('./sun/glare')
