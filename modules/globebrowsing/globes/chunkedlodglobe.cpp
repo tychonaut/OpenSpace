@@ -46,6 +46,7 @@
 #include <openspace/util/time.h>
 #include <openspace/engine/openspaceengine.h>
 #include <openspace/engine/moduleengine.h>
+#include <openspace/engine/wrapper/windowwrapper.h>
 
 #include <ghoul/filesystem/filesystem.h>
 #include <ghoul/opengl/texture.h>
@@ -396,13 +397,30 @@ void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
 
     // Render labels
     if (_labelsEnabled) {
-        glm::dmat4 invMVP = glm::inverse(mvp);
-        glm::dvec3 orthoRight = glm::dvec3(
-            glm::normalize(glm::dvec3(invMVP * glm::dvec4(1.0, 0.0, 0.0, 0.0)))
+        glm::dmat4 invModelMatrix = glm::inverse(_owner.modelTransform());
+        
+        glm::dvec3 cameraViewDirectionObj = glm::dvec3(
+            invModelMatrix * glm::dvec4(data.camera.viewDirectionWorldSpace(), 0.0)
+            );
+        glm::dvec3 cameraUpDirectionObj = glm::dvec3(
+            invModelMatrix * glm::dvec4(data.camera.lookUpVectorWorldSpace(), 0.0)
+            );
+        glm::dvec3 orthoRight = glm::normalize(
+            glm::cross(cameraViewDirectionObj, cameraUpDirectionObj)
         );
-        glm::dvec3 orthoUp = glm::dvec3(
-            glm::normalize(glm::dvec3(invMVP * glm::dvec4(0.0, 1.0, 0.0, 0.0)))
+        if (orthoRight == glm::dvec3(0.0)) {
+            glm::dvec3 otherVector(
+                cameraUpDirectionObj.y,
+                cameraUpDirectionObj.x,
+                cameraUpDirectionObj.z
+            );
+            orthoRight = glm::normalize(glm::cross(otherVector, cameraViewDirectionObj));
+        }
+        glm::dvec3 orthoUp = glm::normalize(
+            glm::cross(orthoRight, cameraViewDirectionObj)
         );
+
+
 
         double distToCamera = glm::length(data.camera.positionVec3() -
             glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0)));
@@ -435,6 +453,15 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     textColor.a *= fadeInVariable;
     const float DIST_EPS = 2500.f;
     
+    int textRenderingTechnique = 0;
+    if (OsEng.windowWrapper().isFisheyeRendering()) {
+        textRenderingTechnique = 1;
+    }
+    
+    glm::dmat4 invMP = glm::inverse(_owner.modelTransform());
+    glm::dvec3 cameraPosObj = glm::dvec3(invMP * glm::dvec4(data.camera.positionVec3(), 1.0));
+    glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * glm::dvec4(data.camera.lookUpVectorWorldSpace(), 0.0));
+
     glm::dvec3 oP = glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
     for (const RenderableGlobe::LabelEntry lEntry: _labels.labelsArray) {
         glm::vec3 position = lEntry.geoPosition;
@@ -452,9 +479,9 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
                 modelViewProjectionMatrix,
                 orthoRight,
                 orthoUp,
-                data.camera.positionVec3(),
-                data.camera.lookUpVectorWorldSpace(),
-                0,
+                cameraPosObj,
+                cameraLookUpObj,
+                textRenderingTechnique,
                 "%s",
                 lEntry.feature
             );
