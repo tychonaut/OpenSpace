@@ -1,0 +1,27 @@
+local assetHelper = asset.require('util/asset_helper')
+local transforms = asset.require('scene/solarsystem/sun/transforms')
+
+local AU = 149597870700; -- Astronomical unit to meter
+
+local GaiaAsteroids = {
+    Identifier = "GaiaAsteroids",
+    Parent = transforms.SolarSystemBarycenter.Identifier,
+    Renderable = {
+        Type = "RenderableKeplerOrbits",
+        Segments = 50,
+        Path = asset.localResource("aux_sso_orbits.csv"),
+        EccentricityColumn = "eccentricity",
+		SemiMajorAxisColumn = "a",
+        SemiMajorAxisUnit = AU,
+		InclinationColumn = "inclination",
+		AscendingNodeColumn = "node_omega",
+		ArgumentOfPeriapsisColumn = "omega",
+		MeanAnomalyAtEpochColumn = "orb_m",
+		EpochColumn = "orb_date"
+    },
+    GUI = {
+        Path = "/Solar System/Asteroids/Gaia Asteroids"
+    }
+}
+
+assetHelper.registerSceneGraphNodesAndExport(asset, { GaiaAsteroids })
