@@ -228,7 +228,6 @@ RenderableKeplerOrbits::~RenderableKeplerOrbits() {
     
 void RenderableKeplerOrbits::initialize() {
     readFromCsvFile();
-    updateBuffers();
 
     _path.onChange([this]() {
         readFromCsvFile();
@@ -272,6 +271,8 @@ void RenderableKeplerOrbits::initializeGL() {
     _uniformCache.useLineFade = _programObject->uniformLocation("useLineFade");
     _uniformCache.lineFade = _programObject->uniformLocation("lineFade");
     
+    updateBuffers();
+
     setRenderBin(Renderable::RenderBin::Overlay);
 }
     
@@ -363,6 +364,15 @@ void RenderableKeplerOrbits::updateBuffers() {
                  GL_STATIC_DRAW
                  );
     
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+        0,
+        4,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(TrailVBOLayout),
+        nullptr
+    );
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
