@@ -29,6 +29,7 @@
 
 #include <modules/globebrowsing/geometry/ellipsoid.h>
 #include <modules/globebrowsing/other/distanceswitch.h>
+#include <modules/globebrowsing/util/globelabelscomponent.h>
 
 #include <openspace/properties/scalar/floatproperty.h>
 #include <openspace/properties/scalar/intproperty.h>
@@ -185,6 +186,8 @@ private:
     bool _labelsDataPresent;
     Labels _labels;
     glm::vec4 _labelsColor;
+
+    GlobeLabelsComponent _globeLabelsComponent;
 };
 
 } // namespace openspace::globebrowsing

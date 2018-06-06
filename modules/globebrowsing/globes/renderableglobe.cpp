@@ -496,10 +496,6 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                     _chunkedLodGlobe->setLabelsMinHeight(_generalProperties.labelsMinHeight);
                 });
 
-                /*_generalProperties.labelsMaxHeight.onChange([&]() {
-                    _chunkedLodGlobe->setLabelsMaxHeight(_generalProperties.labelsMaxHeight);
-                });*/
-
                 if (labelsDictionary.hasKey(LabelsColorInfo.identifier)) {
                     _labelsColor = labelsDictionary.value<glm::vec4>(
                         LabelsColorInfo.identifier
@@ -551,6 +547,7 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 });
             }
         }
+        //_globeLabelsComponent.initialize(labelsDictionary, *this);
     }
 }
 
