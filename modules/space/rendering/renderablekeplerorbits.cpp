@@ -193,7 +193,7 @@ RenderableKeplerOrbits::RenderableKeplerOrbits(const ghoul::Dictionary& dictiona
          Documentation(),
          dictionary,
          "RenderableKeplerOrbits"
-         );
+    );
 
     _nSegments =
         static_cast<int>(dictionary.value<double>(SegmentsInfo.identifier));
@@ -215,7 +215,7 @@ RenderableKeplerOrbits::RenderableKeplerOrbits(const ghoul::Dictionary& dictiona
         dictionary.value<std::string>(EpochColumnInfo.identifier);
     _semiMajorAxisUnit =
         dictionary.value<double>(SemiMajorAxisUnitInfo.identifier);
-    
+
     addPropertySubOwner(_appearance);
     addProperty(_path);
     addProperty(_nSegments);
@@ -234,7 +234,7 @@ void RenderableKeplerOrbits::initialize() {
         readFromCsvFile();
         updateBuffers();
     });
-    
+
     _semiMajorAxisUnit.onChange([this]() {
         readFromCsvFile();
         updateBuffers();
