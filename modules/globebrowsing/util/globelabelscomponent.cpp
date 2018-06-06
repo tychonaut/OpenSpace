@@ -535,19 +535,19 @@ namespace openspace {
                 glm::normalize(glm::dvec3(invMVP * glm::dvec4(0.0, 1.0, 0.0, 0.0)))
             );
 
-            float distToCamera = glm::length(data.camera.positionVec3() -
+            double distToCamera = glm::length(data.camera.positionVec3() -
                 glm::dvec3(_globe->modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0)));
 
             float fadeInVariable = 1.f;
             if (_labelsFadeInEnabled) {
-                glm::vec2 fadeRange = glm::vec2(
-                    static_cast<float>(_globe->ellipsoid().averageRadius()) + _labelsMinHeight
+                glm::dvec2 fadeRange = glm::dvec2(
+                    _globe->ellipsoid().averageRadius() + _labelsMinHeight
                 );
                 fadeRange.x += _labelsFadeInDist;
-                float a = 1.0f / (fadeRange.y - fadeRange.x);
-                float b = -(fadeRange.x / (fadeRange.y - fadeRange.x));
-                float funcValue = a * distToCamera + b;
-                fadeInVariable *= funcValue > 1.f ? 1.f : funcValue;
+                double a = 1.0 / (fadeRange.y - fadeRange.x);
+                double b = -(fadeRange.x / (fadeRange.y - fadeRange.x));
+                double funcValue = a * distToCamera + b;
+                fadeInVariable *= funcValue > 1.0 ? 1.f : static_cast<float>(funcValue);
 
                 if (fadeInVariable < 0.005f) {
                     return;

@@ -40,9 +40,8 @@ namespace ghoul { class Dictionary;}
 namespace ghoul::opengl { class ProgramObject; }
 
 namespace openspace {
-    class RenderData;
-    class RenderTasks;
-
+    struct RenderData;
+    
     namespace documentation { struct Documentation; }
     namespace globebrowsing { class RenderableGlobe; }
 

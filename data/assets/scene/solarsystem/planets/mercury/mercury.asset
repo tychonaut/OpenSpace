@@ -1,5 +1,6 @@
 local assetHelper = asset.require('util/asset_helper')
 local transforms = asset.require('./transforms')
+local labelsPath = asset.require('./mercury_labels').LabelsPath
 asset.require("spice/base")
 asset.request('./trail')
 
@@ -62,7 +63,7 @@ local Mercury = {
             ColorLayers = color_layers
         },
         Labels = {
-            FileName = "Mercury.labels",
+            FileName = labelsPath .. "/Mercury.labels",
             LabelsSize = 9.0,
             ProximityEnabled = false,
             LabelsColor = {1.0, 1.0, 0.0, 1.0}

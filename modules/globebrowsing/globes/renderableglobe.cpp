@@ -457,7 +457,7 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
         std::string labelsFile;
         successLabels = labelsDictionary.getValue(keyLabelsFileName, labelsFile);
         // DEBUG:
-        //std::cout << "========== File Name: " << absPath(labelsFile) << " ===========" << std::endl;
+        //std::cout << "\n\n\n\n========== File Name: " << labelsFile << " ===========\n\n\n" << std::endl;
         if (successLabels) {
             _labelsDataPresent = true;
             bool loadSuccess = loadLabelsData(absPath(labelsFile));
