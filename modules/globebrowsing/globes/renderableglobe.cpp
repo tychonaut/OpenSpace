@@ -241,6 +241,12 @@ namespace {
         "Labels culling disabled",
         "Labels culling disabled"
     };
+
+    static const openspace::properties::Property::PropertyInfo LabelsForceDomeRenderingInfo = {
+        "LabelsForceDomeRendering",
+        "Force dome rendering style for labels",
+        "Force dome rendering style for labels"
+    };
 } // namespace
 
 using namespace openspace::properties;
@@ -567,6 +573,13 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                         _generalProperties.labelsDisableCullingEnabled
                     );
                 });
+
+                if (labelsDictionary.hasKey(LabelsForceDomeRenderingInfo.identifier)) {
+                    bool force = labelsDictionary.value<bool>(
+                        LabelsForceDomeRenderingInfo.identifier
+                        );
+                    _chunkedLodGlobe->forceDomeRenderingLabels(force);
+                }
             }
         }
         //_globeLabelsComponent.initialize(labelsDictionary, *this);

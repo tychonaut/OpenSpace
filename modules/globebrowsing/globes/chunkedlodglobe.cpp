@@ -82,6 +82,7 @@ ChunkedLodGlobe::ChunkedLodGlobe(const RenderableGlobe& owner, size_t segmentsPe
     , _labelsFadeInDistance(1000000.f)
     , _labelsFadeInEnabled(true)
     , _labelsCullingDisabled(false)
+    , _forceDomeRenderingLabels(false)
 {
     auto geometry = std::make_shared<SkirtedGrid>(
         static_cast<unsigned int>(segmentsPerPatch),
@@ -355,6 +356,10 @@ void ChunkedLodGlobe::disableLabelsCulling(const bool disabled) {
     _labelsCullingDisabled = std::move(disabled);
 }
 
+void ChunkedLodGlobe::forceDomeRenderingLabels(const bool force) {
+    _forceDomeRenderingLabels = std::move(force);
+}
+
 void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
     
     // Calculate the MVP matrix
@@ -461,7 +466,7 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     const double SIN_EPS = 0.04;
     
     int textRenderingTechnique = 0;
-    if (OsEng.windowWrapper().isFisheyeRendering()) {
+    if (OsEng.windowWrapper().isFisheyeRendering() || _forceDomeRenderingLabels) {
         textRenderingTechnique = 1;
     }
     

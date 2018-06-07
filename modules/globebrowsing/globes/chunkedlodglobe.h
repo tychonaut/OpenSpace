@@ -167,6 +167,8 @@ public:
 
     void disableLabelsCulling(const bool disabled);
 
+    void forceDomeRenderingLabels(const bool force);
+    
     const int minSplitDepth;
     const int maxSplitDepth;
 
@@ -217,6 +219,7 @@ private:
     float _labelsFadeInDistance;
     bool _labelsFadeInEnabled;
     bool _labelsCullingDisabled;
+    bool _forceDomeRenderingLabels;
 };
 
 } // namespace openspace::globebrowsing

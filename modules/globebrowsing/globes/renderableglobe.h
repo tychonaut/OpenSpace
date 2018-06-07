@@ -188,7 +188,7 @@ private:
     bool _disableCulling;
     Labels _labels;
     glm::vec4 _labelsColor;
-
+    bool _forceDomeLabelsRendering;
     GlobeLabelsComponent _globeLabelsComponent;
 };
 
