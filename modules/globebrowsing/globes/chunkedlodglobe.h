@@ -165,6 +165,8 @@ public:
     */
     void enableLabelsFadeIn(const bool enabled);
 
+    void disableLabelsCulling(const bool disabled);
+
     const int minSplitDepth;
     const int maxSplitDepth;
 
@@ -214,6 +216,7 @@ private:
     glm::vec4 _labelsColor;
     float _labelsFadeInDistance;
     bool _labelsFadeInEnabled;
+    bool _labelsCullingDisabled;
 };
 
 } // namespace openspace::globebrowsing

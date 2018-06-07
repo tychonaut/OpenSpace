@@ -235,6 +235,12 @@ namespace {
         "Labels fade In enabled",
         "Labels fade In enabled"
     };
+
+    static const openspace::properties::Property::PropertyInfo LabelsDisableCullingEnabledInfo = {
+        "LabelsDisableCullingEnabled",
+        "Labels culling disabled",
+        "Labels culling disabled"
+    };
 } // namespace
 
 using namespace openspace::properties;
@@ -276,7 +282,8 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
         Vec4Property(LabelsColorInfo, glm::vec4(1.f, 1.f, 0.f, 1.f), 
             glm::vec4(0.f), glm::vec4(1.f)),
         FloatProperty(FadeInStartingDistanceInfo, 1E6, 1E3, 1E8),
-        BoolProperty(LabelsFadeInEnabledInfo, true)
+        BoolProperty(LabelsFadeInEnabledInfo, true),
+        BoolProperty(LabelsDisableCullingEnabledInfo, false)
     })
     , _debugPropertyOwner({ "Debug" })
 {
@@ -341,6 +348,7 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
     addProperty(_generalProperties.labelsFadeInDist);
     addProperty(_generalProperties.labelsMinSize);
     addProperty(_generalProperties.labelsFadeInEnabled);
+    addProperty(_generalProperties.labelsDisableCullingEnabled);
 
     _debugPropertyOwner.addProperty(_debugProperties.saveOrThrowCamera);
     _debugPropertyOwner.addProperty(_debugProperties.showChunkEdges);
@@ -543,6 +551,20 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 _generalProperties.labelsFadeInEnabled.onChange([&]() {
                     _chunkedLodGlobe->enableLabelsFadeIn(
                         _generalProperties.labelsFadeInEnabled
+                    );
+                });
+
+                if (labelsDictionary.hasKey(LabelsDisableCullingEnabledInfo.identifier)) {
+                    bool disabled = labelsDictionary.value<bool>(
+                        LabelsDisableCullingEnabledInfo.identifier
+                        );
+                    _chunkedLodGlobe->disableLabelsCulling(disabled);
+                    _generalProperties.labelsDisableCullingEnabled.set(disabled);
+                }
+
+                _generalProperties.labelsDisableCullingEnabled.onChange([&]() {
+                    _chunkedLodGlobe->disableLabelsCulling(
+                        _generalProperties.labelsDisableCullingEnabled
                     );
                 });
             }

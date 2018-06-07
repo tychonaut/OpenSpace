@@ -97,6 +97,7 @@ public:
         properties::Vec4Property labelsColor;
         properties::FloatProperty labelsFadeInDist;
         properties::BoolProperty labelsFadeInEnabled;
+        properties::BoolProperty labelsDisableCullingEnabled;
     };
 
     // Shadow structure
@@ -184,6 +185,7 @@ private:
 
     // Labels
     bool _labelsDataPresent;
+    bool _disableCulling;
     Labels _labels;
     glm::vec4 _labelsColor;
 

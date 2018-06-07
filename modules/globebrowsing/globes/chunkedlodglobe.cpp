@@ -81,6 +81,7 @@ ChunkedLodGlobe::ChunkedLodGlobe(const RenderableGlobe& owner, size_t segmentsPe
     , _labelsColor(1.f)
     , _labelsFadeInDistance(1000000.f)
     , _labelsFadeInEnabled(true)
+    , _labelsCullingDisabled(false)
 {
     auto geometry = std::make_shared<SkirtedGrid>(
         static_cast<unsigned int>(segmentsPerPatch),
@@ -350,6 +351,10 @@ void ChunkedLodGlobe::enableLabelsFadeIn(const bool enabled) {
     _labelsFadeInEnabled = std::move(enabled);
 }
 
+void ChunkedLodGlobe::disableLabelsCulling(const bool disabled) {
+    _labelsCullingDisabled = std::move(disabled);
+}
+
 void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
     
     // Calculate the MVP matrix
@@ -441,6 +446,7 @@ void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
             }
         }
 
+        //distToCamera = length(glm::dvec3(invModelMatrix * glm::dvec4(data.camera.positionVec3(), 1.0)));
         renderLabels(data, mvp, orthoRight, orthoUp, distToCamera, fadeInVariable);
     }
 }
@@ -451,7 +457,8 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     
     glm::vec4 textColor = _labelsColor;
     textColor.a *= fadeInVariable;
-    const float DIST_EPS = 2500.f;
+    const double DIST_EPS = 5500.0;
+    const double SIN_EPS = 0.04;
     
     int textRenderingTechnique = 0;
     if (OsEng.windowWrapper().isFisheyeRendering()) {
@@ -462,12 +469,33 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     glm::dvec3 cameraPosObj = glm::dvec3(invMP * glm::dvec4(data.camera.positionVec3(), 1.0));
     glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * glm::dvec4(data.camera.lookUpVectorWorldSpace(), 0.0));
 
-    glm::dvec3 oP = glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
+    glm::dvec3 globePositionWorld = glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
+    glm::dvec3 cameraToGlobeDistanceWorld = globePositionWorld - data.camera.positionVec3();
+    double distanceCameraGlobeWorld = glm::length(cameraToGlobeDistanceWorld);
+
+    double distanceGlobeToCameraObj = 
+        glm::length(glm::dvec3(invMP * glm::dvec4(data.camera.positionVec3(), 1.0)));
+
     for (const RenderableGlobe::LabelEntry lEntry: _labels.labelsArray) {
         glm::vec3 position = lEntry.geoPosition;
-        float distCameraToPoint = glm::length(data.camera.positionVec3() - 
-            glm::dvec3(_owner.modelTransform() * glm::vec4(position, 1.0)));
-        if (distToCamera >= (distCameraToPoint + DIST_EPS)) { // culling
+        glm::dvec3 locationPositionWorld = 
+            glm::dvec3(_owner.modelTransform() * glm::dvec4(position, 1.0));
+        double distanceCameraToLocationWorld = 
+            glm::length(locationPositionWorld - data.camera.positionVec3());
+        double distanceLocationObj = glm::length(glm::dvec3(position));
+        double sinAlpha = distanceLocationObj / distanceGlobeToCameraObj;
+        double maxSinAlpha = _owner.ellipsoid().maximumRadius() / distanceGlobeToCameraObj;
+        
+        bool draw = false;
+        if (_labelsCullingDisabled) {
+            draw = true;
+        }
+        else if ((distanceCameraGlobeWorld >= (distanceCameraToLocationWorld + DIST_EPS)) &&
+            (sinAlpha <= (maxSinAlpha + SIN_EPS))) { // culling
+            draw = true;
+        }
+
+        if (draw) {
             position += _labelsMinHeight;
             ghoul::fontrendering::FontRenderer::defaultProjectionRenderer().render(
                 *_font,
