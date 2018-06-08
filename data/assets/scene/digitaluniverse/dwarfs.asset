@@ -23,6 +23,7 @@ local object = {
         Enabled = false,
         Color = { 0.5, 1.0, 0.2 },
         Transparency = 0.999,
+        ForceDomeRenderingOption = true,
         File = speck .. "/dwarfs.speck",
         Texture = textures .. "/point3.png",
         LabelFile = speck .. "/dwarfs.label",

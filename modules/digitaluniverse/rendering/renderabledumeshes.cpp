@@ -149,6 +149,12 @@ namespace {
         "Render Option",
         "Debug option for rendering of billboards and texts."
     };
+
+    static const openspace::properties::Property::PropertyInfo ForceDomeRenderingOptionInfo = {
+        "ForceDomeRenderingOption",
+        "Force dome rendering orientation for labels and billboards.",
+        "Force dome rendering orientation for labels and billboards."
+    };
 }  // namespace
 
 namespace openspace {
@@ -237,6 +243,12 @@ documentation::Documentation RenderableDUMeshes::Documentation() {
                 Optional::No,
                 MeshColorInfo.description
             },
+            {
+                ForceDomeRenderingOptionInfo.identifier,
+                new BoolVerifier,
+                Optional::Yes,
+                ForceDomeRenderingOptionInfo.description
+            }
         }
     };
 }
@@ -249,6 +261,7 @@ RenderableDUMeshes::RenderableDUMeshes(const ghoul::Dictionary& dictionary)
     , _textColorIsDirty(true)
     , _hasLabel(false)
     , _labelDataIsDirty(true)
+    , _forceDomeRenderingOption(false)
     , _alphaValue(TransparencyInfo, 1.f, 0.f, 1.f)
     //, _scaleFactor(ScaleFactorInfo, 1.f, 0.f, 64.f)
     , _textColor(
@@ -286,7 +299,12 @@ RenderableDUMeshes::RenderableDUMeshes(const ghoul::Dictionary& dictionary)
 
     _renderOption.addOption(0, "Camera View Direction");
     _renderOption.addOption(1, "Camera Position Normal");
-    if (OsEng.windowWrapper().isFisheyeRendering()) {
+    if (dictionary.hasKey(ForceDomeRenderingOptionInfo.identifier)) {
+        _forceDomeRenderingOption = dictionary.value<bool>(
+            ForceDomeRenderingOptionInfo.identifier
+            );
+    }
+    if (_forceDomeRenderingOption || OsEng.windowWrapper().isFisheyeRendering()) {
         _renderOption.set(1);
     }
     else {

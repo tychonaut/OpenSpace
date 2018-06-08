@@ -24,6 +24,7 @@ local object = {
         Color = { 1.0, 1.0, 0.0 },
         Transparency = 0.99,
         ScaleFactor = 395.0,
+        ForceDomeRenderingOption = true,
         File = speck .. "/kepler.speck",
         Texture = textures .. "/halo.png",
         CorrectionSizeEndDistance = 15.86,

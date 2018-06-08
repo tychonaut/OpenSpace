@@ -23,6 +23,7 @@ local object = {
         Enabled = false,
         Color = { 1.0, 0.4, 0.2 },
         Transparency = 1.0,
+        ForceDomeRenderingOption = true,
         File = speck .. "/quasars.speck",
         Texture = textures .. "/point3.png",
         Unit = "Mpc",
