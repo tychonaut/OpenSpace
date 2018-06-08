@@ -111,6 +111,7 @@ private:
     bool _textColorIsDirty;
     bool _hasLabel;
     bool _labelDataIsDirty;
+    bool _forceDomeRenderingOption;
 
     int _textMinSize;
     int _textMaxSize;

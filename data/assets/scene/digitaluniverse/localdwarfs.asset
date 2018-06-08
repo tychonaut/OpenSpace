@@ -26,6 +26,7 @@ local object = {
         File = speck .. "/localdwarfs.speck",
         Texture = textures .. "/point4.png",
         PolygonSides = 12,
+        ForceDomeRenderingOption = true,
         LabelFile = speck .. "/localdwarfs.label",
         TextColor = { 0.3, 0.3, 1.0, 1.0 },
         ScaleFactor = 478,

@@ -52,6 +52,7 @@ local plane = {
         File = planeSpeck .. "/galaxy.speck",
         TexturePath = planeTextures,
         Luminosity = "size",
+        ForceDomeRenderingOption = true,
         ScaleLuminosity = 1.0,
         -- Fade in value in the same unit as "Unit"
         FadeInThreshould = 119441,

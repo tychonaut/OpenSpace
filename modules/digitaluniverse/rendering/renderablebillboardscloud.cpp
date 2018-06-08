@@ -219,11 +219,19 @@ namespace {
         "Control variable for distance size.",
         ""
     };
+
     static const openspace::properties::Property::PropertyInfo PixelSizeControlInfo = {
         "EnablePixelSizeControl",
         "Enable pixel size control.",
         "Enable pixel size control for rectangular projections."
     };
+
+    static const openspace::properties::Property::PropertyInfo ForceDomeRenderingOptionInfo = {
+        "ForceDomeRenderingOption",
+        "Force dome rendering orientation for labels and billboards.",
+        "Force dome rendering orientation for labels and billboards."
+    };
+
 }  // namespace
 
 namespace openspace {
@@ -377,6 +385,12 @@ namespace openspace {
                 new BoolVerifier,
                 Optional::Yes,
                 PixelSizeControlInfo.description
+            },
+            {
+                ForceDomeRenderingOptionInfo.identifier,
+                new BoolVerifier,
+                Optional::Yes,
+                ForceDomeRenderingOptionInfo.description
             }
         }
         };
@@ -394,6 +408,7 @@ namespace openspace {
         , _hasPolygon(false)
         , _hasLabel(false)
         , _labelDataIsDirty(true)
+        , _forceDomeRenderingOption(false)
         , _polygonSides(0)
         , _pTexture(0)
         , _alphaValue(TransparencyInfo, 1.f, 0.f, 1.f)
@@ -465,7 +480,12 @@ namespace openspace {
         // DEBUG:
         _renderOption.addOption(0, "Camera View Direction");
         _renderOption.addOption(1, "Camera Position Normal");
-        if (OsEng.windowWrapper().isFisheyeRendering()) {
+        if (dictionary.hasKey(ForceDomeRenderingOptionInfo.identifier)) {
+            _forceDomeRenderingOption = dictionary.value<bool>(
+                ForceDomeRenderingOptionInfo.identifier
+                );
+        }
+        if (_forceDomeRenderingOption || OsEng.windowWrapper().isFisheyeRendering()) {
             _renderOption.set(1);
         }
         else {

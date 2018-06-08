@@ -23,6 +23,7 @@ local object = {
         Enabled = false,
         Color = { 1.0, 1.0, 1.0 },
         Transparency = 1.0,
+        ForceDomeRenderingOption = true,
         File = speck .. "/2dF.speck",
         Texture = textures .. "/point3.png",
         ColorMap = speck .. "/lss.cmap",

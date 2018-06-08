@@ -23,6 +23,7 @@ local object = {
         Enabled = false,
         Color = { 0.7, 0.0, 0.0 },
         Transparency = 0.5,
+        ForceDomeRenderingOption = true,
         File = speck .. "/pulsar.speck",
         Texture = textures .. "/point4.png",
         PolygonSides = 4,

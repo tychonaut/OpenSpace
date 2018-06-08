@@ -23,6 +23,7 @@ local object = {
         Enabled = false,
         Color = { 1.0, 0.5, 0.0 },
         Transparency = 0.5,
+        ForceDomeRenderingOption = true,
         File = speck .. "/snr.speck",
         Texture = textures .. "/point4.png",
         PolygonSides = 7,

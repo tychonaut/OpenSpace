@@ -24,6 +24,7 @@ local object = {
         Color = { 1.0, 0.4, 0.2 },
         Transparency = 1.0,
         ScaleFactor = 525.0,
+        ForceDomeRenderingOption = true,
         File = speck .. "/abell.speck",
         Texture = textures .. "/point3.png",
         LabelFile = speck .. "/abell.label",

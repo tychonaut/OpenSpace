@@ -124,6 +124,7 @@ private:
     bool _textColorIsDirty;
     bool _hasLabel;
     bool _labelDataIsDirty;
+    bool _forceDomeRenderingOption;
 
     properties::FloatProperty _alphaValue;
     //properties::FloatProperty _scaleFactor;

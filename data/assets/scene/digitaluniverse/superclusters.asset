@@ -23,6 +23,7 @@ local object = {
         Enabled = false,
         Color = { 1.0, 1.0, 1.0 },
         Transparency = 0.65,
+        ForceDomeRenderingOption = true,
         File = speck .. "/superclust.speck",
         Texture = textures .. "/point3.png",
         LabelFile = speck .. "/superclust.label",

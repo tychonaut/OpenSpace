@@ -112,6 +112,7 @@ namespace openspace {
         bool _hasPolygon;
         bool _hasLabel;
         bool _labelDataIsDirty;
+        bool _forceDomeRenderingOption;
 
         int _polygonSides;
 
@@ -136,9 +137,7 @@ namespace openspace {
         properties::FloatProperty _correctionSizeEndDistance;
         properties::FloatProperty _correctionSizeFactor;
 
-        // DEBUG:
         properties::OptionProperty _renderOption;
-
 
         std::unique_ptr<ghoul::opengl::Texture> _polygonTexture;
         std::unique_ptr<ghoul::opengl::Texture> _spriteTexture;
