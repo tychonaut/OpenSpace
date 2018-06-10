@@ -247,6 +247,12 @@ namespace {
         "Force dome rendering style for labels",
         "Force dome rendering style for labels"
     };
+
+    static const openspace::properties::Property::PropertyInfo LabelsDistanceEPSInfo = {
+        "LabelsDistanceEPS",
+        "DEBUG LabelsDistanceEPS",
+        "DEBUG LabelsDistanceEPS"
+    };
 } // namespace
 
 using namespace openspace::properties;
@@ -281,7 +287,7 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
         FloatProperty(OrenNayarRoughnessInfo, 0.f, 0.f, 1.f),
         BoolProperty(LabelsInfo, false),
         IntProperty(LabelsFontSizeInfo, 30, 1, 120),
-        IntProperty(LabelsMaxSizeInfo, 300, 10, 1000),
+        IntProperty(LabelsMaxSizeInfo, 300, 10, 10000),
         IntProperty(LabelsMinSizeInfo, 4, 1, 100),
         FloatProperty(LabelsSizeInfo, 2.5, 0, 30),
         FloatProperty(LabelsMinHeightInfo, 100.0, 0.0, 10000.0),
@@ -289,7 +295,8 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
             glm::vec4(0.f), glm::vec4(1.f)),
         FloatProperty(FadeInStartingDistanceInfo, 1E6, 1E3, 1E8),
         BoolProperty(LabelsFadeInEnabledInfo, true),
-        BoolProperty(LabelsDisableCullingEnabledInfo, false)
+        BoolProperty(LabelsDisableCullingEnabledInfo, false),
+        FloatProperty(LabelsDistanceEPSInfo, 100000.f, 1000.f, 10000000.f)
     })
     , _debugPropertyOwner({ "Debug" })
 {
@@ -353,8 +360,10 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
     addProperty(_generalProperties.labelsColor);
     addProperty(_generalProperties.labelsFadeInDist);
     addProperty(_generalProperties.labelsMinSize);
+    addProperty(_generalProperties.labelsMaxSize);
     addProperty(_generalProperties.labelsFadeInEnabled);
     addProperty(_generalProperties.labelsDisableCullingEnabled);
+    addProperty(_generalProperties.labelsDistaneEPS);
 
     _debugPropertyOwner.addProperty(_debugProperties.saveOrThrowCamera);
     _debugPropertyOwner.addProperty(_debugProperties.showChunkEdges);
@@ -537,13 +546,27 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 });
 
                 if (labelsDictionary.hasKey(LabelsMinSizeInfo.identifier)) {
-                    int size = labelsDictionary.value<int>(LabelsMinSizeInfo.identifier);
+                    int size = static_cast<int>(
+                        labelsDictionary.value<double>(LabelsMinSizeInfo.identifier)
+                        );
                     _chunkedLodGlobe->setLabelsMinSize(size);
                     _generalProperties.labelsMinSize.set(size);
                 }
 
                 _generalProperties.labelsMinSize.onChange([&]() {
                     _chunkedLodGlobe->setLabelsMinSize(_generalProperties.labelsMinSize);
+                });
+
+                if (labelsDictionary.hasKey(LabelsMaxSizeInfo.identifier)) {
+                    int size = static_cast<int>(
+                        labelsDictionary.value<double>(LabelsMaxSizeInfo.identifier)
+                        );
+                    _chunkedLodGlobe->setLabelsMaxSize(size);
+                    _generalProperties.labelsMaxSize.set(size);
+                }
+
+                _generalProperties.labelsMaxSize.onChange([&]() {
+                    _chunkedLodGlobe->setLabelsMaxSize(_generalProperties.labelsMaxSize);
                 });
 
                 if (labelsDictionary.hasKey(LabelsFadeInEnabledInfo.identifier)) {
@@ -580,6 +603,21 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                         );
                     _chunkedLodGlobe->forceDomeRenderingLabels(force);
                 }
+
+                // DEBUG:
+                if (labelsDictionary.hasKey(LabelsDistanceEPSInfo.identifier)) {
+                    float dist = static_cast<float>(
+                        labelsDictionary.value<double>(LabelsDistanceEPSInfo.identifier)
+                        );
+                    _chunkedLodGlobe->labelDistEPS(dist);
+                    _generalProperties.labelsDistaneEPS.set(dist);
+                }
+
+                _generalProperties.labelsDistaneEPS.onChange([&]() {
+                    _chunkedLodGlobe->labelDistEPS(
+                        _generalProperties.labelsDistaneEPS
+                    );
+                });
             }
         }
         //_globeLabelsComponent.initialize(labelsDictionary, *this);

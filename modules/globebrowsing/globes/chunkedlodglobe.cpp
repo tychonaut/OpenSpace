@@ -76,6 +76,7 @@ ChunkedLodGlobe::ChunkedLodGlobe(const RenderableGlobe& owner, size_t segmentsPe
     , _labelsEnabled(false)
     , _fontSize(30)
     , _labelsMinSize(4)
+    , _labelsMaxSize(1000)
     , _labelsSize(2.5f)
     , _labelsMinHeight(100.f)
     , _labelsColor(1.f)
@@ -83,6 +84,7 @@ ChunkedLodGlobe::ChunkedLodGlobe(const RenderableGlobe& owner, size_t segmentsPe
     , _labelsFadeInEnabled(true)
     , _labelsCullingDisabled(false)
     , _forceDomeRenderingLabels(false)
+    , _labelDistEPS(6000.f)
 {
     auto geometry = std::make_shared<SkirtedGrid>(
         static_cast<unsigned int>(segmentsPerPatch),
@@ -348,6 +350,10 @@ void ChunkedLodGlobe::setLabelsMinSize(const int size) {
     _labelsMinSize = std::move(size);
 }
 
+void ChunkedLodGlobe::setLabelsMaxSize(const int size) {
+    _labelsMaxSize = std::move(size);
+}
+
 void ChunkedLodGlobe::enableLabelsFadeIn(const bool enabled) {
     _labelsFadeInEnabled = std::move(enabled);
 }
@@ -358,6 +364,11 @@ void ChunkedLodGlobe::disableLabelsCulling(const bool disabled) {
 
 void ChunkedLodGlobe::forceDomeRenderingLabels(const bool force) {
     _forceDomeRenderingLabels = std::move(force);
+}
+
+// DEBUG
+void ChunkedLodGlobe::labelDistEPS(const float eps) {
+    _labelDistEPS = std::move(eps);
 }
 
 void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
@@ -462,8 +473,8 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     
     glm::vec4 textColor = _labelsColor;
     textColor.a *= fadeInVariable;
-    const double DIST_EPS = 5500.0;
-    const double SIN_EPS = 0.04;
+    const double DIST_EPS = 6000.0;
+    const double SIN_EPS = 0.001;
     
     int textRenderingTechnique = 0;
     if (OsEng.windowWrapper().isFisheyeRendering() || _forceDomeRenderingLabels) {
@@ -478,25 +489,23 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     glm::dvec3 cameraToGlobeDistanceWorld = globePositionWorld - data.camera.positionVec3();
     double distanceCameraGlobeWorld = glm::length(cameraToGlobeDistanceWorld);
 
-    double distanceGlobeToCameraObj = 
-        glm::length(glm::dvec3(invMP * glm::dvec4(data.camera.positionVec3(), 1.0)));
+    glm::dmat4 VP = glm::dmat4(
+        data.camera.sgctInternal.projectionMatrix()
+    ) * data.camera.combinedViewMatrix();
 
     for (const RenderableGlobe::LabelEntry lEntry: _labels.labelsArray) {
         glm::vec3 position = lEntry.geoPosition;
         glm::dvec3 locationPositionWorld = 
             glm::dvec3(_owner.modelTransform() * glm::dvec4(position, 1.0));
-        double distanceCameraToLocationWorld = 
+        double distanceCameraToLabelWorld = 
             glm::length(locationPositionWorld - data.camera.positionVec3());
-        double distanceLocationObj = glm::length(glm::dvec3(position));
-        double sinAlpha = distanceLocationObj / distanceGlobeToCameraObj;
-        double maxSinAlpha = _owner.ellipsoid().maximumRadius() / distanceGlobeToCameraObj;
         
         bool draw = false;
         if (_labelsCullingDisabled) {
             draw = true;
         }
-        else if ((distanceCameraGlobeWorld >= (distanceCameraToLocationWorld + DIST_EPS)) &&
-            (sinAlpha <= (maxSinAlpha + SIN_EPS))) { // culling
+        else if ((distanceCameraGlobeWorld > (distanceCameraToLabelWorld + _labelDistEPS)) &&
+            isLabelInFrustum(VP, locationPositionWorld)) { // culling
             draw = true;
         }
 
@@ -508,7 +517,7 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
                 textColor,
                 powf(2.f, _labelsSize),
                 _labelsMinSize,
-                1000,
+                _labelsMaxSize,
                 modelViewProjectionMatrix,
                 orthoRight,
                 orthoUp,
@@ -559,6 +568,93 @@ void ChunkedLodGlobe::update(const UpdateData& data) {
         _owner.ellipsoid().maximumRadius() * data.modelTransform.scale
     ));
     _renderer->update();
+}
+
+bool ChunkedLodGlobe::isLabelInFrustum(const glm::dmat4& MVMatrix,
+    const glm::dvec3& position) const
+{
+
+    // Frustum Planes
+    //glm::dvec3 col1(MVMatrix[0], MVMatrix[4], MVMatrix[8]);
+    //glm::dvec3 col2(MVMatrix[1], MVMatrix[5], MVMatrix[9]);
+    //glm::dvec3 col3(MVMatrix[2], MVMatrix[6], MVMatrix[10]);
+    //glm::dvec3 col4(MVMatrix[3], MVMatrix[7], MVMatrix[11]);
+
+    glm::dvec3 col1(MVMatrix[0][0], MVMatrix[1][0], MVMatrix[2][0]);
+    glm::dvec3 col2(MVMatrix[0][1], MVMatrix[1][1], MVMatrix[2][1]);
+    glm::dvec3 col3(MVMatrix[0][2], MVMatrix[1][2], MVMatrix[2][2]);
+    glm::dvec3 col4(MVMatrix[0][3], MVMatrix[1][3], MVMatrix[2][3]);
+
+    glm::dvec3 leftNormal = col4 + col1;
+    glm::dvec3 rightNormal = col4 - col1;
+    glm::dvec3 bottomNormal = col4 + col2;
+    glm::dvec3 topNormal = col4 - col2;
+    glm::dvec3 nearNormal = col3 + col4;
+    glm::dvec3 farNormal = col4 - col3;
+
+    // Plane Distances
+    //double leftDistance = MVMatrix[15] + MVMatrix[12];
+    //double rightDistance = MVMatrix[15] - MVMatrix[12];
+    //double bottomDistance = MVMatrix[15] + MVMatrix[13];
+    //double topDistance = MVMatrix[15] - MVMatrix[13];
+    //double nearDistance = MVMatrix[15] + MVMatrix[14];
+    //double farDistance = MVMatrix[15] - MVMatrix[14];
+
+    double leftDistance = MVMatrix[3][3] + MVMatrix[3][0];
+    double rightDistance = MVMatrix[3][3] - MVMatrix[3][0];
+    double bottomDistance = MVMatrix[3][3] + MVMatrix[3][1];
+    double topDistance = MVMatrix[3][3] - MVMatrix[3][1];
+    double nearDistance = MVMatrix[3][3] + MVMatrix[3][2];
+    double farDistance = MVMatrix[3][3] - MVMatrix[3][2];
+
+    // Normalize Planes
+    double invMag = 1.0 / glm::length(leftNormal);
+    leftNormal *= invMag;
+    leftDistance *= invMag;
+
+    invMag = 1.0 / glm::length(rightNormal);
+    rightNormal *= invMag;
+    rightDistance *= invMag;
+
+    invMag = 1.0 / glm::length(bottomNormal);
+    bottomNormal *= invMag;
+    bottomDistance *= invMag;
+
+    invMag = 1.0 / glm::length(topNormal);
+    topNormal *= invMag;
+    topDistance *= invMag;
+
+    invMag = 1.0 / glm::length(nearNormal);
+    nearNormal *= invMag;
+    nearDistance *= invMag;
+
+    invMag = 1.0 / glm::length(farNormal);
+    farNormal *= invMag;
+    farDistance *= invMag;
+
+    float radius = 1.0;
+
+    if ((glm::dot(leftNormal, position) + leftDistance) < -radius) {
+        return false;
+    }
+    else if ((glm::dot(rightNormal, position) + rightDistance) < -radius) {
+        return false;
+    }
+    else if ((glm::dot(bottomNormal, position) + bottomDistance) < -radius) {
+        return false;
+    }
+    else if ((glm::dot(topNormal, position) + topDistance) < -radius) {
+        return false;
+    }
+    else if ((glm::dot(nearNormal, position) + nearDistance) < -radius) {
+        return false;
+    }
+    // The far plane testing is disabled because the atm has no depth.
+    /*else if ((glm::dot(farNormal, position) + farDistance) < -radius) {
+    return false;
+    }*/
+
+    return true;
 }
 
 } // namespace openspace::globebrowsing

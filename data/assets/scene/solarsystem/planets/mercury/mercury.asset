@@ -65,8 +65,11 @@ local Mercury = {
         Labels = {
             FileName = labelsPath .. "/Mercury.labels",
             LabelsSize = 9.0,
+            LabelsMinSize = 1.0,
+            LabelsMaxSize = 1500.0,
             ProximityEnabled = false,
             LabelsForceDomeRendering = true,
+            LabelsDistanceEPS = 1500000.0,
             LabelsColor = {1.0, 1.0, 0.0, 1.0}
         }
     },

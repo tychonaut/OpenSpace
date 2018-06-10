@@ -161,6 +161,11 @@ public:
     void setLabelsMinSize(const int size);
 
     /**
+    * Labels's max size.
+    */
+    void setLabelsMaxSize(const int size);
+
+    /**
     * Labels's Fade In.
     */
     void enableLabelsFadeIn(const bool enabled);
@@ -168,6 +173,8 @@ public:
     void disableLabelsCulling(const bool disabled);
 
     void forceDomeRenderingLabels(const bool force);
+
+    void labelDistEPS(const float eps);
     
     const int minSplitDepth;
     const int maxSplitDepth;
@@ -181,6 +188,8 @@ private:
     void renderLabels(const RenderData& data, const glm::dmat4& modelViewProjectionMatrix,
         const glm::dvec3& orthoRight, const glm::dvec3& orthoUp, 
         const float distToCamera, const float fadeInVariable);
+    bool isLabelInFrustum(const glm::dmat4& MVMatrix,
+        const glm::dvec3& position) const;
 
     static const GeodeticPatch COVERAGE;
     static const TileIndex LEFT_HEMISPHERE_INDEX;
@@ -211,6 +220,7 @@ private:
     bool _labelsEnabled;
     int _fontSize;
     int _labelsMinSize;
+    int _labelsMaxSize;
     float _labelsSize;
     float _labelsMinHeight;
     RenderableGlobe::Labels _labels;
@@ -220,6 +230,7 @@ private:
     bool _labelsFadeInEnabled;
     bool _labelsCullingDisabled;
     bool _forceDomeRenderingLabels;
+    float _labelDistEPS;
 };
 
 } // namespace openspace::globebrowsing

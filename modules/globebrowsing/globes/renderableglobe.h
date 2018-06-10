@@ -98,6 +98,7 @@ public:
         properties::FloatProperty labelsFadeInDist;
         properties::BoolProperty labelsFadeInEnabled;
         properties::BoolProperty labelsDisableCullingEnabled;
+        properties::FloatProperty labelsDistaneEPS;
     };
 
     // Shadow structure
