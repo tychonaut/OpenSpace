@@ -482,7 +482,14 @@ void ChunkedLodGlobe::renderLabels(const RenderData& data,
     }
     
     glm::dmat4 invMP = glm::inverse(_owner.modelTransform());
-    glm::dvec3 cameraPosObj = glm::dvec3(invMP * glm::dvec4(data.camera.positionVec3(), 1.0));
+    glm::dmat4 invCombinedView = glm::inverse(data.camera.combinedViewMatrix());
+    
+    glm::dvec4 cameraPosWorld = invCombinedView * glm::dvec4(0.0, 0.0, 0.0, 1.0);
+    glm::dvec3 cameraPosObj = glm::dvec3(invMP * cameraPosWorld);
+    //glm::dvec4 cameraUpVecWorld = invCombinedView * glm::dvec4(0.0, 1.0, 0.0, 0.0);
+    //glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * cameraUpVecWorld);
+    
+    //glm::dvec3 cameraPosObj = glm::dvec3(invMP * glm::dvec4(data.camera.positionVec3(), 1.0));
     glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * glm::dvec4(data.camera.lookUpVectorWorldSpace(), 0.0));
 
     glm::dvec3 globePositionWorld = glm::dvec3(_owner.modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
