@@ -96,7 +96,9 @@ public:
         properties::FloatProperty labelsMinHeight;
         properties::Vec4Property labelsColor;
         properties::FloatProperty labelsFadeInDist;
+        properties::FloatProperty labelsFadeOutDist;
         properties::BoolProperty labelsFadeInEnabled;
+        properties::BoolProperty labelsFadeOutEnabled;
         properties::BoolProperty labelsDisableCullingEnabled;
         properties::FloatProperty labelsDistaneEPS;
     };

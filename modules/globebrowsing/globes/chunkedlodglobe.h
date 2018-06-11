@@ -155,6 +155,8 @@ public:
      */
     void setLabelFadeInDistance(const float dist);
 
+    void setLabelFadeOutDistance(const float dist);
+
     /**
     * Labels's min size.
     */
@@ -169,6 +171,8 @@ public:
     * Labels's Fade In.
     */
     void enableLabelsFadeIn(const bool enabled);
+
+    void enableLabelsFadeOut(const bool enabled);
 
     void disableLabelsCulling(const bool disabled);
 
@@ -227,7 +231,9 @@ private:
     std::shared_ptr<ghoul::fontrendering::Font> _font;
     glm::vec4 _labelsColor;
     float _labelsFadeInDistance;
+    float _labelsFadeOutDistance;
     bool _labelsFadeInEnabled;
+    bool _labelsFadeOutEnabled;
     bool _labelsCullingDisabled;
     bool _forceDomeRenderingLabels;
     float _labelDistEPS;

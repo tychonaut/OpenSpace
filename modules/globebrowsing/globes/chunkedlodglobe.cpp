@@ -81,7 +81,9 @@ ChunkedLodGlobe::ChunkedLodGlobe(const RenderableGlobe& owner, size_t segmentsPe
     , _labelsMinHeight(100.f)
     , _labelsColor(1.f)
     , _labelsFadeInDistance(1000000.f)
+    , _labelsFadeOutDistance(10000.f)
     , _labelsFadeInEnabled(true)
+    , _labelsFadeOutEnabled(true)
     , _labelsCullingDisabled(false)
     , _forceDomeRenderingLabels(false)
     , _labelDistEPS(6000.f)
@@ -346,6 +348,10 @@ void ChunkedLodGlobe::setLabelFadeInDistance(const float dist) {
     _labelsFadeInDistance = std::move(dist);
 }
 
+void ChunkedLodGlobe::setLabelFadeOutDistance(const float dist) {
+    _labelsFadeOutDistance = std::move(dist);
+}
+
 void ChunkedLodGlobe::setLabelsMinSize(const int size) {
     _labelsMinSize = std::move(size);
 }
@@ -356,6 +362,10 @@ void ChunkedLodGlobe::setLabelsMaxSize(const int size) {
 
 void ChunkedLodGlobe::enableLabelsFadeIn(const bool enabled) {
     _labelsFadeInEnabled = std::move(enabled);
+}
+
+void ChunkedLodGlobe::enableLabelsFadeOut(const bool enabled) {
+    _labelsFadeOutEnabled = std::move(enabled);
 }
 
 void ChunkedLodGlobe::disableLabelsCulling(const bool disabled) {
@@ -457,7 +467,22 @@ void ChunkedLodGlobe::render(const RenderData& data, RendererTasks&) {
             double funcValue = a * distToCamera + b;
             fadeInVariable *= funcValue > 1.0 ? 1.f : static_cast<float>(funcValue);
 
-            if (fadeInVariable < 0.005f) {
+            if (fadeInVariable < 0.009f) {
+                return;
+            }
+        }
+
+        if (_labelsFadeOutEnabled) {
+            glm::dvec2 fadeRange = glm::dvec2(
+                _owner.ellipsoid().averageRadius() + _labelsMinHeight + 1500.0
+            );
+            fadeRange.x += _labelsFadeOutDistance;
+            double a = 0.8 / (fadeRange.x - fadeRange.y);
+            double b = -(fadeRange.y / (fadeRange.x - fadeRange.y));
+            double funcValue = a * distToCamera + b;
+            fadeInVariable *= funcValue > 1.0 ? 1.f : static_cast<float>(funcValue);
+
+            if (fadeInVariable < 0.009f) {
                 return;
             }
         }

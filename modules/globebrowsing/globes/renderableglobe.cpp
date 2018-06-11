@@ -230,10 +230,22 @@ namespace {
         "Fade In Starting Distance for Labels"
     };
 
+    static const openspace::properties::Property::PropertyInfo FadeOutStartingDistanceInfo = {
+        "FadeOutStartingDistance",
+        "Fade Out Starting Distance for Labels",
+        "Fade Out Starting Distance for Labels"
+    };
+
     static const openspace::properties::Property::PropertyInfo LabelsFadeInEnabledInfo = {
         "LabelsFadeInEnabled",
         "Labels fade In enabled",
         "Labels fade In enabled"
+    };
+
+    static const openspace::properties::Property::PropertyInfo LabelsFadeOutEnabledInfo = {
+        "LabelsFadeOutEnabled",
+        "Labels fade Out enabled",
+        "Labels fade Out enabled"
     };
 
     static const openspace::properties::Property::PropertyInfo LabelsDisableCullingEnabledInfo = {
@@ -294,7 +306,9 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
         Vec4Property(LabelsColorInfo, glm::vec4(1.f, 1.f, 0.f, 1.f), 
             glm::vec4(0.f), glm::vec4(1.f)),
         FloatProperty(FadeInStartingDistanceInfo, 1E6, 1E3, 1E8),
+        FloatProperty(FadeOutStartingDistanceInfo, 1E4, 1, 1E7),
         BoolProperty(LabelsFadeInEnabledInfo, true),
+        BoolProperty(LabelsFadeOutEnabledInfo, true),
         BoolProperty(LabelsDisableCullingEnabledInfo, false),
         FloatProperty(LabelsDistanceEPSInfo, 100000.f, 1000.f, 10000000.f)
     })
@@ -358,10 +372,12 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
     addProperty(_generalProperties.labelsMinHeight);
     _generalProperties.labelsColor.setViewOption(properties::Property::ViewOptions::Color);
     addProperty(_generalProperties.labelsColor);
-    addProperty(_generalProperties.labelsFadeInDist);
-    addProperty(_generalProperties.labelsMinSize);
-    addProperty(_generalProperties.labelsMaxSize);
     addProperty(_generalProperties.labelsFadeInEnabled);
+    addProperty(_generalProperties.labelsFadeInDist);
+    addProperty(_generalProperties.labelsFadeOutEnabled);
+    addProperty(_generalProperties.labelsFadeOutDist);
+    addProperty(_generalProperties.labelsMinSize);
+    addProperty(_generalProperties.labelsMaxSize);    
     addProperty(_generalProperties.labelsDisableCullingEnabled);
     addProperty(_generalProperties.labelsDistaneEPS);
 
@@ -493,6 +509,14 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                     _chunkedLodGlobe->enableLabelsRendering(_generalProperties.labelsEnabled);
                 });
                 
+                if (labelsDictionary.hasKey(LabelsFontSizeInfo.identifier)) {
+                    int fontSize = static_cast<int>(
+                        labelsDictionary.value<double>(LabelsFontSizeInfo.identifier)
+                        );
+                    _chunkedLodGlobe->setFontSize(fontSize);
+                    _generalProperties.labelsFontSize.set(fontSize);
+                }
+
                 _generalProperties.labelsFontSize.onChange([&]() {
                     _chunkedLodGlobe->setFontSize(_generalProperties.labelsFontSize);
                 });
@@ -531,6 +555,20 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                     _chunkedLodGlobe->setLabelsColor(_labelsColor);
                 });
 
+                if (labelsDictionary.hasKey(LabelsFadeInEnabledInfo.identifier)) {
+                    bool enabled = labelsDictionary.value<bool>(
+                        LabelsFadeInEnabledInfo.identifier
+                        );
+                    _chunkedLodGlobe->enableLabelsFadeIn(enabled);
+                    _generalProperties.labelsFadeInEnabled.set(enabled);
+                }
+
+                _generalProperties.labelsFadeInEnabled.onChange([&]() {
+                    _chunkedLodGlobe->enableLabelsFadeIn(
+                        _generalProperties.labelsFadeInEnabled
+                    );
+                });
+
                 if (labelsDictionary.hasKey(FadeInStartingDistanceInfo.identifier)) {
                     float dist = labelsDictionary.value<float>(
                         FadeInStartingDistanceInfo.identifier
@@ -542,6 +580,34 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
                 _generalProperties.labelsFadeInDist.onChange([&]() {
                     _chunkedLodGlobe->setLabelFadeInDistance(
                         _generalProperties.labelsFadeInDist
+                    );
+                });
+
+                if (labelsDictionary.hasKey(LabelsFadeOutEnabledInfo.identifier)) {
+                    bool enabled = labelsDictionary.value<bool>(
+                        LabelsFadeOutEnabledInfo.identifier
+                        );
+                    _chunkedLodGlobe->enableLabelsFadeOut(enabled);
+                    _generalProperties.labelsFadeInEnabled.set(enabled);
+                }
+
+                _generalProperties.labelsFadeOutEnabled.onChange([&]() {
+                    _chunkedLodGlobe->enableLabelsFadeOut(
+                        _generalProperties.labelsFadeOutEnabled
+                    );
+                });
+
+                if (labelsDictionary.hasKey(FadeOutStartingDistanceInfo.identifier)) {
+                    float dist = labelsDictionary.value<float>(
+                        FadeOutStartingDistanceInfo.identifier
+                        );
+                    _chunkedLodGlobe->setLabelFadeOutDistance(dist);
+                    _generalProperties.labelsFadeOutDist.set(dist);
+                }
+
+                _generalProperties.labelsFadeOutDist.onChange([&]() {
+                    _chunkedLodGlobe->setLabelFadeOutDistance(
+                        _generalProperties.labelsFadeOutDist
                     );
                 });
 
@@ -567,21 +633,7 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
 
                 _generalProperties.labelsMaxSize.onChange([&]() {
                     _chunkedLodGlobe->setLabelsMaxSize(_generalProperties.labelsMaxSize);
-                });
-
-                if (labelsDictionary.hasKey(LabelsFadeInEnabledInfo.identifier)) {
-                    bool enabled = labelsDictionary.value<bool>(
-                        LabelsFadeInEnabledInfo.identifier
-                        );
-                    _chunkedLodGlobe->enableLabelsFadeIn(enabled);
-                    _generalProperties.labelsFadeInEnabled.set(enabled);
-                }
-
-                _generalProperties.labelsFadeInEnabled.onChange([&]() {
-                    _chunkedLodGlobe->enableLabelsFadeIn(
-                        _generalProperties.labelsFadeInEnabled
-                    );
-                });
+                });                
 
                 if (labelsDictionary.hasKey(LabelsDisableCullingEnabledInfo.identifier)) {
                     bool disabled = labelsDictionary.value<bool>(
