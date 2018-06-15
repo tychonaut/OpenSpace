@@ -297,20 +297,6 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
         FloatProperty(LodScaleFactorInfo, 10.f, 1.f, 50.f),
         FloatProperty(CameraMinHeightInfo, 100.f, 0.f, 1000.f),
         FloatProperty(OrenNayarRoughnessInfo, 0.f, 0.f, 1.f),
-        BoolProperty(LabelsInfo, false),
-        IntProperty(LabelsFontSizeInfo, 30, 1, 120),
-        IntProperty(LabelsMaxSizeInfo, 300, 10, 10000),
-        IntProperty(LabelsMinSizeInfo, 4, 1, 100),
-        FloatProperty(LabelsSizeInfo, 2.5, 0, 30),
-        FloatProperty(LabelsMinHeightInfo, 100.0, 0.0, 10000.0),
-        Vec4Property(LabelsColorInfo, glm::vec4(1.f, 1.f, 0.f, 1.f), 
-            glm::vec4(0.f), glm::vec4(1.f)),
-        FloatProperty(FadeInStartingDistanceInfo, 1E6, 1E3, 1E8),
-        FloatProperty(FadeOutStartingDistanceInfo, 1E4, 1, 1E7),
-        BoolProperty(LabelsFadeInEnabledInfo, true),
-        BoolProperty(LabelsFadeOutEnabledInfo, true),
-        BoolProperty(LabelsDisableCullingEnabledInfo, false),
-        FloatProperty(LabelsDistanceEPSInfo, 100000.f, 1000.f, 10000000.f)
     })
     , _debugPropertyOwner({ "Debug" })
 {
@@ -366,7 +352,8 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
     addProperty(_generalProperties.lodScaleFactor);
     addProperty(_generalProperties.cameraMinHeight);
     addProperty(_generalProperties.orenNayarRoughness);
-    addProperty(_generalProperties.labelsEnabled);
+    
+    /*addProperty(_generalProperties.labelsEnabled);
     addProperty(_generalProperties.labelsFontSize);
     addProperty(_generalProperties.labelsSize);
     addProperty(_generalProperties.labelsMinHeight);
@@ -379,7 +366,7 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
     addProperty(_generalProperties.labelsMinSize);
     addProperty(_generalProperties.labelsMaxSize);    
     addProperty(_generalProperties.labelsDisableCullingEnabled);
-    addProperty(_generalProperties.labelsDistaneEPS);
+    addProperty(_generalProperties.labelsDistaneEPS);*/
 
     _debugPropertyOwner.addProperty(_debugProperties.saveOrThrowCamera);
     _debugPropertyOwner.addProperty(_debugProperties.showChunkEdges);
@@ -488,195 +475,15 @@ RenderableGlobe::RenderableGlobe(const ghoul::Dictionary& dictionary)
         }
     }
 
-    // Reads labels' file and build cache file if necessary
-    _labelsDataPresent = false;
-    ghoul::Dictionary labelsDictionary;
-    bool successLabels = dictionary.getValue(keyLabels, labelsDictionary);
-    if (successLabels) {
-        std::string labelsFile;
-        successLabels = labelsDictionary.getValue(keyLabelsFileName, labelsFile);
-        // DEBUG:
-        //std::cout << "\n\n\n\n========== File Name: " << labelsFile << " ===========\n\n\n" << std::endl;
-        if (successLabels) {
-            _labelsDataPresent = true;
-            bool loadSuccess = loadLabelsData(absPath(labelsFile));
-            if (loadSuccess) {
-                _generalProperties.labelsEnabled.set(true);
-                _chunkedLodGlobe->setLabels(_labels);
-                _chunkedLodGlobe->enableLabelsRendering(true);
-                
-                _generalProperties.labelsEnabled.onChange([&]() {
-                    _chunkedLodGlobe->enableLabelsRendering(_generalProperties.labelsEnabled);
-                });
-                
-                if (labelsDictionary.hasKey(LabelsFontSizeInfo.identifier)) {
-                    int fontSize = static_cast<int>(
-                        labelsDictionary.value<double>(LabelsFontSizeInfo.identifier)
-                        );
-                    _chunkedLodGlobe->setFontSize(fontSize);
-                    _generalProperties.labelsFontSize.set(fontSize);
-                }
-
-                _generalProperties.labelsFontSize.onChange([&]() {
-                    _chunkedLodGlobe->setFontSize(_generalProperties.labelsFontSize);
-                });
-
-                if (labelsDictionary.hasKey(LabelsSizeInfo.identifier)) {
-                    float size = static_cast<float>(
-                        labelsDictionary.value<double>(LabelsSizeInfo.identifier)
-                        );
-                    _chunkedLodGlobe->setLabelsSize(size);
-                    _generalProperties.labelsSize.set(size);
-                }
-                
-                _generalProperties.labelsSize.onChange([&]() {
-                    _chunkedLodGlobe->setLabelsSize(_generalProperties.labelsSize);
-                });
-                
-                if (labelsDictionary.hasKey(LabelsMinHeightInfo.identifier)) {
-                    float height = labelsDictionary.value<float>(LabelsMinHeightInfo.identifier);
-                    _chunkedLodGlobe->setLabelsMinHeight(height);
-                    _generalProperties.labelsMinHeight.set(height);
-                }
-
-                _generalProperties.labelsMinHeight.onChange([&]() {
-                    _chunkedLodGlobe->setLabelsMinHeight(_generalProperties.labelsMinHeight);
-                });
-
-                if (labelsDictionary.hasKey(LabelsColorInfo.identifier)) {
-                    _labelsColor = labelsDictionary.value<glm::vec4>(
-                        LabelsColorInfo.identifier
-                        );
-                    _chunkedLodGlobe->setLabelsColor(_labelsColor);
-                }
-                
-                _generalProperties.labelsColor.onChange([&]() {
-                    _labelsColor = _generalProperties.labelsColor;
-                    _chunkedLodGlobe->setLabelsColor(_labelsColor);
-                });
-
-                if (labelsDictionary.hasKey(LabelsFadeInEnabledInfo.identifier)) {
-                    bool enabled = labelsDictionary.value<bool>(
-                        LabelsFadeInEnabledInfo.identifier
-                        );
-                    _chunkedLodGlobe->enableLabelsFadeIn(enabled);
-                    _generalProperties.labelsFadeInEnabled.set(enabled);
-                }
-
-                _generalProperties.labelsFadeInEnabled.onChange([&]() {
-                    _chunkedLodGlobe->enableLabelsFadeIn(
-                        _generalProperties.labelsFadeInEnabled
-                    );
-                });
-
-                if (labelsDictionary.hasKey(FadeInStartingDistanceInfo.identifier)) {
-                    float dist = labelsDictionary.value<float>(
-                        FadeInStartingDistanceInfo.identifier
-                        );
-                    _chunkedLodGlobe->setLabelFadeInDistance(dist);
-                    _generalProperties.labelsFadeInDist.set(dist);
-                }
-
-                _generalProperties.labelsFadeInDist.onChange([&]() {
-                    _chunkedLodGlobe->setLabelFadeInDistance(
-                        _generalProperties.labelsFadeInDist
-                    );
-                });
-
-                if (labelsDictionary.hasKey(LabelsFadeOutEnabledInfo.identifier)) {
-                    bool enabled = labelsDictionary.value<bool>(
-                        LabelsFadeOutEnabledInfo.identifier
-                        );
-                    _chunkedLodGlobe->enableLabelsFadeOut(enabled);
-                    _generalProperties.labelsFadeInEnabled.set(enabled);
-                }
-
-                _generalProperties.labelsFadeOutEnabled.onChange([&]() {
-                    _chunkedLodGlobe->enableLabelsFadeOut(
-                        _generalProperties.labelsFadeOutEnabled
-                    );
-                });
-
-                if (labelsDictionary.hasKey(FadeOutStartingDistanceInfo.identifier)) {
-                    float dist = labelsDictionary.value<float>(
-                        FadeOutStartingDistanceInfo.identifier
-                        );
-                    _chunkedLodGlobe->setLabelFadeOutDistance(dist);
-                    _generalProperties.labelsFadeOutDist.set(dist);
-                }
-
-                _generalProperties.labelsFadeOutDist.onChange([&]() {
-                    _chunkedLodGlobe->setLabelFadeOutDistance(
-                        _generalProperties.labelsFadeOutDist
-                    );
-                });
-
-                if (labelsDictionary.hasKey(LabelsMinSizeInfo.identifier)) {
-                    int size = static_cast<int>(
-                        labelsDictionary.value<double>(LabelsMinSizeInfo.identifier)
-                        );
-                    _chunkedLodGlobe->setLabelsMinSize(size);
-                    _generalProperties.labelsMinSize.set(size);
-                }
-
-                _generalProperties.labelsMinSize.onChange([&]() {
-                    _chunkedLodGlobe->setLabelsMinSize(_generalProperties.labelsMinSize);
-                });
-
-                if (labelsDictionary.hasKey(LabelsMaxSizeInfo.identifier)) {
-                    int size = static_cast<int>(
-                        labelsDictionary.value<double>(LabelsMaxSizeInfo.identifier)
-                        );
-                    _chunkedLodGlobe->setLabelsMaxSize(size);
-                    _generalProperties.labelsMaxSize.set(size);
-                }
-
-                _generalProperties.labelsMaxSize.onChange([&]() {
-                    _chunkedLodGlobe->setLabelsMaxSize(_generalProperties.labelsMaxSize);
-                });                
-
-                if (labelsDictionary.hasKey(LabelsDisableCullingEnabledInfo.identifier)) {
-                    bool disabled = labelsDictionary.value<bool>(
-                        LabelsDisableCullingEnabledInfo.identifier
-                        );
-                    _chunkedLodGlobe->disableLabelsCulling(disabled);
-                    _generalProperties.labelsDisableCullingEnabled.set(disabled);
-                }
-
-                _generalProperties.labelsDisableCullingEnabled.onChange([&]() {
-                    _chunkedLodGlobe->disableLabelsCulling(
-                        _generalProperties.labelsDisableCullingEnabled
-                    );
-                });
-
-                if (labelsDictionary.hasKey(LabelsForceDomeRenderingInfo.identifier)) {
-                    bool force = labelsDictionary.value<bool>(
-                        LabelsForceDomeRenderingInfo.identifier
-                        );
-                    _chunkedLodGlobe->forceDomeRenderingLabels(force);
-                }
-
-                // DEBUG:
-                if (labelsDictionary.hasKey(LabelsDistanceEPSInfo.identifier)) {
-                    float dist = static_cast<float>(
-                        labelsDictionary.value<double>(LabelsDistanceEPSInfo.identifier)
-                        );
-                    _chunkedLodGlobe->labelDistEPS(dist);
-                    _generalProperties.labelsDistaneEPS.set(dist);
-                }
-
-                _generalProperties.labelsDistaneEPS.onChange([&]() {
-                    _chunkedLodGlobe->labelDistEPS(
-                        _generalProperties.labelsDistaneEPS
-                    );
-                });
-            }
-        }
-        //_globeLabelsComponent.initialize(labelsDictionary, *this);
-    }
+    // Labels Dictionary
+    dictionary.getValue(keyLabels, _labelsDictionary);
 }
 
 void RenderableGlobe::initializeGL() {
+
+    _globeLabelsComponent.initialize(_labelsDictionary, this);
+    addPropertySubOwner(_globeLabelsComponent);
+
     _layerManager->initialize();
 
     _layerManager->update();
@@ -686,10 +493,6 @@ void RenderableGlobe::initializeGL() {
     // Recompile the shaders directly so that it is not done the first time the render
     // function is called.
     _chunkedLodGlobe->recompileShaders();
-
-    if (_labelsDataPresent) {
-        _chunkedLodGlobe->initializeFonts();
-    }
 }
 
 void RenderableGlobe::deinitializeGL() {
@@ -719,6 +522,9 @@ void RenderableGlobe::render(const RenderData& data, RendererTasks& renderTask) 
         }
         _distanceSwitch.render(data, renderTask);
     }
+
+    _globeLabelsComponent.draw(data);
+
     if (_savedCamera != nullptr) {
         DebugRenderer::ref().renderCameraFrustum(data, *_savedCamera);
     }
@@ -824,174 +630,6 @@ SurfacePositionHandle RenderableGlobe::calculateSurfacePositionHandle(
         ellipsoidSurfaceOutDirection,
         heightToSurface
     };
-}
-
-bool RenderableGlobe::loadLabelsData(const std::string& file) {
-    bool success = true;
-    if (_labelsDataPresent) {
-        std::string cachedFile = FileSys.cacheManager()->cachedFilename(
-            ghoul::filesystem::File(file),
-            "RenderableGlobe|" + identifier(),
-            ghoul::filesystem::CacheManager::Persistent::Yes
-        );
-
-        bool hasCachedFile = FileSys.fileExists(cachedFile);
-        if (hasCachedFile) {
-            LINFO(fmt::format(
-                "Cached file '{}' used for labels file '{}'",
-                cachedFile,
-                file
-            ));
-
-            success = loadCachedFile(cachedFile);
-            if (success) {
-                return true;
-            }
-            else {
-                FileSys.cacheManager()->removeCacheFile(file);
-                // Intentional fall-through to the 'else' to generate the cache
-                // file for the next run
-            }
-        }
-        else {
-            LINFO(fmt::format("Cache for labels file '{}' not found", file));
-        }
-        LINFO(fmt::format("Loading labels file '{}'", file));
-
-        success = readLabelsFile(file);
-        if (!success) {
-            return false;
-        }
-
-        success &= saveCachedFile(cachedFile);
-    }
-    return success;
-}
-
-bool RenderableGlobe::readLabelsFile(const std::string& file) {
-    try {
-        std::fstream csvLabelFile(file);
-        if (!csvLabelFile.good()) {
-            LERROR(fmt::format("Failed to open labels file '{}'", file));
-            return false;
-        }
-        if (csvLabelFile.is_open()) {
-            char line[4096];
-            _labels.labelsArray.clear();
-            while (!csvLabelFile.eof()) {
-                csvLabelFile.getline(line, 4090);
-                if (strnlen(line, 4090) > 10) {
-                    LabelEntry lEntry;
-                    char *token = strtok(line, ",");
-                    // First line is just the Header
-                    if (strcmp(token, "Feature_Name") == 0) {
-                        continue;
-                    }
-                    strncpy(lEntry.feature, token, 256);
-                    // Removing non ASCII characters:
-                    int tokenChar = 0;
-                    while (tokenChar < 256) {
-                        if ((lEntry.feature[tokenChar] < 0 || 
-                            lEntry.feature[tokenChar] > 127) &&
-                            lEntry.feature[tokenChar] != '\0') {
-                            lEntry.feature[tokenChar] = '*';
-                        }
-                        else if (lEntry.feature[tokenChar] == '\"') {
-                            lEntry.feature[tokenChar] = '=';
-                        }
-                        tokenChar++;
-                    }
-
-                    strtok(NULL, ","); // Target is not used
-                    lEntry.diameter = static_cast<float>(atof(strtok(NULL, ",")));
-                    lEntry.latitude = static_cast<float>(atof(strtok(NULL, ",")));
-                    lEntry.longitude = static_cast<float>(atof(strtok(NULL, ",")));
-                    char * coordinateSystem = strtok(NULL, ",");
-
-                    if (strstr(coordinateSystem, "West") != NULL) {
-                        lEntry.longitude = 360.0f - lEntry.longitude;
-                    }
-
-                    // Clean white spaces
-                    strncpy(lEntry.feature, strtok(lEntry.feature, "="), 256);
-
-                    GlobeBrowsingModule* _globeBrowsingModule =
-                        OsEng.moduleEngine().module<openspace::GlobeBrowsingModule>();
-                    lEntry.geoPosition = _globeBrowsingModule->cartesianCoordinatesFromGeo(
-                        *this,
-                        lEntry.latitude,
-                        lEntry.longitude,
-                        lEntry.diameter
-                    );
-
-                    _labels.labelsArray.push_back(lEntry);
-                }
-            }
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    catch (const std::fstream::failure& e) {
-        LERROR(fmt::format("Failed reading labels file '{}'", file));
-        LERROR(e.what());
-        return false;
-    }
-}
-
-bool RenderableGlobe::loadCachedFile(const std::string& file) {
-    std::ifstream fileStream(file, std::ifstream::binary);
-    if (fileStream.good()) {
-        int8_t version = 0;
-        fileStream.read(reinterpret_cast<char*>(&version), sizeof(int8_t));
-        if (version != CurrentCacheVersion) {
-            LINFO("The format of the cached file has changed: deleting old cache");
-            fileStream.close();
-            FileSys.deleteFile(file);
-            return false;
-        }
-
-        int32_t nValues = 0;
-        fileStream.read(reinterpret_cast<char*>(&nValues), sizeof(int32_t));
-        _labels.labelsArray.resize(nValues);
-        
-        fileStream.read(reinterpret_cast<char*>(&_labels.labelsArray[0]),
-            nValues * sizeof(_labels.labelsArray[0]));
-      
-        bool success = fileStream.good();
-        return success;
-    }
-    else {
-        LERROR(fmt::format("Error opening file '{}' for loading cache file", file));
-        return false;
-    }
-}
-
-bool RenderableGlobe::saveCachedFile(const std::string& file) const {
-    
-    std::ofstream fileStream(file, std::ofstream::binary);
-    if (fileStream.good()) {
-        fileStream.write(reinterpret_cast<const char*>(&CurrentCacheVersion),
-            sizeof(int8_t));
-
-        int32_t nValues = static_cast<int32_t>(_labels.labelsArray.size());
-        if (nValues == 0) {
-            LERROR("Error writing cache: No values were loaded");
-            return false;
-        }
-        fileStream.write(reinterpret_cast<const char*>(&nValues), sizeof(int32_t));
-
-        size_t nBytes = nValues * sizeof(_labels.labelsArray[0]);
-        fileStream.write(reinterpret_cast<const char*>(&_labels.labelsArray[0]), nBytes);
-
-        bool success = fileStream.good();
-        return success;
-    }
-    else {
-        LERROR(fmt::format("Error opening file '{}' for save cache file", file));
-        return false;
-    }
 }
 
 } // namespace openspace::globebrowsing

@@ -29,8 +29,10 @@
 #include <openspace/documentation/documentation.h>
 #include <openspace/documentation/verifier.h>
 #include <openspace/util/updatestructures.h>
+
 #include <openspace/engine/openspaceengine.h>
 #include <openspace/engine/moduleengine.h>
+#include <openspace/engine/wrapper/windowwrapper.h>
 
 #include <ghoul/filesystem/cachemanager.h>
 #include <ghoul/filesystem/filesystem.h>
@@ -98,16 +100,46 @@ namespace {
         "Labels Color"
     };
 
-    static const openspace::properties::Property::PropertyInfo FadeInStartingDistanceInfo = {
+    static const openspace::properties::Property::PropertyInfo LabelsFadeInStartingDistanceInfo = {
         "FadeInStartingDistance",
         "Fade In Starting Distance for Labels",
         "Fade In Starting Distance for Labels"
+    };
+
+    static const openspace::properties::Property::PropertyInfo LabelsFadeOutStartingDistanceInfo = {
+        "FadeOutStartingDistance",
+        "Fade Out Starting Distance for Labels",
+        "Fade Out Starting Distance for Labels"
     };
 
     static const openspace::properties::Property::PropertyInfo LabelsFadeInEnabledInfo = {
         "LabelsFadeInEnabled",
         "Labels fade In enabled",
         "Labels fade In enabled"
+    };
+
+    static const openspace::properties::Property::PropertyInfo LabelsFadeOutEnabledInfo = {
+        "LabelsFadeOutEnabled",
+        "Labels fade Out enabled",
+        "Labels fade Out enabled"
+    };
+
+    static const openspace::properties::Property::PropertyInfo LabelsDisableCullingEnabledInfo = {
+        "LabelsDisableCullingEnabled",
+        "Labels culling disabled",
+        "Labels culling disabled"
+    };
+
+    static const openspace::properties::Property::PropertyInfo LabelsForceDomeRenderingInfo = {
+        "LabelsForceDomeRendering",
+        "Force dome rendering style for labels",
+        "Force dome rendering style for labels"
+    };
+
+    static const openspace::properties::Property::PropertyInfo LabelsDistanceEPSInfo = {
+        "LabelsDistanceEPS",
+        "Labels culling distance from globe's center",
+        "Labels culling distance from globe's center"
     };
 } // namespace
 
@@ -122,24 +154,24 @@ namespace openspace {
             {
                 LabelsInfo.identifier,
                 new BoolVerifier,
-                Optional::No,
+                Optional::Yes,
                 LabelsInfo.description
             },
             {
                 LabelsFontSizeInfo.identifier,
-                new IntVerifier,
-                Optional::No,
+                new DoubleVerifier,
+                Optional::Yes,
                 LabelsFontSizeInfo.description
             },
             {
                 LabelsMaxSizeInfo.identifier,
-                new IntVerifier,
+                new DoubleVerifier,
                 Optional::Yes,
                 LabelsMaxSizeInfo.description
             },
             {
                 LabelsMinSizeInfo.identifier,
-                new IntVerifier,
+                new DoubleVerifier,
                 Optional::Yes,
                 LabelsMinSizeInfo.description
             },
@@ -162,10 +194,16 @@ namespace openspace {
                 LabelsColorInfo.description
             },
             {
-                FadeInStartingDistanceInfo.identifier,
+                LabelsFadeInStartingDistanceInfo.identifier,
                 new DoubleVerifier,
                 Optional::Yes,
-                FadeInStartingDistanceInfo.description
+                LabelsFadeInStartingDistanceInfo.description
+            },
+            {
+                LabelsFadeOutStartingDistanceInfo.identifier,
+                new DoubleVerifier,
+                Optional::Yes,
+                LabelsFadeOutStartingDistanceInfo.description
             },
             {
                 LabelsFadeInEnabledInfo.identifier,
@@ -173,12 +211,36 @@ namespace openspace {
                 Optional::Yes,
                 LabelsFadeInEnabledInfo.description
             },
+            {
+                LabelsFadeOutEnabledInfo.identifier,
+                new BoolVerifier,
+                Optional::Yes,
+                LabelsFadeOutEnabledInfo.description
+            },
+            {
+                LabelsDisableCullingEnabledInfo.identifier,
+                new BoolVerifier,
+                Optional::Yes,
+                LabelsDisableCullingEnabledInfo.description
+            },
+            {
+                LabelsForceDomeRenderingInfo.identifier,
+                new BoolVerifier,
+                Optional::Yes,
+                LabelsForceDomeRenderingInfo.description
+            },
+            {
+                LabelsDistanceEPSInfo.identifier,
+                new DoubleVerifier,
+                Optional::Yes,
+                LabelsDistanceEPSInfo.description
+            },
         }
         };
     }
 
     GlobeLabelsComponent::GlobeLabelsComponent()
-        : properties::PropertyOwner({ "GlobeLabelsComponent" })
+        : properties::PropertyOwner({ "Labels" })
         , _labelsEnabled(LabelsInfo, false)
         , _labelsFontSize(LabelsFontSizeInfo, 30, 1, 120)
         , _labelsMaxSize(LabelsMaxSizeInfo, 300, 10, 1000)
@@ -187,9 +249,14 @@ namespace openspace {
         , _labelsMinHeight(LabelsMinHeightInfo, 100.0, 0.0, 10000.0)
         , _labelsColor(LabelsColorInfo, glm::vec4(1.f, 1.f, 0.f, 1.f),
             glm::vec4(0.f), glm::vec4(1.f))
-        , _labelsFadeInDist(FadeInStartingDistanceInfo, 1E6, 1E3, 1E8)
+        , _labelsFadeInDist(LabelsFadeInStartingDistanceInfo, 1E6, 1E3, 1E8)
+        , _labelsFadeOutDist(LabelsFadeOutStartingDistanceInfo, 1E4, 1, 1E7)
         , _labelsFadeInEnabled(LabelsFadeInEnabledInfo, true)
+        , _labelsFadeOutEnabled(LabelsFadeOutEnabledInfo, true)
+        , _labelsDisableCullingEnabled(LabelsDisableCullingEnabledInfo, false)
+        , _labelsDistaneEPS(LabelsDistanceEPSInfo, 100000.f, 1000.f, 10000000.f)
         , _labelsDataPresent(false)
+        , _forceDomeLabelsRendering(false)
     {
         addProperty(_labelsEnabled);
         addProperty(_labelsFontSize);
@@ -198,8 +265,12 @@ namespace openspace {
         _labelsColor.setViewOption(properties::Property::ViewOptions::Color);
         addProperty(_labelsColor);
         addProperty(_labelsFadeInDist);
+        addProperty(_labelsFadeOutDist);
         addProperty(_labelsMinSize);
         addProperty(_labelsFadeInEnabled);
+        addProperty(_labelsFadeOutEnabled);
+        addProperty(_labelsDisableCullingEnabled);
+        addProperty(_labelsDistaneEPS);
 
         //_applyTextureSize.onChange([this]() { ; });
     }
@@ -217,104 +288,101 @@ namespace openspace {
 
         // Reads labels' file and build cache file if necessary
         _labelsDataPresent = false;
-        ghoul::Dictionary labelsDictionary;
-        bool successLabels = dictionary.getValue(keyLabels, labelsDictionary);
-        if (successLabels) {
+        if (!dictionary.empty()) {
             std::string labelsFile;
-            successLabels = labelsDictionary.getValue(keyLabelsFileName, labelsFile);
-            // DEBUG:
-            //std::cout << "========== File Name: " << absPath(labelsFile) << " ===========" << std::endl;
+            bool successLabels = dictionary.getValue(keyLabelsFileName, labelsFile);
             if (successLabels) {
                 _labelsDataPresent = true;
                 bool loadSuccess = loadLabelsData(absPath(labelsFile));
                 if (loadSuccess) {
                     _labelsEnabled.set(true);
-                    //_chunkedLodGlobe->setLabels(_labels);
-                    //_chunkedLodGlobe->enableLabelsRendering(true);
-
-                    _labelsEnabled.onChange([&]() {
-                        //_chunkedLodGlobe->enableLabelsRendering(_labelsEnabled);
-                    });
-
-                    _labelsFontSize.onChange([&]() {
-                        //_chunkedLodGlobe->setFontSize(_labelsFontSize);
-                    });
-
-                    if (labelsDictionary.hasKey(LabelsSizeInfo.identifier)) {
-                        float size = static_cast<float>(
-                            labelsDictionary.value<double>(LabelsSizeInfo.identifier)
+         
+                    if (dictionary.hasKey(LabelsFontSizeInfo.identifier)) {
+                        float fontSize = dictionary.value<float>(
+                            LabelsFontSizeInfo.identifier
                             );
-                        //_chunkedLodGlobe->setLabelsSize(size);
+                        _labelsFontSize.set(fontSize);
+                    }
+
+                    if (dictionary.hasKey(LabelsSizeInfo.identifier)) {
+                        float size = static_cast<float>(
+                            dictionary.value<double>(LabelsSizeInfo.identifier)
+                            );
                         _labelsSize.set(size);
                     }
 
-                    _labelsSize.onChange([&]() {
-                        //_chunkedLodGlobe->setLabelsSize(_labelsSize);
-                    });
-
-                    if (labelsDictionary.hasKey(LabelsMinHeightInfo.identifier)) {
-                        float height = labelsDictionary.value<float>(LabelsMinHeightInfo.identifier);
-                        //_chunkedLodGlobe->setLabelsMinHeight(height);
+                    if (dictionary.hasKey(LabelsMinHeightInfo.identifier)) {
+                        float height = dictionary.value<float>(LabelsMinHeightInfo.identifier);
                         _labelsMinHeight.set(height);
                     }
 
-                    _labelsMinHeight.onChange([&]() {
-                        //_chunkedLodGlobe->setLabelsMinHeight(_labelsMinHeight);
-                    });
-
-                    /*_labelsMaxHeight.onChange([&]() {
-                    _chunkedLodGlobe->setLabelsMaxHeight(_labelsMaxHeight);
-                    });*/
-
-                    if (labelsDictionary.hasKey(LabelsColorInfo.identifier)) {
-                        _labelsColor = labelsDictionary.value<glm::vec4>(
+                    if (dictionary.hasKey(LabelsColorInfo.identifier)) {
+                        _labelsColor = dictionary.value<glm::vec4>(
                             LabelsColorInfo.identifier
                             );
-                        //_chunkedLodGlobe->setLabelsColor(_labelsColor);
                     }
 
-                    _labelsColor.onChange([&]() {
-                        //_labelsColor = _labelsColor;
-                        //_chunkedLodGlobe->setLabelsColor(_labelsColor);
-                    });
-
-                    if (labelsDictionary.hasKey(FadeInStartingDistanceInfo.identifier)) {
-                        float dist = labelsDictionary.value<float>(
-                            FadeInStartingDistanceInfo.identifier
-                            );
-                        //_chunkedLodGlobe->setLabelFadeInDistance(dist);
-                        _labelsFadeInDist.set(dist);
-                    }
-
-                    _labelsFadeInDist.onChange([&]() {
-                        //_chunkedLodGlobe->setLabelFadeInDistance(
-                        //    _labelsFadeInDist
-                        //);
-                    });
-
-                    if (labelsDictionary.hasKey(LabelsMinSizeInfo.identifier)) {
-                        int size = labelsDictionary.value<int>(LabelsMinSizeInfo.identifier);
-                        //_chunkedLodGlobe->setLabelsMinSize(size);
-                        _labelsMinSize.set(size);
-                    }
-
-                    _labelsMinSize.onChange([&]() {
-                        //_chunkedLodGlobe->setLabelsMinSize(_labelsMinSize);
-                    });
-
-                    if (labelsDictionary.hasKey(LabelsFadeInEnabledInfo.identifier)) {
-                        bool enabled = labelsDictionary.value<bool>(
+                    if (dictionary.hasKey(LabelsFadeInEnabledInfo.identifier)) {
+                        bool enabled = dictionary.value<bool>(
                             LabelsFadeInEnabledInfo.identifier
                             );
-                        //_chunkedLodGlobe->enableLabelsFadeIn(enabled);
                         _labelsFadeInEnabled.set(enabled);
                     }
 
-                    _labelsFadeInEnabled.onChange([&]() {
-                        //_chunkedLodGlobe->enableLabelsFadeIn(
-                        //    _labelsFadeInEnabled
-                        //);
-                    });
+                    if (dictionary.hasKey(LabelsFadeInStartingDistanceInfo.identifier)) {
+                        float dist = dictionary.value<float>(
+                            LabelsFadeInStartingDistanceInfo.identifier
+                            );
+                        _labelsFadeInDist.set(dist);
+                    }
+
+                    if (dictionary.hasKey(LabelsFadeOutEnabledInfo.identifier)) {
+                        bool enabled = dictionary.value<bool>(
+                            LabelsFadeOutEnabledInfo.identifier
+                            );
+                        _labelsFadeInEnabled.set(enabled);
+                    }
+
+                    if (dictionary.hasKey(LabelsFadeOutStartingDistanceInfo.identifier)) {
+                        float dist = dictionary.value<float>(
+                            LabelsFadeOutStartingDistanceInfo.identifier
+                            );
+                        _labelsFadeOutDist.set(dist);
+                    }
+
+                    if (dictionary.hasKey(LabelsMinSizeInfo.identifier)) {
+                        int size = static_cast<int>(
+                            dictionary.value<float>(LabelsMinSizeInfo.identifier)
+                            );
+                        _labelsMinSize.set(size);
+                    }
+
+                    if (dictionary.hasKey(LabelsMaxSizeInfo.identifier)) {
+                        int size = static_cast<int>(
+                            dictionary.value<float>(LabelsMaxSizeInfo.identifier)
+                            );
+                        _labelsMaxSize.set(size);
+                    }
+
+                    if (dictionary.hasKey(LabelsDisableCullingEnabledInfo.identifier)) {
+                        bool disabled = dictionary.value<bool>(
+                            LabelsDisableCullingEnabledInfo.identifier
+                            );
+                        _labelsDisableCullingEnabled.set(disabled);
+                    }
+
+                    if (dictionary.hasKey(LabelsForceDomeRenderingInfo.identifier)) {
+                        bool force = dictionary.value<bool>(
+                            LabelsForceDomeRenderingInfo.identifier
+                            );
+                    }
+
+                    if (dictionary.hasKey(LabelsDistanceEPSInfo.identifier)) {
+                        float dist = static_cast<float>(
+                            dictionary.value<double>(LabelsDistanceEPSInfo.identifier)
+                            );
+                        _labelsDistaneEPS.set(dist);
+                    }
 
                     _font = font;
                     initializeFonts();
@@ -564,7 +632,22 @@ namespace openspace {
                 double funcValue = a * distToCamera + b;
                 fadeInVariable *= funcValue > 1.0 ? 1.f : static_cast<float>(funcValue);
 
-                if (fadeInVariable < 0.005f) {
+                if (fadeInVariable < 0.009f) {
+                    return;
+                }
+            }
+
+            if (_labelsFadeOutEnabled) {
+                glm::dvec2 fadeRange = glm::dvec2(
+                    _globe->ellipsoid().averageRadius() + _labelsMinHeight + 1500.0
+                );
+                fadeRange.x += _labelsFadeOutDist;
+                double a = 0.8 / (fadeRange.x - fadeRange.y);
+                double b = -(fadeRange.y / (fadeRange.x - fadeRange.y));
+                double funcValue = a * distToCamera + b;
+                fadeInVariable *= funcValue > 1.0 ? 1.f : static_cast<float>(funcValue);
+
+                if (fadeInVariable < 0.009f) {
                     return;
                 }
             }
@@ -579,18 +662,47 @@ namespace openspace {
 
         glm::vec4 textColor = _labelsColor;
         textColor.a *= fadeInVariable;
-        const float DIST_EPS = 2500.f;
+        const double DIST_EPS = 6000.0;
+        const double SIN_EPS = 0.001;
+
+        int textRenderingTechnique = 0;
+        if (OsEng.windowWrapper().isFisheyeRendering() || _forceDomeLabelsRendering) {
+            textRenderingTechnique = 1;
+        }
 
         glm::dmat4 invMP = glm::inverse(_globe->modelTransform());
-        glm::dvec3 cameraPosObj = glm::dvec3(invMP * glm::dvec4(data.camera.positionVec3(), 1.0));
-        glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * glm::dvec4(data.camera.lookUpVectorWorldSpace(), 0.0));
+        glm::dmat4 invCombinedView = glm::inverse(data.camera.combinedViewMatrix());
 
-        glm::dvec3 oP = glm::dvec3(_globe->modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
+        glm::dvec4 cameraPosWorld = invCombinedView * glm::dvec4(0.0, 0.0, 0.0, 1.0);
+        glm::dvec3 cameraPosObj = glm::dvec3(invMP * cameraPosWorld);
+        glm::dvec4 cameraUpVecWorld = invCombinedView * glm::dvec4(0.0, 1.0, 0.0, 0.0);
+        glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * cameraUpVecWorld);
+
+        glm::dvec3 globePositionWorld = glm::dvec3(_globe->modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
+        glm::dvec3 cameraToGlobeDistanceWorld = globePositionWorld - data.camera.positionVec3();
+        double distanceCameraGlobeWorld = glm::length(cameraToGlobeDistanceWorld);
+
+        glm::dmat4 VP = glm::dmat4(
+            data.camera.sgctInternal.projectionMatrix()
+        ) * data.camera.combinedViewMatrix();
+
         for (const LabelEntry lEntry : _labels.labelsArray) {
             glm::vec3 position = lEntry.geoPosition;
-            float distCameraToPoint = glm::length(data.camera.positionVec3() -
-                glm::dvec3(_globe->modelTransform() * glm::vec4(position, 1.0)));
-            if (distToCamera >= (distCameraToPoint + DIST_EPS)) { // culling
+            glm::dvec3 locationPositionWorld =
+                glm::dvec3(_globe->modelTransform() * glm::dvec4(position, 1.0));
+            double distanceCameraToLabelWorld =
+                glm::length(locationPositionWorld - data.camera.positionVec3());
+
+            bool draw = false;
+            if (_labelsDisableCullingEnabled) {
+                draw = true;
+            }
+            else if ((distanceCameraGlobeWorld > (distanceCameraToLabelWorld + _labelsDistaneEPS)) &&
+                isLabelInFrustum(VP, locationPositionWorld)) { // culling
+                draw = true;
+            }
+
+            if (draw) {
                 position += _labelsMinHeight;
                 ghoul::fontrendering::FontRenderer::defaultProjectionRenderer().render(
                     *_font,
@@ -598,18 +710,93 @@ namespace openspace {
                     textColor,
                     powf(2.f, _labelsSize),
                     _labelsMinSize,
-                    1000,
+                    _labelsMaxSize,
                     modelViewProjectionMatrix,
                     orthoRight,
                     orthoUp,
                     cameraPosObj,
                     cameraLookUpObj,
-                    0,
+                    textRenderingTechnique,
                     "%s",
                     lEntry.feature
                 );
             }
         }
+    }
+
+    bool GlobeLabelsComponent::isLabelInFrustum(const glm::dmat4& MVMatrix,
+        const glm::dvec3& position) const
+    {
+
+        // Frustum Planes
+        glm::dvec3 col1(MVMatrix[0][0], MVMatrix[1][0], MVMatrix[2][0]);
+        glm::dvec3 col2(MVMatrix[0][1], MVMatrix[1][1], MVMatrix[2][1]);
+        glm::dvec3 col3(MVMatrix[0][2], MVMatrix[1][2], MVMatrix[2][2]);
+        glm::dvec3 col4(MVMatrix[0][3], MVMatrix[1][3], MVMatrix[2][3]);
+
+        glm::dvec3 leftNormal = col4 + col1;
+        glm::dvec3 rightNormal = col4 - col1;
+        glm::dvec3 bottomNormal = col4 + col2;
+        glm::dvec3 topNormal = col4 - col2;
+        glm::dvec3 nearNormal = col3 + col4;
+        glm::dvec3 farNormal = col4 - col3;
+
+        // Plane Distances
+        double leftDistance = MVMatrix[3][3] + MVMatrix[3][0];
+        double rightDistance = MVMatrix[3][3] - MVMatrix[3][0];
+        double bottomDistance = MVMatrix[3][3] + MVMatrix[3][1];
+        double topDistance = MVMatrix[3][3] - MVMatrix[3][1];
+        double nearDistance = MVMatrix[3][3] + MVMatrix[3][2];
+        double farDistance = MVMatrix[3][3] - MVMatrix[3][2];
+
+        // Normalize Planes
+        double invMag = 1.0 / glm::length(leftNormal);
+        leftNormal *= invMag;
+        leftDistance *= invMag;
+
+        invMag = 1.0 / glm::length(rightNormal);
+        rightNormal *= invMag;
+        rightDistance *= invMag;
+
+        invMag = 1.0 / glm::length(bottomNormal);
+        bottomNormal *= invMag;
+        bottomDistance *= invMag;
+
+        invMag = 1.0 / glm::length(topNormal);
+        topNormal *= invMag;
+        topDistance *= invMag;
+
+        invMag = 1.0 / glm::length(nearNormal);
+        nearNormal *= invMag;
+        nearDistance *= invMag;
+
+        invMag = 1.0 / glm::length(farNormal);
+        farNormal *= invMag;
+        farDistance *= invMag;
+
+        float radius = 1.0;
+
+        if ((glm::dot(leftNormal, position) + leftDistance) < -radius) {
+            return false;
+        }
+        else if ((glm::dot(rightNormal, position) + rightDistance) < -radius) {
+            return false;
+        }
+        else if ((glm::dot(bottomNormal, position) + bottomDistance) < -radius) {
+            return false;
+        }
+        else if ((glm::dot(topNormal, position) + topDistance) < -radius) {
+            return false;
+        }
+        else if ((glm::dot(nearNormal, position) + nearDistance) < -radius) {
+            return false;
+        }
+        // The far plane testing is disabled because the atm has no depth.
+        /*else if ((glm::dot(farNormal, position) + farDistance) < -radius) {
+        return false;
+        }*/
+
+        return true;
     }
 
     } // namespace openspace

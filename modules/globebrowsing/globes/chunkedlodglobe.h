@@ -115,71 +115,6 @@ public:
      */
     void recompileShaders();
 
-    /**
-     * Creates and initializes the default font used on the labels.
-     */
-    void initializeFonts();
-    
-    /**
-     * Add the label info to be rendered on the globe surface. 
-     */
-    void setLabels(RenderableGlobe::Labels & labels);
-
-    /**
-     * Set the Font Size for the rendered labels.
-     */
-    void setFontSize(const int size);
-
-    /**
-     * Enables/Disables labels rendering.
-     */
-    void enableLabelsRendering(const bool enable);
-
-    /**
-     * Labels's size.
-     */
-    void setLabelsSize(const float size);
-
-    /**
-     * Labels minimum height on planet's surface.
-     */
-    void setLabelsMinHeight(const float height);
-
-    /**
-    * Labels color.
-    */
-    void setLabelsColor(const glm::vec4 & color);
-
-    /**
-     * Labels Fade In starting distance. 
-     */
-    void setLabelFadeInDistance(const float dist);
-
-    void setLabelFadeOutDistance(const float dist);
-
-    /**
-    * Labels's min size.
-    */
-    void setLabelsMinSize(const int size);
-
-    /**
-    * Labels's max size.
-    */
-    void setLabelsMaxSize(const int size);
-
-    /**
-    * Labels's Fade In.
-    */
-    void enableLabelsFadeIn(const bool enabled);
-
-    void enableLabelsFadeOut(const bool enabled);
-
-    void disableLabelsCulling(const bool disabled);
-
-    void forceDomeRenderingLabels(const bool force);
-
-    void labelDistEPS(const float eps);
-    
     const int minSplitDepth;
     const int maxSplitDepth;
 
@@ -192,9 +127,7 @@ private:
     void renderLabels(const RenderData& data, const glm::dmat4& modelViewProjectionMatrix,
         const glm::dvec3& orthoRight, const glm::dvec3& orthoUp, 
         const float distToCamera, const float fadeInVariable);
-    bool isLabelInFrustum(const glm::dmat4& MVMatrix,
-        const glm::dvec3& position) const;
-
+    
     static const GeodeticPatch COVERAGE;
     static const TileIndex LEFT_HEMISPHERE_INDEX;
     static const TileIndex RIGHT_HEMISPHERE_INDEX;
@@ -219,24 +152,6 @@ private:
     std::shared_ptr<LayerManager> _layerManager;
 
     bool _shadersNeedRecompilation;
-
-    // Label Rendering
-    bool _labelsEnabled;
-    int _fontSize;
-    int _labelsMinSize;
-    int _labelsMaxSize;
-    float _labelsSize;
-    float _labelsMinHeight;
-    RenderableGlobe::Labels _labels;
-    std::shared_ptr<ghoul::fontrendering::Font> _font;
-    glm::vec4 _labelsColor;
-    float _labelsFadeInDistance;
-    float _labelsFadeOutDistance;
-    bool _labelsFadeInEnabled;
-    bool _labelsFadeOutEnabled;
-    bool _labelsCullingDisabled;
-    bool _forceDomeRenderingLabels;
-    float _labelDistEPS;
 };
 
 } // namespace openspace::globebrowsing

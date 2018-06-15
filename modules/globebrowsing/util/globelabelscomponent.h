@@ -87,23 +87,31 @@ namespace openspace {
         void renderLabels(const RenderData& data, 
             const glm::dmat4& modelViewProjectionMatrix, const glm::dvec3& orthoRight,
             const glm::dvec3& orthoUp, const float distToCamera, const float fadeInVariable);
+        bool isLabelInFrustum(const glm::dmat4& MVMatrix, const glm::dvec3& position) const;
 
         
     protected:
         properties::BoolProperty _labelsEnabled;
-        properties::IntProperty _labelsFontSize;
+        properties::FloatProperty _labelsFontSize;
         properties::IntProperty _labelsMaxSize;
         properties::IntProperty _labelsMinSize;
         properties::FloatProperty _labelsSize;
         properties::FloatProperty _labelsMinHeight;
         properties::Vec4Property _labelsColor;
         properties::FloatProperty _labelsFadeInDist;
+        properties::FloatProperty _labelsFadeOutDist;
         properties::BoolProperty _labelsFadeInEnabled;
+        properties::BoolProperty _labelsFadeOutEnabled;
+        properties::BoolProperty _labelsDisableCullingEnabled;
+        properties::FloatProperty _labelsDistaneEPS;
 
     private:
         // Labels
         bool _labelsDataPresent;
+        bool _forceDomeLabelsRendering;
         Labels _labels;
+
+        // Font
         std::shared_ptr<ghoul::fontrendering::Font> _font;
 
         // Globe
