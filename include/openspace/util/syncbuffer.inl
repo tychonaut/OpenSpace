@@ -22,46 +22,36 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_MODULE_SERVER___AUTHORIZATION_TOPIC___H__
-#define __OPENSPACE_MODULE_SERVER___AUTHORIZATION_TOPIC___H__
-
-#include <ctime>
-#include <ext/json/json.hpp>
-#include <ghoul/logging/logmanager.h>
-#include <fmt/format.h>
-
-#include "topic.h"
-#include "connection.h"
+#include <ghoul/misc/assert.h>
+#include <cstring>
 
 namespace openspace {
 
-class AuthorizationTopic : public Topic {
-public:
-    AuthorizationTopic();
-    void handleJson(nlohmann::json json);
-    bool isDone();
+template <typename T>
+void SyncBuffer::encode(const T& v) {
+    const size_t size = sizeof(T);
+    ghoul_assert(_encodeOffset + size < _n, "");
 
-    /* https://httpstatuses.com/ */
-    enum class StatusCode : int {
-        OK            = 200,
-        Accepted      = 202,
+    memcpy(_dataStream.data() + _encodeOffset, &v, size);
+    _encodeOffset += size;
+}
 
-        BadRequest    = 400,
-        Unauthorized  = 401,
-        NotAcceptable = 406,
+template <typename T>
+T SyncBuffer::decode() {
+    const size_t size = sizeof(T);
+    ghoul_assert(_decodeOffset + size < _n, "");
+    T value;
+    memcpy(&value, _dataStream.data() + _decodeOffset, size);
+    _decodeOffset += size;
+    return value;
+}
 
-        NotImplemented = 501
-    };
-
-private:
-    bool _isAuthenticated;
-
-    const std::string getKey() const;
-    bool authorize(const std::string key);
-    nlohmann::json message(const std::string &message,
-        StatusCode statusCode = StatusCode::NotImplemented);
-};
+template <typename T>
+void SyncBuffer::decode(T& value) {
+    const size_t size = sizeof(T);
+    ghoul_assert(_decodeOffset + size < _n, "");
+    memcpy(&value, _dataStream.data() + _decodeOffset, size);
+    _decodeOffset += size;
+}
 
 } // namespace openspace
-
-#endif // __OPENSPACE_MODULE_SERVER___AUTHORIZATION_TOPIC___H__

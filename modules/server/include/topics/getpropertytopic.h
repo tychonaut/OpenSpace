@@ -22,31 +22,26 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_MODULE_SERVER___TIME_TOPIC___H__
-#define __OPENSPACE_MODULE_SERVER___TIME_TOPIC___H__
+#ifndef __OPENSPACE_MODULE_SERVER___GETPROPERTY_TOPIC___H__
+#define __OPENSPACE_MODULE_SERVER___GETPROPERTY_TOPIC___H__
 
-#include <openspace/util/timemanager.h>
-#include "topic.h"
+#include <modules/server/include/topics/topic.h>
 
 namespace openspace {
 
-class TimeTopic : public Topic {
+class GetPropertyTopic : public Topic {
 public:
-    TimeTopic();
-    ~TimeTopic();
-    void handleJson(nlohmann::json json);
-    bool isDone();
+    GetPropertyTopic() = default;
+    virtual ~GetPropertyTopic() = default;
+
+    void handleJson(const nlohmann::json& json) override;
+    bool isDone() const override;
 
 private:
-    nlohmann::json currentTime();
-    nlohmann::json deltaTime();
-
-    bool _isDone;
-    int _timeCallbackHandle;
-    int _deltaTimeCallbackHandle;
-    std::chrono::system_clock::time_point _lastUpdateTime;
+    nlohmann::json allProperties();
+    nlohmann::json propertyFromKey(const std::string& key);
 };
 
 } // namespace openspace
 
-#endif // __OPENSPACE_MODULE_SERVER___TIME_TOPIC___H__
+#endif // __OPENSPACE_MODULE_SERVER___GETPROPERTY_TOPIC___H__

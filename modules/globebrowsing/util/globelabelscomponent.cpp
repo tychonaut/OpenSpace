@@ -255,8 +255,6 @@ namespace openspace {
         , _labelsFadeOutEnabled(LabelsFadeOutEnabledInfo, true)
         , _labelsDisableCullingEnabled(LabelsDisableCullingEnabledInfo, false)
         , _labelsDistaneEPS(LabelsDistanceEPSInfo, 100000.f, 1000.f, 10000000.f)
-        , _labelsDataPresent(false)
-        , _forceDomeLabelsRendering(false)
     {
         addProperty(_labelsEnabled);
         addProperty(_labelsFontSize);
@@ -375,6 +373,7 @@ namespace openspace {
                         bool force = dictionary.value<bool>(
                             LabelsForceDomeRenderingInfo.identifier
                             );
+                        _forceDomeLabelsRendering = force;
                     }
 
                     if (dictionary.hasKey(LabelsDistanceEPSInfo.identifier)) {
@@ -618,8 +617,9 @@ namespace openspace {
                 glm::cross(orthoRight, cameraViewDirectionObj)
             );
 
-            double distToCamera = glm::length(data.camera.positionVec3() -
-                glm::dvec3(_globe->modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0)));
+            glm::dvec3 globePositionWorld = glm::dvec3(_globe->modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
+            glm::dvec3 cameraToGlobeDistanceWorld = globePositionWorld - data.camera.positionVec3();
+            double distanceCameraGlobeWorld = glm::length(cameraToGlobeDistanceWorld);
 
             float fadeInVariable = 1.f;
             if (_labelsFadeInEnabled) {
@@ -629,7 +629,7 @@ namespace openspace {
                 fadeRange.x += _labelsFadeInDist;
                 double a = 1.0 / (fadeRange.y - fadeRange.x);
                 double b = -(fadeRange.x / (fadeRange.y - fadeRange.x));
-                double funcValue = a * distToCamera + b;
+                double funcValue = a * distanceCameraGlobeWorld + b;
                 fadeInVariable *= funcValue > 1.0 ? 1.f : static_cast<float>(funcValue);
 
                 if (fadeInVariable < 0.009f) {
@@ -644,7 +644,7 @@ namespace openspace {
                 fadeRange.x += _labelsFadeOutDist;
                 double a = 0.8 / (fadeRange.x - fadeRange.y);
                 double b = -(fadeRange.y / (fadeRange.x - fadeRange.y));
-                double funcValue = a * distToCamera + b;
+                double funcValue = a * distanceCameraGlobeWorld + b;
                 fadeInVariable *= funcValue > 1.0 ? 1.f : static_cast<float>(funcValue);
 
                 if (fadeInVariable < 0.009f) {
@@ -652,7 +652,7 @@ namespace openspace {
                 }
             }
 
-            renderLabels(data, mvp, orthoRight, orthoUp, distToCamera, fadeInVariable);
+            renderLabels(data, mvp, orthoRight, orthoUp, distanceCameraGlobeWorld, fadeInVariable);
         }
     }
 
@@ -678,10 +678,6 @@ namespace openspace {
         glm::dvec4 cameraUpVecWorld = invCombinedView * glm::dvec4(0.0, 1.0, 0.0, 0.0);
         glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * cameraUpVecWorld);
 
-        glm::dvec3 globePositionWorld = glm::dvec3(_globe->modelTransform() * glm::vec4(0.0, 0.0, 0.0, 1.0));
-        glm::dvec3 cameraToGlobeDistanceWorld = globePositionWorld - data.camera.positionVec3();
-        double distanceCameraGlobeWorld = glm::length(cameraToGlobeDistanceWorld);
-
         glm::dmat4 VP = glm::dmat4(
             data.camera.sgctInternal.projectionMatrix()
         ) * data.camera.combinedViewMatrix();
@@ -697,7 +693,7 @@ namespace openspace {
             if (_labelsDisableCullingEnabled) {
                 draw = true;
             }
-            else if ((distanceCameraGlobeWorld > (distanceCameraToLabelWorld + _labelsDistaneEPS)) &&
+            else if ((distToCamera > (distanceCameraToLabelWorld + _labelsDistaneEPS)) &&
                 isLabelInFrustum(VP, locationPositionWorld)) { // culling
                 draw = true;
             }
@@ -707,6 +703,7 @@ namespace openspace {
                 ghoul::fontrendering::FontRenderer::defaultProjectionRenderer().render(
                     *_font,
                     position,
+                    lEntry.feature,
                     textColor,
                     powf(2.f, _labelsSize),
                     _labelsMinSize,
@@ -716,9 +713,7 @@ namespace openspace {
                     orthoUp,
                     cameraPosObj,
                     cameraLookUpObj,
-                    textRenderingTechnique,
-                    "%s",
-                    lEntry.feature
+                    textRenderingTechnique
                 );
             }
         }

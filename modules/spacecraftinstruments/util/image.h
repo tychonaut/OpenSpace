@@ -22,27 +22,30 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_MODULE_SERVER___GETPROPERTY_TOPIC___H__
-#define __OPENSPACE_MODULE_SERVER___GETPROPERTY_TOPIC___H__
+#ifndef __OPENSPACE_MODULE_SPACECRAFTINSTRUMENTS___IMAGE___H__
+#define __OPENSPACE_MODULE_SPACECRAFTINSTRUMENTS___IMAGE___H__
 
-#include <openspace/query/query.h>
-#include "topic.h"
-#include "connection.h"
+#include <openspace/util/timerange.h>
+
+#include <string>
+#include <vector>
 
 namespace openspace {
 
-class GetPropertyTopic : public Topic {
-public:
-    GetPropertyTopic();
-    ~GetPropertyTopic() {};
-    void handleJson(nlohmann::json json);
-    bool isDone();
+struct Image {
+    TimeRange timeRange;
+    std::string path;
+    std::vector<std::string> activeInstruments;
+    std::string target;
+    bool isPlaceholder = false;
+    bool projected = false;
+};
 
-private:
-    nlohmann::json getAllProperties();
-    nlohmann::json getPropertyFromKey(const std::string& key);
+struct ImageSubset {
+    TimeRange _range;
+    std::vector<Image> _subset;
 };
 
 } // namespace openspace
 
-#endif // __OPENSPACE_MODULE_SERVER___GETPROPERTY_TOPIC___H__
+#endif // __OPENSPACE_MODULE_SPACECRAFTINSTRUMENTS___IMAGE___H__

@@ -22,29 +22,26 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_CORE___MATRIXPROPERTY___H__
-#define __OPENSPACE_CORE___MATRIXPROPERTY___H__
+#ifndef __OPENSPACE_MODULE_SERVER___AUTHORIZATION_TOPIC___H__
+#define __OPENSPACE_MODULE_SERVER___AUTHORIZATION_TOPIC___H__
 
-#include <openspace/properties/numericalproperty.h>
+#include <modules/server/include/topics/topic.h>
 
-#include <openspace/properties/matrix/mat2property.h>
-#include <openspace/properties/matrix/mat2x3property.h>
-#include <openspace/properties/matrix/mat2x4property.h>
-#include <openspace/properties/matrix/mat3x2property.h>
-#include <openspace/properties/matrix/mat3property.h>
-#include <openspace/properties/matrix/mat3x4property.h>
-#include <openspace/properties/matrix/mat4x2property.h>
-#include <openspace/properties/matrix/mat4x3property.h>
-#include <openspace/properties/matrix/mat4property.h>
+namespace openspace {
 
-#include <openspace/properties/matrix/dmat2property.h>
-#include <openspace/properties/matrix/dmat2x3property.h>
-#include <openspace/properties/matrix/dmat2x4property.h>
-#include <openspace/properties/matrix/dmat3x2property.h>
-#include <openspace/properties/matrix/dmat3property.h>
-#include <openspace/properties/matrix/dmat3x4property.h>
-#include <openspace/properties/matrix/dmat4x2property.h>
-#include <openspace/properties/matrix/dmat4x3property.h>
-#include <openspace/properties/matrix/dmat4property.h>
+class AuthorizationTopic : public Topic {
+public:
+    AuthorizationTopic() = default;
 
-#endif // __OPENSPACE_CORE___MATRIXPROPERTY___H__
+    void handleJson(const nlohmann::json& json) override;
+    bool isDone() const override;
+
+private:
+    bool authorize(const std::string& key);
+
+    bool _isAuthenticated = false;
+};
+
+} // namespace openspace
+
+#endif // __OPENSPACE_MODULE_SERVER___AUTHORIZATION_TOPIC___H__

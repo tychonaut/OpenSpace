@@ -22,50 +22,48 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_MODULE_GLOBEBROWSING___DISTANCESWITCH___H__
-#define __OPENSPACE_MODULE_GLOBEBROWSING___DISTANCESWITCH___H__
+#ifndef __OPENSPACE_MODULE_BASE___DASHBOARDITEMPROPERTYVALUE___H__
+#define __OPENSPACE_MODULE_BASE___DASHBOARDITEMPROPERTYVALUE___H__
 
-#include <memory>
-#include <vector>
+#include <openspace/rendering/dashboarditem.h>
+
+#include <openspace/properties/stringproperty.h>
+#include <openspace/properties/scalar/floatproperty.h>
+
+namespace ghoul::fontrendering { class Font; }
 
 namespace openspace {
-    class Renderable;
-    struct RenderData;
-    struct RendererTasks;
-    struct UpdateData;
-} // namespace openspace
 
-namespace openspace::globebrowsing {
+namespace properties { class Property; }
 
-/**
- * Selects a specific Renderable to be used for rendering, based on distance to the
- * camera
- */
-class DistanceSwitch {
+namespace documentation { struct Documentation; }
+
+class DashboardItemPropertyValue : public DashboardItem {
 public:
-    ~DistanceSwitch();
+    DashboardItemPropertyValue(const ghoul::Dictionary& dictionary);
+    ~DashboardItemPropertyValue() = default;
 
-    bool initialize();
-    bool initializeGL();
-    bool deinitialize();
-    bool deinitializeGL();
+    void render(glm::vec2& penPosition) override;
 
-    /**
-     * Picks the first Renderable with the associated maxDistance greater than the
-     * current distance to the camera
-     */
-    void render(const RenderData& data, RendererTasks& rendererTask);
-    void update(const UpdateData& data);
+    glm::vec2 size() const override;
 
-    /**
-     * Adds a new renderable
-     */
-    void addSwitchValue(std::shared_ptr<Renderable> renderable);
+    static documentation::Documentation Documentation();
 
 private:
-    std::vector<std::shared_ptr<Renderable>> _renderables;
+    properties::StringProperty _fontName;
+    properties::FloatProperty _fontSize;
+
+    properties::Property* _property = nullptr;
+    bool _propertyIsDirty = true;
+
+    properties::StringProperty _propertyUri;
+    properties::StringProperty _displayString;
+
+
+
+    std::shared_ptr<ghoul::fontrendering::Font> _font;
 };
 
-} // namespace openspace::globebrowsing
+} // namespace openspace
 
-#endif // __OPENSPACE_MODULE_GLOBEBROWSING___DISTANCESWITCH___H__
+#endif // __OPENSPACE_MODULE_BASE___DASHBOARDITEMPROPERTYVALUE___H__

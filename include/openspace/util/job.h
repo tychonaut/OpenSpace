@@ -22,40 +22,24 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_MODULE_SERVER___TOPIC___H__
-#define __OPENSPACE_MODULE_SERVER___TOPIC___H__
+#ifndef __OPENSPACE_CORE___JOB___H__
+#define __OPENSPACE_CORE___JOB___H__
 
-#include <ext/json/json.hpp>
+#include <memory>
 
 namespace openspace {
 
-class Connection;
+// Templated abstract base class representing a job to be done.
+// Client code derive from this class and implement the virtual execute() method
+template <typename P>
+struct Job {
+    Job() = default;
+    virtual ~Job() = default;
 
-class Topic {
-public:
-    Topic() {};
-    virtual ~Topic() = default;
-
-    void initialize(Connection* connection, size_t topicId);
-    nlohmann::json wrappedPayload(const nlohmann::json &payload) const;
-    nlohmann::json wrappedError(std::string message = "Could not complete request.",
-        int code = 500);
-    virtual void handleJson(nlohmann::json json) = 0;
-    virtual bool isDone() = 0;
-
-protected:
-    size_t _topicId;
-    Connection* _connection;
-};
-
-class BounceTopic : public Topic {
-public:
-    BounceTopic() : Topic() {};
-    ~BounceTopic() {};
-    void handleJson(nlohmann::json json);
-    bool isDone() { return false; }
+    virtual void execute() = 0;
+    virtual std::shared_ptr<P> product() = 0;
 };
 
 } // namespace openspace
 
-#endif // __OPENSPACE_MODULE_SERVER___TOPIC___H__
+#endif // __OPENSPACE_CORE___JOB___H__

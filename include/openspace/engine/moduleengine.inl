@@ -22,26 +22,22 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_CORE___SCALARPROPERTY___H__
-#define __OPENSPACE_CORE___SCALARPROPERTY___H__
+#include <openspace/util/openspacemodule.h>
 
-#include <openspace/properties/numericalproperty.h>
+namespace openspace {
 
-#include <openspace/properties/scalar/boolproperty.h>
-#include <openspace/properties/scalar/charproperty.h>
-#include <openspace/properties/scalar/doubleproperty.h>
-#include <openspace/properties/scalar/floatproperty.h>
-#include <openspace/properties/scalar/intproperty.h>
-#include <openspace/properties/scalar/longdoubleproperty.h>
-#include <openspace/properties/scalar/longlongproperty.h>
-#include <openspace/properties/scalar/longproperty.h>
-#include <openspace/properties/scalar/shortproperty.h>
-#include <openspace/properties/scalar/signedcharproperty.h>
-#include <openspace/properties/scalar/ucharproperty.h>
-#include <openspace/properties/scalar/uintproperty.h>
-#include <openspace/properties/scalar/ulonglongproperty.h>
-#include <openspace/properties/scalar/ulongproperty.h>
-#include <openspace/properties/scalar/ushortproperty.h>
-#include <openspace/properties/scalar/wcharproperty.h>
+template <class ModuleSubClass>
+ModuleSubClass* ModuleEngine::module() const {
+    const auto it = std::find_if(_modules.begin(), _modules.end(),
+        [](const std::unique_ptr<OpenSpaceModule>& m) {
+        return m->identifier() == ModuleSubClass::Name;
+    });
+    if (it != _modules.end()) {
+        return dynamic_cast<ModuleSubClass*>(it->get());
+    }
+    else {
+        return nullptr;
+    }
+}
 
-#endif // __OPENSPACE_CORE___SCALARPROPERTY___H__
+} // namespace openspace

@@ -22,20 +22,15 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#include "include/screenspacerenderhandler.h"
+#include <openspace/rendering/volumeraycaster.h>
 
 namespace openspace {
 
-void ScreenSpaceRenderHandler::draw(void) {
+void VolumeRaycaster::preRaycast(const RaycastData&, ghoul::opengl::ProgramObject&) {}
+void VolumeRaycaster::postRaycast(const RaycastData&, ghoul::opengl::ProgramObject&) {}
 
+bool VolumeRaycaster::isCameraInside(const RenderData&, glm::vec3&) {
+    return false;
 }
 
-void ScreenSpaceRenderHandler::render() {
-
-}
-
-void ScreenSpaceRenderHandler::setTexture(const GLuint &t) {
-    _texture = t;
-}
-
-}
+} // namespace openspace

@@ -107,8 +107,8 @@ namespace openspace {
 
     private:
         // Labels
-        bool _labelsDataPresent;
-        bool _forceDomeLabelsRendering;
+        bool _labelsDataPresent = false;
+        bool _forceDomeLabelsRendering = false;
         Labels _labels;
 
         // Font

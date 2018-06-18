@@ -22,22 +22,18 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#ifndef __OPENSPACE_MODULE_SERVER___TRIGGERPROPERTYTOPIC___H__
-#define __OPENSPACE_MODULE_SERVER___TRIGGERPROPERTYTOPIC___H__
+#include <modules/server/include/topics/bouncetopic.h>
 
-#include <ext/json/json.hpp>
-#include <modules/server/include/topic.h>
+#include <modules/server/include/connection.h>
 
 namespace openspace {
 
-class TriggerPropertyTopic : public Topic {
-public:
-    TriggerPropertyTopic() : Topic() {};
-    ~TriggerPropertyTopic() {};
-    void handleJson(nlohmann::json json);
-    bool isDone() { return true; };
+void BounceTopic::handleJson(const nlohmann::json& json) {
+    _connection->sendJson(json);
 };
 
-} // namespace
+bool BounceTopic::isDone() const {
+    return false;
+}
 
-#endif // __OPENSPACE_MODULE_SERVER___TRIGGERPROPERTYTOPIC___H__
+} // namespace openspace
