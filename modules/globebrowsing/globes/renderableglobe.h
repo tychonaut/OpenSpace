@@ -28,7 +28,6 @@
 #include <openspace/rendering/renderable.h>
 
 #include <modules/globebrowsing/geometry/ellipsoid.h>
-//#include <modules/globebrowsing/other/distanceswitch.h>
 #include <modules/globebrowsing/util/globelabelscomponent.h>
 
 #include <openspace/properties/scalar/floatproperty.h>

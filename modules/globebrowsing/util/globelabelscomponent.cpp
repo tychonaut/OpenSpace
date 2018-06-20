@@ -675,7 +675,7 @@ namespace openspace {
 
         glm::dvec4 cameraPosWorld = invCombinedView * glm::dvec4(0.0, 0.0, 0.0, 1.0);
         glm::dvec3 cameraPosObj = glm::dvec3(invMP * cameraPosWorld);
-        glm::dvec4 cameraUpVecWorld = invCombinedView * glm::dvec4(0.0, 1.0, 0.0, 0.0);
+        glm::dvec4 cameraUpVecWorld = glm::dvec4(data.camera.lookUpVectorWorldSpace(), 0.0); //invCombinedView * glm::dvec4(0.0, 1.0, 0.0, 0.0);
         glm::dvec3 cameraLookUpObj = glm::dvec3(invMP * cameraUpVecWorld);
 
         glm::dmat4 VP = glm::dmat4(

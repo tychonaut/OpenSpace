@@ -27,12 +27,6 @@
 
 #include <openspace/rendering/renderable.h>
 
-//#include <modules/globebrowsing/other/statscollector.h>
-//#include <modules/globebrowsing/geometry/geodeticpatch.h>
-//#include <modules/globebrowsing/globes/renderableglobe.h>
-//
-//#include <ghoul/font/fontrenderer.h>
-
 #include <memory>
 
 //#define DEBUG_GLOBEBROWSING_STATSRECORD

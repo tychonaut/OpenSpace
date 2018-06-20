@@ -44,14 +44,7 @@
 #include <modules/globebrowsing/rendering/layer/layermanager.h>
 #include <modules/debugging/rendering/debugrenderer.h>
 #include <openspace/util/time.h>
-//#include <openspace/engine/openspaceengine.h>
-//#include <openspace/engine/moduleengine.h>
-//#include <openspace/engine/wrapper/windowwrapper.h>
-//
-//#include <ghoul/filesystem/filesystem.h>
-//#include <ghoul/opengl/texture.h>
-//#include <ghoul/font/fontmanager.h>
-//#include <ghoul/font/fontrenderer.h>
+
 #include <ghoul/filesystem/filesystem.h>
 #include <ghoul/opengl/texture.h>
 
