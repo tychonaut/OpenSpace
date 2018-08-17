@@ -32,13 +32,17 @@
 #include <ghoul/opengl/programobject.h>
 
 namespace {
-    const openspace::properties::Property::PropertyInfo IntensityClampInfo = {
+    constexpr const std::array<const char*, 3> UniformNames = {
+        "lightIntensityClamped", "modelViewTransform", "projectionTransform"
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo IntensityClampInfo = {
         "IntensityClamp",
         "Intensity clamp",
         ""
     };
 
-    const openspace::properties::Property::PropertyInfo LightIntensityInfo = {
+    constexpr openspace::properties::Property::PropertyInfo LightIntensityInfo = {
         "LightIntensity",
         "Light intensity",
         "" // @TODO Missing documentation
@@ -69,15 +73,7 @@ void PointGlobe::initialize() {
         absPath("${MODULE_GLOBEBROWSING}/shaders/pointglobe_fs.glsl")
     );
 
-    _uniformCache.lightIntensityClamped = _programObject->uniformLocation(
-        "lightIntensityClamped"
-    );
-    _uniformCache.modelView = _programObject->uniformLocation(
-        "modelViewTransform"
-    );
-    _uniformCache.projection = _programObject->uniformLocation(
-        "projectionTransform"
-    );
+    ghoul::opengl::updateUniformLocations(*_programObject, _uniformCache, UniformNames);
 
     glGenVertexArrays(1, &_vaoID);
     glGenBuffers(1, &_vertexBufferID);
@@ -159,8 +155,8 @@ void PointGlobe::render(const RenderData& data, RendererTasks&) {
         _uniformCache.lightIntensityClamped,
         lightIntensityClamped
     );
-    //_programObject->setUniform("lightOverflow", lightOverflow);
-    //_programObject->setUniform("directionToSunViewSpace", directionToSunViewSpace);
+    //_program->setUniform("lightOverflow", lightOverflow);
+    //_program->setUniform("directionToSunViewSpace", directionToSunViewSpace);
     _programObject->setUniform(
         _uniformCache.modelView,
         glm::mat4(modelViewTransform)

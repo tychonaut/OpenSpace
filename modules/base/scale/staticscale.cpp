@@ -28,7 +28,7 @@
 #include <openspace/documentation/verifier.h>
 
 namespace {
-    const openspace::properties::Property::PropertyInfo ScaleInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ScaleInfo = {
         "Scale",
         "Scale",
         "This value is used as a scaling factor for the scene graph node that this "
@@ -54,7 +54,7 @@ documentation::Documentation StaticScale::Documentation() {
     };
 }
 
-double StaticScale::scaleValue(const Time&) const {
+double StaticScale::scaleValue(const UpdateData&) const {
     return _scaleValue;
 }
 

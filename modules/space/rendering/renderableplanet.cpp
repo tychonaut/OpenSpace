@@ -55,21 +55,21 @@ namespace {
     constexpr const char* keyShadowSource = "Source";
     constexpr const char* keyShadowCaster = "Caster";
 
-    const openspace::properties::Property::PropertyInfo ColorTextureInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ColorTextureInfo = {
         "ColorTexture",
         "Color Base Texture",
         "The path to the base color texture that is used on the planet prior to any "
         "image projection."
     };
 
-    const openspace::properties::Property::PropertyInfo HeightTextureInfo = {
+    constexpr openspace::properties::Property::PropertyInfo HeightTextureInfo = {
         "HeightTexture",
         "Heightmap Texture",
         "The path to the height map texture that is used for the planet. If no height "
         "map is specified the planet does not use a height field."
     };
 
-    const openspace::properties::Property::PropertyInfo NightTextureInfo = {
+    constexpr openspace::properties::Property::PropertyInfo NightTextureInfo = {
         "NightTexture",
         "Night Texture",
         "The path to the night texture that is used for the part of the planet that is "
@@ -77,7 +77,7 @@ namespace {
         "planet is rendered dark."
     };
 
-    const openspace::properties::Property::PropertyInfo HeightExaggerationInfo = {
+    constexpr openspace::properties::Property::PropertyInfo HeightExaggerationInfo = {
          "HeightExaggeration",
          "Height Exaggeration",
          "This value determines the level of height exaggeration that is applied to a "
@@ -85,7 +85,7 @@ namespace {
          "value of '1' uses the measured height field."
     };
 
-    const openspace::properties::Property::PropertyInfo PerformShadingInfo = {
+    constexpr openspace::properties::Property::PropertyInfo PerformShadingInfo = {
         "PerformShading",
         "Perform Shading",
         "If this value is enabled, the model will be shaded based on the relative "
@@ -349,7 +349,7 @@ void RenderablePlanet::initializeGL() {
     //           correct one.
 
     if (!_programObject && _shadowEnabled && _hasNightTexture) {
-        _programObject = SpaceModule::ProgramObjectManager.requestProgramObject(
+        _programObject = SpaceModule::ProgramObjectManager.request(
             ShadowNightProgramName,
             []() -> std::unique_ptr<ghoul::opengl::ProgramObject> {
                 return OsEng.renderEngine().buildRenderProgram(
@@ -361,7 +361,7 @@ void RenderablePlanet::initializeGL() {
         );
     }
     else if (!_programObject && _shadowEnabled) {
-        _programObject = SpaceModule::ProgramObjectManager.requestProgramObject(
+        _programObject = SpaceModule::ProgramObjectManager.request(
             ShadowProgramName,
             []() -> std::unique_ptr<ghoul::opengl::ProgramObject> {
                 return OsEng.renderEngine().buildRenderProgram(
@@ -373,7 +373,7 @@ void RenderablePlanet::initializeGL() {
         );
     }
     else if (!_programObject && _hasNightTexture) {
-        _programObject = SpaceModule::ProgramObjectManager.requestProgramObject(
+        _programObject = SpaceModule::ProgramObjectManager.request(
             NightProgramName,
             []() -> std::unique_ptr<ghoul::opengl::ProgramObject> {
                 return OsEng.renderEngine().buildRenderProgram(
@@ -385,7 +385,7 @@ void RenderablePlanet::initializeGL() {
         );
     }
     else if (!_programObject) {
-        _programObject = SpaceModule::ProgramObjectManager.requestProgramObject(
+        _programObject = SpaceModule::ProgramObjectManager.request(
             PlainProgramName,
             []() -> std::unique_ptr<ghoul::opengl::ProgramObject> {
                 return OsEng.renderEngine().buildRenderProgram(
@@ -416,7 +416,7 @@ void RenderablePlanet::deinitializeGL() {
         _geometry = nullptr;
     }
 
-    SpaceModule::ProgramObjectManager.releaseProgramObject(
+    SpaceModule::ProgramObjectManager.release(
         _programObject->name(),
         [](ghoul::opengl::ProgramObject* p) {
             OsEng.renderEngine().removeRenderProgram(p);

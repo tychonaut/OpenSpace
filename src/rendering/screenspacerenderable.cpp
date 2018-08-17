@@ -42,13 +42,17 @@ namespace {
     constexpr const char* KeyTag = "Tag";
     constexpr const float PlaneDepth = -2.f;
 
-    const openspace::properties::Property::PropertyInfo EnabledInfo = {
+    constexpr const std::array<const char*, 5> UniformNames = {
+        "OcclusionDepth", "Alpha", "ModelTransform", "ViewProjectionMatrix", "texture1"
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo EnabledInfo = {
         "Enabled",
         "Is Enabled",
         "This setting determines whether this sceen space plane will be visible or not."
     };
 
-    const openspace::properties::Property::PropertyInfo FlatScreenInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FlatScreenInfo = {
         "FlatScreen",
         "Flat Screen specification",
         "This value determines whether the location of this screen space plane will be "
@@ -59,21 +63,21 @@ namespace {
         "useful in a planetarium environment."
     };
 
-    const openspace::properties::Property::PropertyInfo EuclideanPositionInfo = {
+    constexpr openspace::properties::Property::PropertyInfo EuclideanPositionInfo = {
         "EuclideanPosition",
         "Euclidean coordinates",
         "This value determines the position of this screen space plane in Euclidean "
         "two-dimensional coordinates."
     };
 
-    const openspace::properties::Property::PropertyInfo SphericalPositionInfo = {
+    constexpr openspace::properties::Property::PropertyInfo SphericalPositionInfo = {
         "SphericalPosition",
         "Spherical coordinates",
         "This value determines the position of this screen space plane in a spherical "
         "coordinate system."
     };
 
-    const openspace::properties::Property::PropertyInfo DepthInfo = {
+    constexpr openspace::properties::Property::PropertyInfo DepthInfo = {
         "Depth",
         "Depth value",
         "This value determines the depth of the plane. This value does not change the "
@@ -82,7 +86,7 @@ namespace {
         "value."
     };
 
-    const openspace::properties::Property::PropertyInfo ScaleInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ScaleInfo = {
         "Scale",
         "Scale value",
         "This value determines a scale factor for the plane. The default size of a plane "
@@ -90,7 +94,7 @@ namespace {
         "the image being displayed."
     };
 
-    const openspace::properties::Property::PropertyInfo AlphaInfo = {
+    constexpr openspace::properties::Property::PropertyInfo AlphaInfo = {
         "Alpha",
         "Transparency",
         "This value determines the transparency of the screen space plane. If this value "
@@ -98,7 +102,7 @@ namespace {
         "completely transparent."
     };
 
-    const openspace::properties::Property::PropertyInfo DeleteInfo = {
+    constexpr openspace::properties::Property::PropertyInfo DeleteInfo = {
         "Delete",
         "Delete",
         "If this property is triggered, this screen space plane is removed from the "
@@ -201,10 +205,7 @@ documentation::Documentation ScreenSpaceRenderable::Documentation() {
             },
             {
                 KeyTag,
-                new OrVerifier(
-                    new StringVerifier,
-                    new StringListVerifier
-                ),
+                new OrVerifier({ new StringVerifier, new StringListVerifier }),
                 Optional::Yes,
                 "Defines either a single or multiple tags that apply to this "
                 "ScreenSpaceRenderable, thus making it possible to address multiple, "
@@ -474,12 +475,7 @@ void ScreenSpaceRenderable::createShaders() {
         dict
     );
 
-    _uniformCache.occlusionDepth = _shader->uniformLocation("OcclusionDepth");
-    _uniformCache.alpha = _shader->uniformLocation("Alpha");
-    _uniformCache.modelTransform = _shader->uniformLocation("ModelTransform");
-    _uniformCache.viewProj = _shader->uniformLocation("ViewProjectionMatrix");
-    _uniformCache.texture = _shader->uniformLocation("texture1");
-
+    ghoul::opengl::updateUniformLocations(*_shader, _uniformCache, UniformNames);
 }
 
 glm::mat4 ScreenSpaceRenderable::scaleMatrix() {

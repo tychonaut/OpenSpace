@@ -43,21 +43,21 @@
 // _endTime. This buffer is updated every frame.
 
 namespace {
-    const openspace::properties::Property::PropertyInfo StartTimeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo StartTimeInfo = {
         "StartTime",
         "Start Time",
         "The start time for the range of this trajectory. The date must be in ISO 8601 "
         "format: YYYY MM DD HH:mm:ss.xxx."
     };
 
-    const openspace::properties::Property::PropertyInfo EndTimeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo EndTimeInfo = {
         "EndTime",
         "End Time",
         "The end time for the range of this trajectory. The date must be in ISO 8601 "
         "format: YYYY MM DD HH:mm:ss.xxx."
     };
 
-    const openspace::properties::Property::PropertyInfo SampleIntervalInfo = {
+    constexpr openspace::properties::Property::PropertyInfo SampleIntervalInfo = {
         "SampleInterval",
         "Sample Interval",
         "The interval between samples of the trajectory. This value (together with "
@@ -66,7 +66,7 @@ namespace {
         "'EndTime' is split into 'SampleInterval' * 'TimeStampSubsampleFactor' segments."
     };
 
-    const openspace::properties::Property::PropertyInfo TimeSubSampleInfo = {
+    constexpr openspace::properties::Property::PropertyInfo TimeSubSampleInfo = {
         "TimeStampSubsampleFactor",
         "Time Stamp Subsampling Factor",
         "The factor that is used to create subsamples along the trajectory. This value "
@@ -75,7 +75,7 @@ namespace {
         "'EndTime' is split into 'SampleInterval' * 'TimeStampSubsampleFactor' segments."
     };
 
-    const openspace::properties::Property::PropertyInfo RenderFullPathInfo = {
+    constexpr openspace::properties::Property::PropertyInfo RenderFullPathInfo = {
         "ShowFullTrail",
         "Render Full Trail",
         "If this value is set to 'true', the entire trail will be rendered; if it is "
@@ -224,7 +224,12 @@ void RenderableTrailTrajectory::update(const UpdateData& data) {
 
         // ... fill all of the values
         for (int i = 0; i < nValues; ++i) {
-            const glm::vec3 p = _translation->position(_start + i * totalSampleInterval);
+            const glm::vec3 p = _translation->position({
+                {},
+                _start + i * totalSampleInterval,
+                0.0,
+                false
+            });
             _vertexArray[i] = { p.x, p.y, p.z };
         }
 
@@ -283,7 +288,7 @@ void RenderableTrailTrajectory::update(const UpdateData& data) {
         );
 
         // And get the current location of the object
-        const glm::dvec3 p = _translation->position(data.time.j2000Seconds());
+        const glm::dvec3 p = _translation->position(data);
         const glm::dvec3 v1 = { p.x, p.y, p.z };
 
         // Comptue the difference between the points in double precision

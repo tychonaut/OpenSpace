@@ -43,12 +43,16 @@
 namespace {
     constexpr const char* ProgramName = "Sphere";
 
+    constexpr const std::array<const char*, 4> UniformNames = {
+        "opacity", "ViewProjection", "ModelTransform", "texture1"
+    };
+
     enum Orientation {
         Outside = 1,
         Inside = 2
     };
 
-    const openspace::properties::Property::PropertyInfo TextureInfo = {
+    constexpr openspace::properties::Property::PropertyInfo TextureInfo = {
         "Texture",
         "Texture",
         "This value specifies an image that is loaded from disk and is used as a texture "
@@ -56,40 +60,40 @@ namespace {
         "projection."
     };
 
-    const openspace::properties::Property::PropertyInfo OrientationInfo = {
+    constexpr openspace::properties::Property::PropertyInfo OrientationInfo = {
         "Orientation",
         "Orientation",
         "Specifies whether the texture is applied to the inside of the sphere, the "
         "outside of the sphere, or both."
     };
 
-    const openspace::properties::Property::PropertyInfo SegmentsInfo = {
+    constexpr openspace::properties::Property::PropertyInfo SegmentsInfo = {
         "Segments",
         "Number of Segments",
         "This value specifies the number of segments that the sphere is separated in."
     };
 
-    const openspace::properties::Property::PropertyInfo SizeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo SizeInfo = {
         "Size",
         "Size (in meters)",
         "This value specifies the radius of the sphere in meters."
     };
 
-    const openspace::properties::Property::PropertyInfo FadeOutThreshouldInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FadeOutThreshouldInfo = {
         "FadeOutThreshould",
         "Fade-Out Threshould",
         "This value determines percentage of the sphere is visible before starting "
         "fading-out it."
     };
 
-    const openspace::properties::Property::PropertyInfo FadeInThreshouldInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FadeInThreshouldInfo = {
         "FadeInThreshould",
         "Fade-In Threshould",
         "Distance from center of MilkyWay from where the astronomical object starts to "
         "fade in."
     };
 
-    const openspace::properties::Property::PropertyInfo DisableFadeInOuInfo = {
+    constexpr openspace::properties::Property::PropertyInfo DisableFadeInOuInfo = {
         "DisableFadeInOu",
         "Disable Fade-In/Fade-Out effects",
         "Enables/Disables the Fade-In/Out effects."
@@ -237,7 +241,7 @@ void RenderableSphere::initializeGL() {
     );
     _sphere->initialize();
 
-    _shader = BaseModule::ProgramObjectManager.requestProgramObject(
+    _shader = BaseModule::ProgramObjectManager.request(
         ProgramName,
         []() -> std::unique_ptr<ghoul::opengl::ProgramObject> {
             return OsEng.renderEngine().buildRenderProgram(
@@ -248,10 +252,7 @@ void RenderableSphere::initializeGL() {
         }
     );
 
-    _uniformCache.opacity = _shader->uniformLocation("opacity");
-    _uniformCache.viewProjection = _shader->uniformLocation("ViewProjection");
-    _uniformCache.modelTransform = _shader->uniformLocation("ModelTransform");
-    _uniformCache.texture = _shader->uniformLocation("texture1");
+    ghoul::opengl::updateUniformLocations(*_shader, _uniformCache, UniformNames);
 
     loadTexture();
 }
@@ -259,7 +260,7 @@ void RenderableSphere::initializeGL() {
 void RenderableSphere::deinitializeGL() {
     _texture = nullptr;
 
-    BaseModule::ProgramObjectManager.releaseProgramObject(
+    BaseModule::ProgramObjectManager.release(
         ProgramName,
         [](ghoul::opengl::ProgramObject* p) {
             OsEng.renderEngine().removeRenderProgram(p);
@@ -348,11 +349,7 @@ void RenderableSphere::render(const RenderData& data, RendererTasks&) {
 void RenderableSphere::update(const UpdateData&) {
     if (_shader->isDirty()) {
         _shader->rebuildFromFile();
-
-        _uniformCache.opacity = _shader->uniformLocation("opacity");
-        _uniformCache.viewProjection = _shader->uniformLocation("ViewProjection");
-        _uniformCache.modelTransform = _shader->uniformLocation("ModelTransform");
-        _uniformCache.texture = _shader->uniformLocation("texture1");
+        ghoul::opengl::updateUniformLocations(*_shader, _uniformCache, UniformNames);
     }
 
     if (_sphereIsDirty) {

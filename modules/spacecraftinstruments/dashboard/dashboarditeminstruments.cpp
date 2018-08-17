@@ -41,20 +41,20 @@ namespace {
     constexpr const char* KeyFontMono = "Mono";
     constexpr const float DefaultFontSize = 10.f;
 
-    const openspace::properties::Property::PropertyInfo FontNameInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FontNameInfo = {
         "FontName",
         "Font Name",
         "This value is the name of the font that is used. It can either refer to an "
         "internal name registered previously, or it can refer to a path that is used."
     };
 
-    const openspace::properties::Property::PropertyInfo FontSizeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FontSizeInfo = {
         "FontSize",
         "Font Size",
         "This value determines the size of the font that is used to render the date."
     };
 
-    const openspace::properties::Property::PropertyInfo ActiveColorInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ActiveColorInfo = {
         "ActiveColor",
         "Active Color",
         "This value determines the color that the active instrument is rendered in. "
@@ -62,7 +62,7 @@ namespace {
         "color. The default value is (0.6, 1.0, 0.0)."
     };
 
-    const openspace::properties::Property::PropertyInfo FlashColorInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FlashColorInfo = {
         "FlashColor",
         "Flash Color",
         "This value determines the color that is used shortly after an instrument "
@@ -189,8 +189,10 @@ void DashboardItemInstruments::render(glm::vec2& penPosition) {
 
     glm::vec4 targetColor(0.f, 0.75f, 1.f, 1.f);
 
-    double remaining = sequencer.nextCaptureTime() - currentTime;
-    const float t = static_cast<float>(1.0 - remaining / sequencer.intervalLength());
+    double remaining = sequencer.nextCaptureTime(currentTime) - currentTime;
+    const float t = static_cast<float>(
+        1.0 - remaining / sequencer.intervalLength(currentTime)
+    );
 
     if (remaining > 0) {
         RenderFont(
@@ -226,7 +228,7 @@ void DashboardItemInstruments::render(glm::vec2& penPosition) {
         );
 
         std::string str = SpiceManager::ref().dateFromEphemerisTime(
-            sequencer.nextCaptureTime(),
+            sequencer.nextCaptureTime(OsEng.timeManager().time().j2000Seconds()),
             "YYYY MON DD HR:MN:SC"
         );
 
@@ -238,8 +240,9 @@ void DashboardItemInstruments::render(glm::vec2& penPosition) {
             ghoul::fontrendering::CrDirection::Down
         );
     }
-    const std::pair<double, std::string>& nextTarget = sequencer.nextTarget();
-    const std::pair<double, std::string>& currentTarget = sequencer.currentTarget();
+    const std::pair<double, std::string>& nextTarget = sequencer.nextTarget(currentTime);
+    const std::pair<double, std::string>& currentTarget =
+        sequencer.currentTarget(currentTime);
 
     if (currentTarget.first <= 0.0) {
         return;
@@ -266,7 +269,7 @@ void DashboardItemInstruments::render(glm::vec2& penPosition) {
     penPosition.y -= _font->height();
 
     const std::vector<std::pair<std::string, bool>>& activeMap =
-        sequencer.activeInstruments();
+        sequencer.activeInstruments(currentTime);
 
     glm::vec4 firing(0.58 - t, 1 - t, 1 - t, 1);
     glm::vec4 notFiring(0.5, 0.5, 0.5, 1);
@@ -316,11 +319,13 @@ glm::vec2 DashboardItemInstruments::size() const {
     }
     ImageSequencer& sequencer = ImageSequencer::ref();
 
-    const double remaining = sequencer.nextCaptureTime() - currentTime;
-    const float t = static_cast<float>(1.0 - remaining / sequencer.intervalLength());
+    const double remaining = sequencer.nextCaptureTime(currentTime) - currentTime;
+    const float t = static_cast<float>(
+        1.0 - remaining / sequencer.intervalLength(currentTime)
+    );
 
     const std::string& str = SpiceManager::ref().dateFromEphemerisTime(
-        sequencer.nextCaptureTime(),
+        sequencer.nextCaptureTime(currentTime),
         "YYYY MON DD HR:MN:SC"
     );
 
@@ -351,8 +356,8 @@ glm::vec2 DashboardItemInstruments::size() const {
             ).boundingBox
         );
     }
-    std::pair<double, std::string> nextTarget = sequencer.nextTarget();
-    std::pair<double, std::string> currentTarget = sequencer.currentTarget();
+    std::pair<double, std::string> nextTarget = sequencer.nextTarget(currentTime);
+    std::pair<double, std::string> currentTarget = sequencer.currentTarget(currentTime);
 
     if (currentTarget.first <= 0.0) {
         return size;

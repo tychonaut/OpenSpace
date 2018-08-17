@@ -38,6 +38,12 @@ namespace {
     constexpr const char* ProgramName = "EphemerisProgram";
     constexpr const char* KeyTranslation = "Translation";
 
+    constexpr const std::array<const char*, 12> UniformNames = {
+        "opacity", "modelViewTransform", "projectionTransform", "color", "useLineFade",
+        "lineFade", "vertexSortingMethod", "idOffset", "nVertices", "stride", "pointSize",
+        "renderPhase"
+    };
+
     // The possible values for the _renderingModes property
     enum RenderingMode {
         RenderingModeLines = 0,
@@ -53,13 +59,13 @@ namespace {
         { "Points+Lines", RenderingModeLinesPoints }
     };
 
-    const openspace::properties::Property::PropertyInfo LineColorInfo = {
+    constexpr openspace::properties::Property::PropertyInfo LineColorInfo = {
         "Color",
         "Color",
         "This value determines the RGB main color for the lines and points of the trail."
     };
 
-    const openspace::properties::Property::PropertyInfo EnableFadeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo EnableFadeInfo = {
         "EnableFade",
         "Enable line fading of old points",
         "Toggles whether the trail should fade older points out. If this value is "
@@ -67,7 +73,7 @@ namespace {
         "'false', the entire trail is rendered at full opacity and color."
     };
 
-    const openspace::properties::Property::PropertyInfo FadeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FadeInfo = {
         "Fade",
         "Line fade",
         "The fading factor that is applied to the trail if the 'EnableFade' value is "
@@ -75,7 +81,7 @@ namespace {
         "the less fading is applied."
     };
 
-    const openspace::properties::Property::PropertyInfo LineWidthInfo = {
+    constexpr openspace::properties::Property::PropertyInfo LineWidthInfo = {
         "LineWidth",
         "Line Width",
         "This value specifies the line width of the trail if the selected rendering "
@@ -83,7 +89,7 @@ namespace {
         "ignored."
     };
 
-    const openspace::properties::Property::PropertyInfo PointSizeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo PointSizeInfo = {
         "PointSize",
         "Point Size",
         "This value specifies the base size of the points along the line if the selected "
@@ -92,7 +98,7 @@ namespace {
         "values are half this size."
     };
 
-    const openspace::properties::Property::PropertyInfo RenderingModeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo RenderingModeInfo = {
         "Rendering",
         "Rendering Mode",
         "Determines how the trail should be rendered to the screen.If 'Lines' is "
@@ -225,7 +231,7 @@ RenderableTrail::RenderableTrail(const ghoul::Dictionary& dictionary)
 }
 
 void RenderableTrail::initializeGL() {
-    _programObject = BaseModule::ProgramObjectManager.requestProgramObject(
+    _programObject = BaseModule::ProgramObjectManager.request(
         ProgramName,
         []() -> std::unique_ptr<ghoul::opengl::ProgramObject> {
             return OsEng.renderEngine().buildRenderProgram(
@@ -236,24 +242,13 @@ void RenderableTrail::initializeGL() {
         }
     );
 
-    _uniformCache.opacity = _programObject->uniformLocation("opacity");
-    _uniformCache.modelView = _programObject->uniformLocation("modelViewTransform");
-    _uniformCache.projection = _programObject->uniformLocation("projectionTransform");
-    _uniformCache.color = _programObject->uniformLocation("color");
-    _uniformCache.useLineFade = _programObject->uniformLocation("useLineFade");
-    _uniformCache.lineFade = _programObject->uniformLocation("lineFade");
-    _uniformCache.vertexSorting = _programObject->uniformLocation("vertexSortingMethod");
-    _uniformCache.idOffset = _programObject->uniformLocation("idOffset");
-    _uniformCache.nVertices = _programObject->uniformLocation("nVertices");
-    _uniformCache.stride = _programObject->uniformLocation("stride");
-    _uniformCache.pointSize = _programObject->uniformLocation("pointSize");
-    _uniformCache.renderPhase = _programObject->uniformLocation("renderPhase");
+    ghoul::opengl::updateUniformLocations(*_programObject, _uniformCache, UniformNames);
 
     setRenderBin(Renderable::RenderBin::Overlay);
 }
 
 void RenderableTrail::deinitializeGL() {
-    BaseModule::ProgramObjectManager.releaseProgramObject(
+    BaseModule::ProgramObjectManager.release(
         ProgramName,
         [](ghoul::opengl::ProgramObject* p) {
             OsEng.renderEngine().removeRenderProgram(p);

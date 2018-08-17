@@ -107,12 +107,12 @@ void applyRegularExpression(lua_State* L, const std::string& regex,
                 foundMatching = true;
 
                 if (interpolationDuration == 0.0) {
-                    OsEng.renderEngine().scene()->removeInterpolation(prop);
+                    OsEng.renderEngine().scene()->removePropertyInterpolation(prop);
                     prop->setLuaValue(L);
                 }
                 else {
                     prop->setLuaInterpolationTarget(L);
-                    OsEng.renderEngine().scene()->addInterpolation(
+                    OsEng.renderEngine().scene()->addPropertyInterpolation(
                         prop,
                         static_cast<float>(interpolationDuration),
                         easingFunction
@@ -184,12 +184,12 @@ int setPropertyCall_single(properties::Property& prop, const std::string& uri,
     }
     else {
         if (duration == 0.0) {
-            OsEng.renderEngine().scene()->removeInterpolation(&prop);
+            OsEng.renderEngine().scene()->removePropertyInterpolation(&prop);
             prop.setLuaValue(L);
         }
         else {
             prop.setLuaInterpolationTarget(L);
-            OsEng.renderEngine().scene()->addInterpolation(
+            OsEng.renderEngine().scene()->addPropertyInterpolation(
                 &prop,
                 static_cast<float>(duration),
                 eastingFunction
@@ -440,7 +440,7 @@ int addSceneGraphNode(lua_State* L) {
         return ghoul::lua::luaError(
             L,
             fmt::format("Error loading scene graph node: {}: {}",
-                e.what(), std::to_string(e.result))
+                e.what(), ghoul::to_string(e.result))
         );
     } catch (const ghoul::RuntimeError& e) {
         return ghoul::lua::luaError(
@@ -482,18 +482,18 @@ int removeSceneGraphNode(lua_State* L) {
     }
 
     std::function<void (SceneGraphNode*, SceneGraphNode*)> removeNode =
-        [&removeNode](SceneGraphNode* parent, SceneGraphNode* node) {
-            std::vector<SceneGraphNode*> children = node->children();
+        [&removeNode](SceneGraphNode* p, SceneGraphNode* localNode) {
+            std::vector<SceneGraphNode*> children = localNode->children();
 
-            std::unique_ptr<SceneGraphNode> n = parent->detachChild(*node);
-            ghoul_assert(n.get() == node, "Wrong node returned from detaching");
+            std::unique_ptr<SceneGraphNode> n = p->detachChild(*localNode);
+            ghoul_assert(n.get() == localNode, "Wrong node returned from detaching");
 
             for (SceneGraphNode* c : children) {
                 removeNode(n.get(), c);
             }
 
-            node->deinitializeGL();
-            node->deinitialize();
+            localNode->deinitializeGL();
+            localNode->deinitialize();
             n = nullptr;
         };
 

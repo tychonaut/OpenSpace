@@ -48,6 +48,11 @@ namespace {
 
     constexpr const char* KeyFile = "File";
 
+    constexpr const std::array<const char*, 10> UniformNames = {
+        "view", "projection", "colorOption", "alphaValue", "scaleFactor",
+        "minBillboardSize", "screenSize", "scaling", "psfTexture", "colorTexture"
+    };
+
     constexpr int8_t CurrentCacheVersion = 1;
 
     struct ColorVBOLayout {
@@ -80,42 +85,42 @@ namespace {
         float speed;
     };
 
-    const openspace::properties::Property::PropertyInfo PsfTextureInfo = {
+    constexpr openspace::properties::Property::PropertyInfo PsfTextureInfo = {
         "Texture",
         "Point Spread Function Texture",
         "The path to the texture that should be used as a point spread function for the "
         "stars."
     };
 
-    const openspace::properties::Property::PropertyInfo ColorTextureInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ColorTextureInfo = {
         "ColorMap",
         "ColorBV Texture",
         "The path to the texture that is used to convert from the B-V value of the star "
         "to its color. The texture is used as a one dimensional lookup function."
     };
 
-    const openspace::properties::Property::PropertyInfo ColorOptionInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ColorOptionInfo = {
         "ColorOption",
         "Color Option",
         "This value determines which quantity is used for determining the color of the "
         "stars."
     };
 
-    const openspace::properties::Property::PropertyInfo TransparencyInfo = {
+    constexpr openspace::properties::Property::PropertyInfo TransparencyInfo = {
         "Transparency",
         "Transparency",
         "This value is a multiplicative factor that is applied to the transparency of "
         "all stars."
     };
 
-    const openspace::properties::Property::PropertyInfo ScaleFactorInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ScaleFactorInfo = {
         "ScaleFactor",
         "Scale Factor",
         "This value is used as a multiplicative factor that is applied to the apparent "
         "size of each star."
     };
 
-    const openspace::properties::Property::PropertyInfo MinBillboardSizeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo MinBillboardSizeInfo = {
         "MinBillboardSize",
         "Min Billboard Size",
         "This value is used as a lower limit on the size of stars that are rendered. Any "
@@ -296,16 +301,7 @@ void RenderableStars::initializeGL() {
         absPath("${MODULE_SPACE}/shaders/star_ge.glsl")
     );
 
-    _uniformCache.view = _program->uniformLocation("view");
-    _uniformCache.projection = _program->uniformLocation("projection");
-    _uniformCache.colorOption = _program->uniformLocation("colorOption");
-    _uniformCache.alphaValue = _program->uniformLocation("alphaValue");
-    _uniformCache.scaleFactor = _program->uniformLocation("scaleFactor");
-    _uniformCache.minBillboardSize = _program->uniformLocation("minBillboardSize");
-    _uniformCache.screenSize = _program->uniformLocation("screenSize");
-    _uniformCache.scaling = _program->uniformLocation("scaling");
-    _uniformCache.psfTexture = _program->uniformLocation("psfTexture");
-    _uniformCache.colorTexture = _program->uniformLocation("colorTexture");
+    ghoul::opengl::updateUniformLocations(*_program, _uniformCache, UniformNames);
 
     bool success = loadData();
     if (!success) {
@@ -555,17 +551,7 @@ void RenderableStars::update(const UpdateData&) {
 
     if (_program->isDirty()) {
         _program->rebuildFromFile();
-
-        _uniformCache.view = _program->uniformLocation("view");
-        _uniformCache.projection = _program->uniformLocation("projection");
-        _uniformCache.colorOption = _program->uniformLocation("colorOption");
-        _uniformCache.alphaValue = _program->uniformLocation("alphaValue");
-        _uniformCache.scaleFactor = _program->uniformLocation("scaleFactor");
-        _uniformCache.minBillboardSize = _program->uniformLocation("minBillboardSize");
-        _uniformCache.screenSize = _program->uniformLocation("screenSize");
-        _uniformCache.scaling = _program->uniformLocation("scaling");
-        _uniformCache.psfTexture = _program->uniformLocation("psfTexture");
-        _uniformCache.colorTexture = _program->uniformLocation("colorTexture");
+        ghoul::opengl::updateUniformLocations(*_program, _uniformCache, UniformNames);
     }
 }
 

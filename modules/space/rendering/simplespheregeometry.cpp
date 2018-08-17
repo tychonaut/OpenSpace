@@ -30,13 +30,13 @@
 #include <openspace/util/powerscaledsphere.h>
 
 namespace {
-    const openspace::properties::Property::PropertyInfo RadiusInfo = {
+    constexpr openspace::properties::Property::PropertyInfo RadiusInfo = {
         "Radius",
         "Radius",
         "This value specifies the radius of this sphere in meters."
     };
 
-    const openspace::properties::Property::PropertyInfo SegmentsInfo = {
+    constexpr openspace::properties::Property::PropertyInfo SegmentsInfo = {
         "Segments",
         "Segments",
         "This value specifies the number of segments that this sphere is split into."
@@ -53,10 +53,7 @@ documentation::Documentation SimpleSphereGeometry::Documentation() {
         {
             {
                 RadiusInfo.identifier,
-                new OrVerifier(
-                    new DoubleVerifier,
-                    new DoubleVector3Verifier
-                ),
+                new OrVerifier({ new DoubleVerifier, new DoubleVector3Verifier }),
                 Optional::No,
                 RadiusInfo.description
             },

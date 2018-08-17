@@ -123,6 +123,7 @@ void HttpRequest::perform(RequestOptions opt) {
     // NOLINTNEXTLINE
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlfunctions::writeCallback);
 
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L); // NOLINT
     curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this); // NOLINT
     // NOLINTNEXTLINE
     curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, curlfunctions::progressCallback);
@@ -149,6 +150,10 @@ void HttpRequest::perform(RequestOptions opt) {
 void HttpRequest::setReadyState(openspace::HttpRequest::ReadyState state) {
     _readyState = state;
     _onReadyStateChange(state);
+}
+
+const std::string& HttpRequest::url() const {
+    return _url;
 }
 
 HttpDownload::HttpDownload() : _onProgress([](HttpRequest::Progress) { return true; }) {}
@@ -209,6 +214,10 @@ void SyncHttpDownload::download(HttpRequest::RequestOptions opt) {
     });
     _httpRequest.perform(opt);
     deinitDownload();
+}
+
+const std::string& SyncHttpDownload::url() const {
+    return _httpRequest.url();
 }
 
 AsyncHttpDownload::AsyncHttpDownload(std::string url) : _httpRequest(std::move(url)) {}
@@ -280,6 +289,10 @@ void AsyncHttpDownload::download(HttpRequest::RequestOptions opt) {
     }
     _downloadFinishCondition.notify_all();
     deinitDownload();
+}
+
+const std::string& AsyncHttpDownload::url() const {
+    return _httpRequest.url();
 }
 
 const std::vector<char>& HttpMemoryDownload::downloadedData() const {

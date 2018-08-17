@@ -22,6 +22,8 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
+#pragma optimize ("", off)
+
 #include <modules/spacecraftinstruments/util/projectioncomponent.h>
 
 #include <modules/spacecraftinstruments/util/hongkangparser.h>
@@ -67,25 +69,25 @@ namespace {
     constexpr const char* sequenceTypeHybrid = "hybrid";
     constexpr const char* sequenceTypeInstrumentTimes = "instrument-times";
 
-    const char* placeholderFile = "${DATA}/placeholder.png";
+    constexpr const char* placeholderFile = "${DATA}/placeholder.png";
 
     constexpr const char* _loggerCat = "ProjectionComponent";
 
-    const openspace::properties::Property::PropertyInfo ProjectionInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ProjectionInfo = {
         "PerformProjection",
         "Perform Projections",
         "If this value is enabled, this ProjectionComponent will perform projections. If "
         "it is disabled, projections will be ignored."
     };
 
-    const openspace::properties::Property::PropertyInfo ClearProjectionInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ClearProjectionInfo = {
         "ClearAllProjections",
         "Clear Projections",
         "If this property is triggered, it will remove all the projections that have "
         "already been applied."
     };
 
-    const openspace::properties::Property::PropertyInfo FadingInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FadingInfo = {
         "ProjectionFading",
         "Projection Fading",
         "This value fades the previously performed projections in or out. If this value "
@@ -93,7 +95,7 @@ namespace {
         "'0', the performed projections are completely invisible."
     };
 
-    const openspace::properties::Property::PropertyInfo TextureSizeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo TextureSizeInfo = {
         "TextureSize",
         "Texture Size",
         "This value determines the size of the texture into which the images are "
@@ -102,7 +104,7 @@ namespace {
         "updated, but triggering the 'ApplyTextureSize' property is required."
     };
 
-    const openspace::properties::Property::PropertyInfo ApplyTextureSizeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo ApplyTextureSizeInfo = {
         "ApplyTextureSize",
         "Apply Texture Size",
         "Triggering this property applies a new size to the underlying projection "
@@ -120,10 +122,7 @@ documentation::Documentation ProjectionComponent::Documentation() {
         {
             {
                 keySequenceDir,
-                new OrVerifier(
-                    new StringVerifier,
-                    new StringListVerifier
-                ),
+                new OrVerifier({ new StringVerifier, new StringListVerifier }),
                 Optional::Yes,
                 "This value specifies one or more directories from which images are "
                 "being used for image projections. If the sequence type is set to "

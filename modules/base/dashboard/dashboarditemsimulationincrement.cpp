@@ -37,20 +37,20 @@ namespace {
     constexpr const char* KeyFontMono = "Mono";
     constexpr const float DefaultFontSize = 10.f;
 
-    const openspace::properties::Property::PropertyInfo FontNameInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FontNameInfo = {
         "FontName",
         "Font Name",
         "This value is the name of the font that is used. It can either refer to an "
         "internal name registered previously, or it can refer to a path that is used."
     };
 
-    const openspace::properties::Property::PropertyInfo FontSizeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo FontSizeInfo = {
         "FontSize",
         "Font Size",
         "This value determines the size of the font that is used to render the date."
     };
 
-    const openspace::properties::Property::PropertyInfo SimplificationInfo = {
+    constexpr openspace::properties::Property::PropertyInfo SimplificationInfo = {
         "Simplification",
         "Time Simplification",
         "If this value is enabled, the time is displayed in nuanced units, such as "
@@ -58,7 +58,7 @@ namespace {
         "displayed in seconds."
     };
 
-    const openspace::properties::Property::PropertyInfo RequestedUnitInfo = {
+    constexpr openspace::properties::Property::PropertyInfo RequestedUnitInfo = {
         "RequestedUnit",
         "Requested Unit",
         "If the simplification is disabled, this time unit is used as a destination to "
@@ -177,30 +177,59 @@ DashboardItemSimulationIncrement::DashboardItemSimulationIncrement(
 }
 
 void DashboardItemSimulationIncrement::render(glm::vec2& penPosition) {
-    const double t = OsEng.timeManager().time().deltaTime();
-    std::pair<double, std::string> deltaTime;
+    const double targetDt = OsEng.timeManager().targetDeltaTime();
+    const double currentDt = OsEng.timeManager().deltaTime();
+    std::pair<double, std::string> targetDeltaTime;
+    std::pair<double, std::string> currentDeltaTime;
     if (_doSimplification) {
-        deltaTime = simplifyTime(t);
+        targetDeltaTime = simplifyTime(targetDt);
+        if (targetDt != currentDt) {
+            currentDeltaTime = simplifyTime(currentDt);
+        }
     }
     else {
         const TimeUnit unit = static_cast<TimeUnit>(_requestedUnit.value());
-        const double convertedT = convertTime(t, TimeUnit::Second, unit);
-        deltaTime = { convertedT, nameForTimeUnit(unit, convertedT != 1.0) };
+
+        const double convTarget = convertTime(targetDt, TimeUnit::Second, unit);
+        targetDeltaTime = { convTarget, nameForTimeUnit(unit, convTarget != 1.0) };
+
+        if (targetDt != currentDt) {
+            const double convCurrent = convertTime(currentDt, TimeUnit::Second, unit);
+            currentDeltaTime = { convCurrent, nameForTimeUnit(unit, convCurrent != 1.0) };
+        }
     }
 
+    std::string pauseText = OsEng.timeManager().isPaused() ? " (Paused)" : "";
+
     penPosition.y -= _font->height();
-    RenderFont(
-        *_font,
-        penPosition,
-        fmt::format(
-            "Simulation increment: {:.1f} {:s} / second",
-            deltaTime.first, deltaTime.second
-        )
-    );
+    if (targetDt != currentDt && !OsEng.timeManager().isPaused()) {
+        // We are in the middle of a transition
+        RenderFont(
+            *_font,
+            penPosition,
+            fmt::format(
+                "Simulation increment: {:.1f} {:s} / second{:s} (current: {:.1f} {:s})",
+                targetDeltaTime.first, targetDeltaTime.second,
+                pauseText,
+                currentDeltaTime.first, currentDeltaTime.second
+            )
+        );
+    }
+    else {
+        RenderFont(
+            *_font,
+            penPosition,
+            fmt::format(
+                "Simulation increment: {:.1f} {:s} / second{:s}",
+                targetDeltaTime.first, targetDeltaTime.second,
+                pauseText
+            )
+        );
+    }
 }
 
 glm::vec2 DashboardItemSimulationIncrement::size() const {
-    double t = OsEng.timeManager().time().deltaTime();
+    double t = OsEng.timeManager().targetDeltaTime();
     std::pair<double, std::string> deltaTime;
     if (_doSimplification) {
         deltaTime = simplifyTime(t);

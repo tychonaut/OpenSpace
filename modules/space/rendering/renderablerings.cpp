@@ -38,20 +38,25 @@
 #include <ghoul/opengl/textureunit.h>
 
 namespace {
-    const openspace::properties::Property::PropertyInfo TextureInfo = {
+    constexpr const std::array<const char*, 6> UniformNames = {
+        "modelViewProjectionTransform", "textureOffset", "transparency", "_nightFactor",
+        "sunPosition", "texture1"
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo TextureInfo = {
         "Texture",
         "Texture",
         "This value is the path to a texture on disk that contains a one-dimensional "
         "texture which is used for these rings."
     };
 
-    const openspace::properties::Property::PropertyInfo SizeInfo = {
+    constexpr openspace::properties::Property::PropertyInfo SizeInfo = {
         "Size",
         "Size",
         "This value specifies the radius of the rings in meter."
     };
 
-    const openspace::properties::Property::PropertyInfo OffsetInfo = {
+    constexpr openspace::properties::Property::PropertyInfo OffsetInfo = {
         "Offset",
         "Offset",
         "This value is used to limit the width of the rings.Each of the two values is a "
@@ -60,7 +65,7 @@ namespace {
         "only shown between radius/2 and radius. It defaults to {0.0, 1.0}."
     };
 
-    const openspace::properties::Property::PropertyInfo NightFactorInfo = {
+    constexpr openspace::properties::Property::PropertyInfo NightFactorInfo = {
         "NightFactor",
         "Night Factor",
         "This value is a multiplicative factor that is applied to the side of the rings "
@@ -68,7 +73,7 @@ namespace {
         "of the night side occurs."
     };
 
-    const openspace::properties::Property::PropertyInfo TransparencyInfo = {
+    constexpr openspace::properties::Property::PropertyInfo TransparencyInfo = {
         "Transparency",
         "Transparency",
         "This value determines the transparency of part of the rings depending on the "
@@ -183,14 +188,7 @@ void RenderableRings::initializeGL() {
         absPath("${MODULE_SPACE}/shaders/rings_fs.glsl")
     );
 
-    _uniformCache.modelViewProjection = _shader->uniformLocation(
-        "modelViewProjectionTransform"
-    );
-    _uniformCache.textureOffset = _shader->uniformLocation("textureOffset");
-    _uniformCache.transparency = _shader->uniformLocation("transparency");
-    _uniformCache.nightFactor = _shader->uniformLocation("_nightFactor");
-    _uniformCache.sunPosition = _shader->uniformLocation("sunPosition");
-    _uniformCache.texture = _shader->uniformLocation("texture1");
+    ghoul::opengl::updateUniformLocations(*_shader, _uniformCache, UniformNames);
 
     glGenVertexArrays(1, &_quad);
     glGenBuffers(1, &_vertexPositionBuffer);
@@ -250,15 +248,7 @@ void RenderableRings::render(const RenderData& data, RendererTasks&) {
 void RenderableRings::update(const UpdateData& data) {
     if (_shader->isDirty()) {
         _shader->rebuildFromFile();
-
-        _uniformCache.modelViewProjection = _shader->uniformLocation(
-            "modelViewProjectionTransform"
-        );
-        _uniformCache.textureOffset = _shader->uniformLocation("textureOffset");
-        _uniformCache.transparency = _shader->uniformLocation("transparency");
-        _uniformCache.nightFactor = _shader->uniformLocation("_nightFactor");
-        _uniformCache.sunPosition = _shader->uniformLocation("sunPosition");
-        _uniformCache.texture = _shader->uniformLocation("texture1");
+        ghoul::opengl::updateUniformLocations(*_shader, _uniformCache, UniformNames);
     }
 
     if (_planeIsDirty) {
