@@ -31,6 +31,7 @@
 #include <openspace/properties/optionproperty.h>
 #include <openspace/properties/scalar/intproperty.h>
 #include <openspace/properties/scalar/floatproperty.h>
+#include <openspace/properties/vector/vec2property.h>
 #include <ghoul/opengl/uniformcache.h>
 
 namespace ghoul::opengl {
@@ -70,6 +71,9 @@ private:
     properties::IntProperty _segments;
 
     properties::BoolProperty _disableFadeInDistance;
+    properties::BoolProperty _disableFadeOutDistance;
+
+    properties::Vec2Property _fadeOutDistance;
 
     float _fadeOutThreshold = -1.0;
     float _fadeInThreshold = 0.0;
@@ -82,6 +86,7 @@ private:
     UniformCache(opacity, viewProjection, modelTransform, texture) _uniformCache;
 
     bool _sphereIsDirty = false;
+    bool _fadeOutIsEnbled = false;
 };
 
 } // namespace openspace

@@ -32,7 +32,8 @@ local sphere = {
         Opacity = 0.4,
         Texture = sphereTextures .. "/DarkUniverse_mellinger_4k.jpg",
         Orientation = "Inside/Outside",
-        FadeOutThreshould = 0.25
+        FadeOutThreshould = 0.25,
+        FadeOutDistances = { 1.4E11, 1.19441E16 }
     },
     GUI = {
         Name = "Milky Way",

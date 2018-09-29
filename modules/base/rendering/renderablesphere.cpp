@@ -86,6 +86,14 @@ namespace {
         "fading-out it."
     };
 
+    constexpr openspace::properties::Property::PropertyInfo FadeOutDistancesInfo = {
+        "FadeOutDistances",
+        "Fade-Out Start and End Distances",
+        "These values determine the initial and final distances from the center of "
+        "our galaxy from which the astronomical object will start and ending "
+        "fade-out."
+    };
+
     constexpr openspace::properties::Property::PropertyInfo FadeInThreshouldInfo = {
         "FadeInThreshould",
         "Fade-In Threshould",
@@ -93,10 +101,16 @@ namespace {
         "fade in."
     };
 
-    constexpr openspace::properties::Property::PropertyInfo DisableFadeInOuInfo = {
+    constexpr openspace::properties::Property::PropertyInfo DisableFadeInInfo = {
         "DisableFadeInOu",
-        "Disable Fade-In/Fade-Out effects",
-        "Enables/Disables the Fade-In/Out effects."
+        "Disable Fade-In effects",
+        "Enables/Disables the Fade-In effects."
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo DisableFadeOutInfo = {
+        "DisableFadeOut",
+        "Disable Fade-Out effects",
+        "Enables/Disables the Fade-Out effects."
     };
 } // namespace
 
@@ -145,10 +159,22 @@ documentation::Documentation RenderableSphere::Documentation() {
                 FadeInThreshouldInfo.description
             },
             {
-                DisableFadeInOuInfo.identifier,
+                FadeOutDistancesInfo.identifier,
+                new Vector2Verifier<float>,
+                Optional::Yes,
+                FadeOutDistancesInfo.description
+            },
+            {
+                DisableFadeInInfo.identifier,
                 new BoolVerifier,
                 Optional::Yes,
-                DisableFadeInOuInfo.description
+                DisableFadeInInfo.description
+            },
+            {
+                DisableFadeOutInfo.identifier,
+                new BoolVerifier,
+                Optional::Yes,
+                DisableFadeOutInfo.description
             },
         }
     };
@@ -161,7 +187,14 @@ RenderableSphere::RenderableSphere(const ghoul::Dictionary& dictionary)
     , _orientation(OrientationInfo, properties::OptionProperty::DisplayType::Dropdown)
     , _size(SizeInfo, 1.f, 0.f, 1e35f)
     , _segments(SegmentsInfo, 8, 4, 1000)
-    , _disableFadeInDistance(DisableFadeInOuInfo, true)
+    , _disableFadeInDistance(DisableFadeInInfo, true)
+    , _disableFadeOutDistance(DisableFadeOutInfo, true)
+    , _fadeOutDistance(
+        FadeOutDistancesInfo,
+        glm::vec2(0.f),
+        glm::vec2(0.f),
+        glm::vec2(200000.f)
+    )
 {
     documentation::testSpecificationAndThrow(
         Documentation(),
@@ -227,6 +260,14 @@ RenderableSphere::RenderableSphere(const ghoul::Dictionary& dictionary)
         dictionary.hasKey(FadeInThreshouldInfo.identifier)) {
         _disableFadeInDistance.set(false);
         addProperty(_disableFadeInDistance);
+    }
+
+    if (dictionary.hasKey(FadeOutDistancesInfo.identifier)) {
+        _fadeOutDistance = dictionary.value<glm::vec2>(FadeOutDistancesInfo.identifier);
+        _fadeOutIsEnbled = true;
+        _disableFadeOutDistance.set(false);
+        addProperty(_fadeOutDistance);
+        addProperty(_disableFadeOutDistance);
     }
 }
 
@@ -307,12 +348,21 @@ void RenderableSphere::render(const RenderData& data, RendererTasks&) {
         adjustedTransparency *= static_cast<float>(term / (term + 1.0));
     }
 
+    if (!_disableFadeOutDistance) {
+        double distCamera = glm::length(data.camera.positionVec3());
+        const glm::vec2 fadeRange = _fadeOutDistance;
+        const float a = -1.0f / (fadeRange.y - fadeRange.x);
+        const float b = (fadeRange.y / (fadeRange.y - fadeRange.x));
+        const float funcValue = static_cast<float>(a * distCamera + b);
+        adjustedTransparency *= std::min(funcValue, 1.f);
+    }
+    
     // Performance wise
     if (adjustedTransparency < 0.01f) {
         return;
     }
 
-    _shader->setUniform(_uniformCache.opacity, _opacity);
+    _shader->setUniform(_uniformCache.opacity, adjustedTransparency);
 
     ghoul::opengl::TextureUnit unit;
     unit.activate();
