@@ -50,6 +50,7 @@ stage('Build') {
                     deleteDir()
                     checkout scm
                     bat '''
+                        cp $Env.OPENSPACE_SYNC_DIR sync -R
                         git submodule update --init --recursive
                         if not exist "build" mkdir "build"
                         cd build
@@ -82,6 +83,45 @@ stage('Build') {
                     flags + '''
                     xcodebuild -parallelizeTargets -jobs 4 -target OpenSpace -target GhoulTest -target OpenSpaceTest
                     '''
+            }
+        }
+    }
+}
+
+
+stage('Test') {
+    windows: {
+        node('windows') {
+            timeout(time: 90, unit: 'MINUTES') {
+                ws("${env.JENKINS_BASE}/O/${env.BRANCH_NAME}/${env.BUILD_ID}") {
+                    bat '''
+                        cd OpenSpace/bin/RelWithDebInfo/
+                        GhoulTest.exe --gtest_output="xml:testresults.xml"
+                        OpenSpaceTest.exe --gtest_output="xml:testresults.xml"
+                    '''
+                    junit 'OpenSpace/bin/**/*.xml'
+                }
+            }
+        }
+    }
+}
+
+
+stage('Visual Test') {
+    windows: {
+        node('windows') {
+            timeout(time: 90, unit: 'MINUTES') {
+                ws("${env.JENKINS_BASE}/O/${env.BRANCH_NAME}/${env.BUILD_ID}") {
+                    bat '''
+                        cd OpenSpace/
+                        git clone git@github.com:micahnyc/OpenSpaceVisualTesting.git
+                        cd OpenSpaceVisualTesting
+                        msbuild.exe OpenSpaceVisualTesting.sln
+                        vstest.console.exe bin/Debug/OpenSpaceVisualTesting.dll
+                        cd TestGroups
+                        call targetcompare.bat
+                    '''
+                }
             }
         }
     }

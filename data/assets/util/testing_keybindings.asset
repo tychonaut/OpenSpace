@@ -1,0 +1,34 @@
+local sceneHelper = asset.require('./scene_helper')
+
+local TestKeybindings = {
+    {
+        Key = "F6",
+        Name = "Hide Dashboard",
+        Command = "openspace.setPropertyValueSingle('Dashboard.IsEnabled', false);" ..
+                "openspace.setPropertyValueSingle('Dashboard.IsEnabled', false);" ..
+                "openspace.setPropertyValueSingle('RenderEngine.ShowLog', false);" ..
+                "openspace.setPropertyValueSingle('RenderEngine.ShowVersion', false);" ..
+                "openspace.setPropertyValueSingle('RenderEngine.ShowCamera', false);" ..
+                "openspace.setPropertyValueSingle('Modules.ImGUI.Main.Enabled',false);" ..
+                "openspace.setPropertyValueSingle('Modules.CefWebGui.Visible', false);",
+        Documentation = "Hide all ui",
+        Local = true
+    },
+    {
+        Key = "F7",
+        Name = "Take Screenshot",
+        Command = "openspace.setPropertyValueSingle('RenderEngine.TakeScreenshot', nil)",
+        Documentation = "Saves the contents of the screen to a file in the working directory.",
+        Local = true
+    }
+}
+
+asset.onInitialize(function()
+    Keys = sceneHelper.bindKeys(TestKeybindings)
+end)
+
+asset.onDeinitialize(function ()
+    sceneHelper.unbindKeys(TestKeybindings)
+end)
+
+asset.export("TestingKeybindings", TestKeybindings)
