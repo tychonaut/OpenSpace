@@ -50,7 +50,7 @@ stage('Build') {
                     deleteDir()
                     checkout scm
                     bat '''
-                        cp $Env.OPENSPACE_SYNC_DIR sync -R
+                        cp %OPENSPACE_SYNC_DIR% sync -R
                         git submodule update --init --recursive
                         if not exist "build" mkdir "build"
                         cd build
@@ -116,9 +116,10 @@ stage('Visual Test') {
                         cd OpenSpace/
                         git clone git@github.com:micahnyc/OpenSpaceVisualTesting.git
                         cd OpenSpaceVisualTesting
+                        nuget.exe restore OpenSpaceVisualTesting.sln
                         msbuild.exe OpenSpaceVisualTesting.sln
-                        vstest.console.exe bin/Debug/OpenSpaceVisualTesting.dll
-                        cd TestGroups
+                        vstest.console.exe OpenSpaceVisualTesting/bin/Debug/OpenSpaceVisualTesting.dll
+                        cd OpenSpaceVisualTesting/TestGroups
                         call targetcompare.bat
                     '''
                 }
