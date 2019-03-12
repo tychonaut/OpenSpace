@@ -55,7 +55,7 @@ stage('Build') {
                         cd build
                         cmake -G "Visual Studio 15 2017 Win64" .. ''' +
                         flags + ''' ..
-                        msbuild.exe OpenSpace.sln /nologo /verbosity:minimal /p:Configuration=Debug /target:OpenSpace /target:"Unit Tests"\\GhoulTest /target:"Unit Tests"\\OpenSpaceTest
+                        msbuild.exe OpenSpace.sln /nologo /verbosity:minimal /p:Configuration=RelWithDebInfo /target:OpenSpace /target:"Unit Tests"\\GhoulTest /target:"Unit Tests"\\OpenSpaceTest
                     '''
                 }
             }
@@ -95,7 +95,7 @@ stage('Test') {
                 ws("${env.JENKINS_BASE}/O/${env.BRANCH_NAME}/${env.BUILD_ID}") {
                     bat '''
                         cp %OPENSPACE_SYNC_DIR% sync -R
-                        cd OpenSpace/bin/RelWithDebInfo/
+                        cd bin/RelWithDebInfo/
                         GhoulTest.exe --gtest_output="xml:testresults.xml"
                         OpenSpaceTest.exe --gtest_output="xml:testresults.xml"
                     '''
@@ -113,7 +113,6 @@ stage('Visual Test') {
             timeout(time: 90, unit: 'MINUTES') {
                 ws("${env.JENKINS_BASE}/O/${env.BRANCH_NAME}/${env.BUILD_ID}") {
                     powershell '''
-                        cd OpenSpace/
                         git clone git@github.com:micahnyc/OpenSpaceVisualTesting.git
                         cd OpenSpaceVisualTesting
                         nuget.exe restore OpenSpaceVisualTesting.sln
