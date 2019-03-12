@@ -60,7 +60,7 @@ stage('Build') {
                 }
             }
         }
-    },
+    }
     // osx: {
     //     node('osx') {
     //         timeout(time: 90, unit: 'MINUTES') {
