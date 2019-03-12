@@ -112,7 +112,7 @@ stage('Visual Test') {
         node('windows') {
             timeout(time: 90, unit: 'MINUTES') {
                 ws("${env.JENKINS_BASE}/O/${env.BRANCH_NAME}/${env.BUILD_ID}") {
-                    bat '''
+                    powershell '''
                         cd OpenSpace/
                         git clone git@github.com:micahnyc/OpenSpaceVisualTesting.git
                         cd OpenSpaceVisualTesting
@@ -120,7 +120,7 @@ stage('Visual Test') {
                         msbuild.exe OpenSpaceVisualTesting.sln
                         vstest.console.exe OpenSpaceVisualTesting/bin/Debug/OpenSpaceVisualTesting.dll
                         cd OpenSpaceVisualTesting/TestGroups
-                        call targetcompare.bat
+                        ./targetcompare.bat
                     '''
                 }
             }
