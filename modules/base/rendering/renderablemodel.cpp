@@ -85,6 +85,12 @@ namespace {
         "of the Sun."
     };
 
+    constexpr openspace::properties::Property::PropertyInfo DisableFaceCullingInfo = {
+        "DisableFaceCulling",
+        "Disable Face Culling",
+        "Disable OpenGL automatic face culling optimization."
+    };
+
     constexpr openspace::properties::Property::PropertyInfo ModelTransformInfo = {
         "ModelTransform",
         "Model Transform",
@@ -144,6 +150,12 @@ documentation::Documentation RenderableModel::Documentation() {
                 ShadingInfo.description
             },
             {
+                DisableFaceCullingInfo.identifier,
+                new BoolVerifier,
+                Optional::Yes,
+                DisableFaceCullingInfo.description
+            },
+            {
                 ModelTransformInfo.identifier,
                 new DoubleMatrix3Verifier,
                 Optional::Yes,
@@ -172,6 +184,7 @@ RenderableModel::RenderableModel(const ghoul::Dictionary& dictionary)
     , _diffuseIntensity(DiffuseIntensityInfo, 1.f, 0.f, 1.f)
     , _specularIntensity(SpecularIntensityInfo, 1.f, 0.f, 1.f)
     , _performShading(ShadingInfo, true)
+    , _disableFaceCulling(DisableFaceCullingInfo, false)
     , _modelTransform(ModelTransformInfo, glm::mat3(1.f))
     , _lightSourcePropertyOwner({ "LightSources", "Light Sources" })
 {
@@ -214,6 +227,10 @@ RenderableModel::RenderableModel(const ghoul::Dictionary& dictionary)
         _performShading = dictionary.value<bool>(ShadingInfo.identifier);
     }
 
+    if (dictionary.hasKey(DisableFaceCullingInfo.identifier)) {
+        _disableFaceCulling = dictionary.value<bool>(DisableFaceCullingInfo.identifier);
+    }
+
     if (dictionary.hasKey(LightSourcesInfo.identifier)) {
         const ghoul::Dictionary& lsDictionary =
             dictionary.value<ghoul::Dictionary>(LightSourcesInfo.identifier);
@@ -238,6 +255,7 @@ RenderableModel::RenderableModel(const ghoul::Dictionary& dictionary)
     addProperty(_diffuseIntensity);
     addProperty(_specularIntensity);
     addProperty(_performShading);
+    addProperty(_disableFaceCulling);
 }
 
 bool RenderableModel::isReady() const {
@@ -361,8 +379,16 @@ void RenderableModel::render(const RenderData& data, RendererTasks&) {
     _texture->bind();
     _program->setUniform(_uniformCache.texture, unit);
 
+    if (_disableFaceCulling) {
+        glDisable(GL_CULL_FACE);
+    }
+    
     _geometry->render();
 
+    if (_disableFaceCulling) {
+        glEnable(GL_CULL_FACE);
+    }
+    
     _program->deactivate();
 }
 
