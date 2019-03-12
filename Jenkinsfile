@@ -25,23 +25,23 @@ for (module in modules) {
 echo flags
 
 stage('Build') {
-    parallel linux: {
-        node('linux') {
-            timeout(time: 90, unit: 'MINUTES') {
+    // parallel linux: {
+    //     node('linux') {
+    //         timeout(time: 90, unit: 'MINUTES') {
                 
-                deleteDir()
-                checkout scm
-                sh 'git submodule update --init --recursive'
-                sh '''
-                    mkdir -p build
-                    cd build
-                    cmake .. ''' +
-                    flags + ''' ..
-                make -j4 OpenSpace GhoulTest OpenSpaceTest
-                '''
-            }
-        }
-    },
+    //             deleteDir()
+    //             checkout scm
+    //             sh 'git submodule update --init --recursive'
+    //             sh '''
+    //                 mkdir -p build
+    //                 cd build
+    //                 cmake .. ''' +
+    //                 flags + ''' ..
+    //             make -j4 OpenSpace GhoulTest OpenSpaceTest
+    //             '''
+    //         }
+    //     }
+    // },
     windows: {
         node('windows') {
             timeout(time: 90, unit: 'MINUTES') {
@@ -50,7 +50,6 @@ stage('Build') {
                     deleteDir()
                     checkout scm
                     bat '''
-                        cp %OPENSPACE_SYNC_DIR% sync -R
                         git submodule update --init --recursive
                         if not exist "build" mkdir "build"
                         cd build
@@ -62,30 +61,30 @@ stage('Build') {
             }
         }
     },
-    osx: {
-        node('osx') {
-            timeout(time: 90, unit: 'MINUTES') {
-                deleteDir()
-                checkout scm
-                sh 'git submodule update --init --recursive'
-                sh '''
-                    export PATH=${PATH}:/usr/local/bin:/Applications/CMake.app/Contents/bin
-                    export CMAKE_BUILD_TOOL=/Applications/CMake.app/Contents/bin/CMake
-                    srcDir=$PWD
-                    if [ ! -d ${srcDir} ]; then
-                      mkdir ${srcDir}
-                    fi
-                    if [ ! -d ${srcDir}/build ]; then
-                      mkdir ${srcDir}/build
-                    fi
-                    cd ${srcDir}/build
-                    /Applications/CMake.app/Contents/bin/cmake -G Xcode ${srcDir} .. ''' +
-                    flags + '''
-                    xcodebuild -parallelizeTargets -jobs 4 -target OpenSpace -target GhoulTest -target OpenSpaceTest
-                    '''
-            }
-        }
-    }
+    // osx: {
+    //     node('osx') {
+    //         timeout(time: 90, unit: 'MINUTES') {
+    //             deleteDir()
+    //             checkout scm
+    //             sh 'git submodule update --init --recursive'
+    //             sh '''
+    //                 export PATH=${PATH}:/usr/local/bin:/Applications/CMake.app/Contents/bin
+    //                 export CMAKE_BUILD_TOOL=/Applications/CMake.app/Contents/bin/CMake
+    //                 srcDir=$PWD
+    //                 if [ ! -d ${srcDir} ]; then
+    //                   mkdir ${srcDir}
+    //                 fi
+    //                 if [ ! -d ${srcDir}/build ]; then
+    //                   mkdir ${srcDir}/build
+    //                 fi
+    //                 cd ${srcDir}/build
+    //                 /Applications/CMake.app/Contents/bin/cmake -G Xcode ${srcDir} .. ''' +
+    //                 flags + '''
+    //                 xcodebuild -parallelizeTargets -jobs 4 -target OpenSpace -target GhoulTest -target OpenSpaceTest
+    //                 '''
+    //         }
+    //     }
+    // }
 }
 
 
@@ -95,6 +94,7 @@ stage('Test') {
             timeout(time: 90, unit: 'MINUTES') {
                 ws("${env.JENKINS_BASE}/O/${env.BRANCH_NAME}/${env.BUILD_ID}") {
                     bat '''
+                        cp %OPENSPACE_SYNC_DIR% sync -R
                         cd OpenSpace/bin/RelWithDebInfo/
                         GhoulTest.exe --gtest_output="xml:testresults.xml"
                         OpenSpaceTest.exe --gtest_output="xml:testresults.xml"
