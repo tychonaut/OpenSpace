@@ -1,0 +1,71 @@
+local assetHelper = asset.require('util/asset_helper')
+asset.require('spice/base')
+
+local earthTransforms = asset.require('scene/solarsystem/planets/earth/transforms')
+
+local kernels = asset.syncedResource({
+    Name = "Apollo Kernels",
+    Type = "HttpSynchronization",
+    Identifier = "apollo_spice",
+    Version = 1
+})
+
+local LocalKernels = {
+    kernels .. "/moon_080317.tf",
+    kernels .. "/apollo8.tf",
+  	kernels .. "/moon_pa_de421_1900-2050.bpc",
+    kernels .. '/apollo8.tsc',
+    kernels .. '/apollo8.bsp',
+    kernels .. '/apollo8_earthrise.bc',
+}
+
+local Apollo_8_Trail = {
+    Identifier = "Apollo8Trail",
+    Parent = "Earth",
+    Renderable = {
+        Type = "RenderableTrailTrajectory",
+        Translation = {
+            Type = "SpiceTranslation",
+            Target = "-908",
+            Observer = "EARTH",
+            Frame = "IAU_EARTH",            
+            Kernels = LocalKernels
+        },
+        Color = { 0.70, 0.50, 0.20 },
+        StartTime = "1968 DEC 21 12:51:00",
+        EndTime = "1968 DEC 21 23:23:22",
+        SampleInterval = 30
+    },
+    GUI = {
+        Name = "Apollo 8 Trail",
+        Path = "/Solar System/Missions/Apollo"
+    }
+}
+
+local Apollo_8_Trail_Moon = {
+    Identifier = "Apollo8TrailMoon",
+    Parent = "Moon",
+    Renderable = {
+        Type = "RenderableTrailTrajectory",
+        Translation = {
+            Type = "SpiceTranslation",
+            Target = "-908",
+            Observer = "MOON",
+            Frame = "IAU_MOON",            
+            Kernels = LocalKernels
+        },
+        Color = { 0.70, 0.50, 0.20 },
+        StartTime = "1968 DEC 22 04:18:22",
+        EndTime = "1968 DEC 28",
+        SampleInterval = 30
+    },
+    GUI = {
+        Name = "Apollo 8 Trail - Post TLI",
+        Path = "/Solar System/Missions/Apollo"
+    }
+}
+
+assetHelper.registerSceneGraphNodesAndExport(asset, { 
+    Apollo_8_Trail,
+    Apollo_8_Trail_Moon,
+})

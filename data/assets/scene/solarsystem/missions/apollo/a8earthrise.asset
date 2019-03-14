@@ -1,0 +1,2569 @@
+local assetHelper = asset.require('util/asset_helper')
+local sunTransforms = asset.require('scene/solarsystem/sun/transforms')
+asset.require('spice/base')
+
+local models = asset.syncedResource({
+    Name = "Apollo Models",
+    Type = "HttpSynchronization",
+    Identifier = "apollo_models",
+    Version = 1
+})
+
+local kernels = asset.syncedResource({
+    Name = "Apollo Kernels",
+    Type = "HttpSynchronization",
+    Identifier = "apollo_spice",
+    Version = 1
+})
+
+
+local LocalKernels = {
+    kernels .. "/moon_080317.tf",
+    kernels .. "/apollo8.tf",
+  	kernels .. "/moon_pa_de421_1900-2050.bpc",
+    kernels .. '/apollo8.tsc',
+    kernels .. '/apollo8.bsp',
+    kernels .. '/apollo8_earthrise.bc',
+}
+
+local LightSources = {
+    {
+        Type = "SceneGraphLightSource",
+        Identifier = "Sun",
+        Node = sunTransforms.SolarSystemBarycenter.Identifier,
+        Intensity = 1.0
+    },
+    -- {
+    --     Identifier = "Camera",
+    --     Type = "CameraLightSource",
+    --     Intensity = 0.5
+    -- }
+}
+
+-- 1968 DEC 24 16:37:19.0
+
+
+local Apollo8 = {
+    Identifier = "Apollo8_Earthrise",
+    Parent = "Moon",
+    Transform = {
+        Translation = {
+            Type = "SpiceTranslation",
+            Target = "-908",
+            Observer = "MOON",
+            Frame = "IAU_MOON",
+            Kernels = LocalKernels
+        },
+        Rotation = {
+            Type = "SpiceRotation",
+            SourceFrame = "A8_EARTHRISE",
+            DestinationFrame = "GALACTIC"
+        },
+    },
+    GUI = {
+        Name = "Apollo 8 EarthRise",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+
+
+local Apollo_8 = {
+    Identifier = "Apollo_8ModelEarthRise",
+    Parent = Apollo8.Identifier,
+    Transform = {
+        Scale = {
+            Type = "StaticScale",
+            -- The scale of the model is in cm; OpenSpace is in m
+            Scale = 0.01
+        }
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Model",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+
+local PivotOffset = {   -6.9, -4.6,  8.7  }
+local PivotOffset = {0, 0, 0}
+
+local A8Pivot = {
+    Identifier = "A8Pivot",
+    Parent = Apollo_8.Identifier,
+    Transform = {
+        Translation = {
+            Type = "StaticTranslation",
+            Position = PivotOffset
+        },
+        Rotation = {
+            Type = "SpiceRotation",
+            SourceFrame = "GALACTIC",
+            DestinationFrame = "A8_EARTHRISE"
+        },
+
+    },
+    GUI = {
+        Hidden = false,
+        Name = "Apollo 8 Pivot",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+-- local AP8Cone = {
+--     Identifier = "AP8Cone",
+--     Parent = Apollo_8.Identifier,
+--     Renderable = {
+--         Type = "RenderableModel",
+--         Geometry = {
+--             Type = "MultiModelGeometry",
+--             GeometryFile = models .. "/AP8_cone.obj"
+--         },
+--         ColorTexture = models .. "/gray.png",
+--         LightSources = LightSources,
+--         PerformShading = true,
+--         DisableFaceCulling = true 
+--     },
+--     GUI = {
+--         Hidden = false,
+--         Name = "Apollo 8 AP8Cone",
+--         Path = "/Solar System/Missions/Apollo/Apollo 8"
+--     }
+-- }
+
+-- local AP8Service = {
+--     Identifier = "AP8Service",
+--     Parent = Apollo_8.Identifier,
+--     Renderable = {
+--         Type = "RenderableModel",
+--         Geometry = {
+--             Type = "MultiModelGeometry",
+--             GeometryFile = models .. "/AP8_service.obj"
+--         },
+--         ColorTexture = models .. "/gray.png",
+--         LightSources = LightSources,
+--         PerformShading = true,
+--         DisableFaceCulling = true 
+--     },
+--     GUI = {
+--         Hidden = false,
+--         Name = "Apollo 8 AP8Service",
+--         Path = "/Solar System/Missions/Apollo/Apollo 8"
+--     }
+-- }
+
+
+local AP08_cone_command_module = {
+    Identifier = "AP08_cone_command_module",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_cone_command_module.obj"
+        },
+        ColorTexture = models .. "/Command_module_diff.png",
+        LightSources = {{
+            Type = "SceneGraphLightSource",
+            Identifier = "Sun",
+            Node = sunTransforms.SolarSystemBarycenter.Identifier,
+            Intensity = 0.0
+        }},
+        PerformShading = true,
+        DisableFaceCulling = true 
+    },
+    GUI = {
+        Hidden = false,
+        Name = "Apollo 8 AP08_cone_command_module",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_cone_hatchdoor_handle_scratched_metal = {
+    Identifier = "AP08_cone_hatchdoor_handle_scratched_metal",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_cone_hatchdoor_handle_scratched_metal.obj"
+        },
+        ColorTexture = models .. "/scratched_metal_gloss.png",
+        LightSources = LightSources,
+        PerformShading = true,
+        DisableFaceCulling = true 
+    },
+    GUI = {
+        Hidden = false,
+        Name = "Apollo 8 AP08_cone_hatchdoor_handle_scratched_metal",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_cone_hatchdoor_interior = {
+    Identifier = "AP08_cone_hatchdoor_interior",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_cone_hatchdoor_interior.obj"
+        },
+        ColorTexture = models .. "/apollo_hatchdoor_interior.jpg",
+        LightSources = {{
+            Type = "SceneGraphLightSource",
+            Identifier = "Sun",
+            Node = sunTransforms.SolarSystemBarycenter.Identifier,
+            Intensity = 0.0
+        }},        
+        PerformShading = false,
+        DisableFaceCulling = true 
+    },
+    GUI = {
+        Hidden = false,
+        Name = "Apollo 8 AP08_cone_hatchdoor_interior",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_cone_vent_ports_black = {
+    Identifier = "AP08_cone_vent_ports_black",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_cone_vent_ports_black.obj"
+        },
+        ColorTexture = models .. "/black.png",
+        LightSources = LightSources,
+        PerformShading = true,
+        DisableFaceCulling = true 
+    },
+    GUI = {
+        Hidden = false,
+        Name = "Apollo 8 AP08_cone_vent_ports_black",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+
+local AP08_cone_vent_ports_red = {
+    Identifier = "AP08_cone_vent_ports_red",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_cone_vent_ports_red.obj"
+        },
+        ColorTexture = models .. "/red.png",
+        LightSources = LightSources,
+        PerformShading = true,
+        DisableFaceCulling = true 
+    },
+    GUI = {
+        Hidden = false,
+        Name = "Apollo 8 AP08_cone_vent_ports_red",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+
+local AP08_service_black = {
+    Identifier = "AP08_service_black",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_black.obj"
+        },
+        ColorTexture = models .. "/black.png",
+        LightSources = LightSources,
+        PerformShading = true,   
+        DisableFaceCulling = true      
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_black",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_brown = {
+    Identifier = "AP08_service_brown",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_brown.obj"
+        },
+        ColorTexture = models .. "/brown.png",
+        LightSources = LightSources,
+        PerformShading = true,   
+        DisableFaceCulling = true              
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_brown",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_grey = {
+    Identifier = "AP08_service_grey",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_grey.obj"
+        },
+        ColorTexture = models .. "/gray.png",
+        LightSources = LightSources,
+        PerformShading = true,     
+        DisableFaceCulling = true    
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_grey",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_high_gain_antenna = {
+    Identifier = "AP08_service_high_gain_antenna",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_high_gain_antenna.obj"
+        },
+        ColorTexture = models .. "/Antenna_diff.png",
+        LightSources = LightSources,
+        PerformShading = true,   
+        DisableFaceCulling = true      
+    },
+    GUI = {
+        Hidden = false,
+        Name = "Apollo 8 AP08_service_high_gain_antenna",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_module = {
+    Identifier = "AP08_service_module",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_module.obj"
+        },
+        ColorTexture = models .. "/Service_module_diff.png",
+        LightSources = LightSources,
+        PerformShading = true,    
+        DisableFaceCulling = true             
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_module",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_nozzle = {
+    Identifier = "AP08_service_nozzle",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_nozzle.obj"
+        },
+        ColorTexture = models .. "/Nozzle_diff.png",
+        LightSources = LightSources,
+        PerformShading = true,       
+        DisableFaceCulling = true          
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_nozzle",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_pink = {
+    Identifier = "AP08_service_pink",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_pink.obj"
+        },
+        ColorTexture = models .. "/pink.png",
+        LightSources = LightSources,
+        PerformShading = true,   
+        DisableFaceCulling = true      
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_pink",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_red = {
+    Identifier = "AP08_service_red",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_red.obj"
+        },
+        ColorTexture = models .. "/red.png",
+        LightSources = LightSources,
+        PerformShading = true,  
+        DisableFaceCulling = true       
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_red",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_scratched_metal = {
+    Identifier = "AP08_service_scratched_metal",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_scratched_metal.obj"
+        },
+        ColorTexture = models .. "/scratched_metal_gloss.png",
+        LightSources = LightSources,
+        PerformShading = true,        
+        DisableFaceCulling = true 
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_scratched_metal",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+local AP08_service_white = {
+    Identifier = "AP08_service_white",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_service_white.obj"
+        },
+        ColorTexture = models .. "/white.png",
+        LightSources = LightSources,
+        PerformShading = true,       
+        DisableFaceCulling = true  
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 AP08_service_white",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+
+local Apollo_8_Interior_0 = {
+    Identifier = "Apollo_8_Interior_0",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_01.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule01.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 0",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_1 = {
+    Identifier = "Apollo_8_Interior_1",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_02.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule02.jpg",
+        LightSources = LightSources,
+        PerformShading = false,   
+        DisableFaceCulling = true      
+        --ModelTransform = RotationMatrix
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 1",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_2 = {
+    Identifier = "Apollo_8_Interior_2",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_03.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule03.jpg",
+        LightSources = LightSources,
+        PerformShading = false, 
+        DisableFaceCulling = true        
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 2",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_3 = {
+    Identifier = "Apollo_8_Interior_3",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_04.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule04.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 3",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_4 = {
+    Identifier = "Apollo_8_Interior_4",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_05.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule05.jpg",
+        LightSources = LightSources,
+        PerformShading = false,      
+        DisableFaceCulling = true   
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 4",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_5 = {
+    Identifier = "Apollo_8_Interior_5",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_06.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule06.jpg",
+        LightSources = LightSources,
+        PerformShading = false,   
+        DisableFaceCulling = true      
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 5",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_6 = {
+    Identifier = "Apollo_8_Interior_6",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_07.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule07.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 6",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_7 = {
+    Identifier = "Apollo_8_Interior_7",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_08.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule08.jpg",
+        LightSources = LightSources,
+        PerformShading = false,  
+        DisableFaceCulling = true       
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 7",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_8 = {
+    Identifier = "Apollo_8_Interior_8",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_09.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule09.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 8",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_9 = {
+    Identifier = "Apollo_8_Interior_9",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_10.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule10.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 9",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+--apollo
+local Apollo_Interior_back_wall_05 = {
+Identifier = 'Apollo_Interior_back_wall_05',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_back_wall_06.obj'
+   },
+    ColorTexture = models .. '/back_wall_05Shape_tpAmbient_paint_02_u2_v1.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_back_wall_top_0Shape3 = {
+Identifier = 'Apollo_Interior_back_wall_top_0Shape3',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_back_wall_top_0Shape3.obj'
+   },
+    ColorTexture = models .. '/back_wall_top_0Shape3_tpAmbient_paint_03.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_belt_buckles_02_L2 = {
+Identifier = 'Apollo_Interior_belt_buckles_02_L2',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_belt_buckles_02_L2.obj'
+   },
+    ColorTexture = models .. '/belt_buckles_02_L2Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_belt_straps_02 = {
+Identifier = 'Apollo_Interior_belt_straps_02',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_belt_straps_02.obj'
+   },
+    ColorTexture = models .. '/belt_straps_02Shape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_black_push_buttons = {
+Identifier = 'Apollo_Interior_black_push_buttons',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_black_push_buttons.obj'
+   },
+    ColorTexture = models .. '/push_buttonsShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_bottom_boxes_03 = {
+Identifier = 'Apollo_Interior_bottom_boxes_03',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_bottom_boxes_03.obj'
+   },
+    ColorTexture = models .. '/bottom_boxes_03_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_bottom_floor_tp = {
+Identifier = 'Apollo_Interior_bottom_floor_tp',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_bottom_floor_tp.obj'
+   },
+    ColorTexture = models .. '/bottom_floor_tpAmbient_paint_v002.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_box_back_01 = {
+Identifier = 'Apollo_Interior_box_back_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_box_back_01.obj'
+   },
+    ColorTexture = models .. '/box_back_01_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_box_back_02 = {
+Identifier = 'Apollo_Interior_box_back_02',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_box_back_02.obj'
+   },
+    ColorTexture = models .. '/box_back_02_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_box_back_04 = {
+Identifier = 'Apollo_Interior_box_back_04',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_box_back_04.obj'
+   },
+    ColorTexture = models .. '/box_back_04_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_box_lft_lower_01 = {
+Identifier = 'Apollo_Interior_box_lft_lower_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_box_lft_lower_01.obj'
+   },
+    ColorTexture = models .. '/box_lft_lower_01Shape_Diffuse_paint_v002.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_box_lft_top = {
+Identifier = 'Apollo_Interior_box_lft_top',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_box_lft_top.obj'
+   },
+    ColorTexture = models .. '/box_lft_topShape_Diffuse_paint_v009.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_box_mid_tp = {
+Identifier = 'Apollo_Interior_box_mid_tp',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_box_mid_tp.obj'
+   },
+    ColorTexture = models .. '/box_mid_tpDiffuse_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_box_rt_top_02 = {
+Identifier = 'Apollo_Interior_box_rt_top_02',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_box_rt_top_02.obj'
+   },
+    ColorTexture = models .. '/box_rt_top_02_paint_04.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+
+
+
+
+local Apollo_Interior_brushed_blue_ano = {
+Identifier = 'Apollo_Interior_brushed_blue_ano',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_brushed_blue_ano.obj'
+   },
+    ColorTexture = models .. '/brushed_blue_ano_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_brushed_brass = {
+Identifier = 'Apollo_Interior_brushed_brass',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_brushed_brass.obj'
+   },
+    ColorTexture = models .. '/brushed_brass_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_brushed_grey_ano = {
+Identifier = 'Apollo_Interior_brushed_grey_ano',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_brushed_grey_ano.obj'
+   },
+    ColorTexture = models .. '/brushed_grey_ano_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_canvas_cover = {
+Identifier = 'Apollo_Interior_canvas_cover',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_canvas_cover.obj'
+   },
+    ColorTexture = models .. '/canvas_coverShape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_Channel_attachment = {
+Identifier = 'Apollo_Interior_Channel_attachment',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_Channel_attachment.obj'
+   },
+    ColorTexture = models .. '/Channel_attachment_Diffuse.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_Channel_baseMetal = {
+Identifier = 'Apollo_Interior_Channel_baseMetal',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_Channel_baseMetal.obj'
+   },
+    ColorTexture = models .. '/Channel_baseMetal_Diffuse.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_Channel_Material = {
+Identifier = 'Apollo_Interior_Channel_Material',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_Channel_Material.obj'
+   },
+    ColorTexture = models .. '/Channel_Material_Diffuse.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_Channel_rsMaterial2 = {
+Identifier = 'Apollo_Interior_Channel_rsMaterial2',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_Channel_rsMaterial2.obj'
+   },
+    ColorTexture = models .. '/Channel_rsMaterial2_Diffuse.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_cloth_01 = {
+Identifier = 'Apollo_Interior_cloth_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_cloth_01.obj'
+   },
+    ColorTexture = models .. '/cloth_01Shape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_coiled_hose = {
+Identifier = 'Apollo_Interior_coiled_hose',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_coiled_hose.obj'
+   },
+    ColorTexture = models .. '/coiled_hoseShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_control_panel_left_win_plates = {
+Identifier = 'Apollo_Interior_control_panel_left_win_plates',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_control_panel_left_win_plates.obj'
+   },
+    ColorTexture = models .. '/control_panel_left_win_platesShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_control_panel_rt_win_plates = {
+Identifier = 'Apollo_Interior_control_panel_rt_win_plates',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_control_panel_rt_win_plates.obj'
+   },
+    ColorTexture = models .. '/control_panel_rt_win_platesShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_copper_parts_main_cp = {
+Identifier = 'Apollo_Interior_copper_parts_main_cp',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_copper_parts_main_cp.obj'
+   },
+    ColorTexture = models .. '/copper_parts_main_cpShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_dials_main2 = {
+Identifier = 'Apollo_Interior_dials_main2',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_dials_main2.obj'
+   },
+    ColorTexture = models .. '/dials_main2Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_dials_t2 = {
+Identifier = 'Apollo_Interior_dials_t2',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_dials_t2.obj'
+   },
+    ColorTexture = models .. '/dials_t2Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_dial_fixes_01 = {
+Identifier = 'Apollo_Interior_dial_fixes_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_dial_fixes_01.obj'
+   },
+    ColorTexture = models .. '/dial_fixes_01Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_fire_ex_02 = {
+Identifier = 'Apollo_Interior_fire_ex_02',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_fire_ex_02.obj'
+   },
+    ColorTexture = models .. '/fire_ex_02_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_floor_panels_3 = {
+Identifier = 'Apollo_Interior_floor_panels_3',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_floor_panels_3.obj'
+   },
+    ColorTexture = models .. '/floor_panels_3Shape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_floor_tile_tex_01 = {
+Identifier = 'Apollo_Interior_floor_tile_tex_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_floor_tile_tex_01.obj'
+   },
+    ColorTexture = models .. '/floor_tile_tex_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+-- local Apollo_Interior_glass = {
+-- Identifier = 'Apollo_Interior_glass',
+-- Parent = Apollo_8.Identifier,
+-- Renderable = {
+--    Type = 'RenderableModel',
+--     Geometry = {
+--        Type = 'MultiModelGeometry',
+--        GeometryFile = models .. '/AP11_interior_glass.obj'
+--    },
+--     ColorTexture = models .. '/pink.png',
+--     LightSources = LightSources,
+--     PerformShading = false,      
+--     DisableFaceCulling = true   
+-- },
+-- GUI = {
+--     Hidden = true,
+--   }
+-- }
+
+
+local Apollo_Interior_grey = {
+Identifier = 'Apollo_Interior_grey',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_grey.obj'
+   },
+    ColorTexture = models .. '/gray.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+
+
+--Apollo_Interior_grey.Renderable.PerformShading = true;
+
+local Apollo_Interior_handholds_cp = {
+Identifier = 'Apollo_Interior_handholds_cp',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_handholds_cp.obj'
+   },
+    ColorTexture = models .. '/handholds_cpShape_tpAmbient_paint_05.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_hatch_release_0Shape5 = {
+Identifier = 'Apollo_Interior_hatch_release_0Shape5',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_hatch_release_0Shape5.obj'
+   },
+    ColorTexture = models .. '/hatch_release_0Shape5_tpAmbient_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_headrests_02 = {
+Identifier = 'Apollo_Interior_headrests_02',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_headrests_02.obj'
+   },
+    ColorTexture = models .. '/headrests_02Shape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_hoses_black_01 = {
+Identifier = 'Apollo_Interior_hoses_black_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_hoses_black_01.obj'
+   },
+    ColorTexture = models .. '/hoses_black_01Shape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_hoses_white_0Shape1 = {
+Identifier = 'Apollo_Interior_hoses_white_0Shape1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_hoses_white_0Shape1.obj'
+   },
+    ColorTexture = models .. '/hoses_white_0Shape1_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_josticks1 = {
+Identifier = 'Apollo_Interior_josticks1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_josticks1.obj'
+   },
+    ColorTexture = models .. '/joysticks1Shape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_joysticks_fabric1 = {
+Identifier = 'Apollo_Interior_joysticks_fabric1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_joysticks_fabric1.obj'
+   },
+    ColorTexture = models .. '/joysticks_fabric1_Shape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_joystick_poles_lft_05 = {
+Identifier = 'Apollo_Interior_joystick_poles_lft_05',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_joystick_poles_lft_05.obj'
+   },
+    ColorTexture = models .. '/joystick_poles_lft_05_paint_v002.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_joystick_poles_lft_long_05 = {
+Identifier = 'Apollo_Interior_joystick_poles_lft_long_05',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_joystick_poles_lft_long_05.obj'
+   },
+    ColorTexture = models .. '/joystick_poles_lft_long_05_paint_v002.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_joystick_poles_rt_05 = {
+Identifier = 'Apollo_Interior_joystick_poles_rt_05',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_joystick_poles_rt_05.obj'
+   },
+    ColorTexture = models .. '/joystick_poles_rt_05_paint_v002.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_latch_mechanisms_01 = {
+Identifier = 'Apollo_Interior_latch_mechanisms_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_latch_mechanisms_01.obj'
+   },
+    ColorTexture = models .. '/latch_mechanisms_01Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_lower_push_buttons = {
+Identifier = 'Apollo_Interior_lower_push_buttons',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_lower_push_buttons.obj'
+   },
+    ColorTexture = models .. '/lower_push_buttonsShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_lower_walls_back = {
+Identifier = 'Apollo_Interior_lower_walls_back',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_lower_walls_back.obj'
+   },
+    ColorTexture = models .. '/lower_walls_back_paint_04.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_lower_walls_boxes_head = {
+Identifier = 'Apollo_Interior_lower_walls_boxes_head',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_lower_walls_boxes_head.obj'
+   },
+    ColorTexture = models .. '/lower_walls_boxes_headShape_tpAmbient_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_main_cp_left_smth_03 = {
+Identifier = 'Apollo_Interior_main_cp_left_smth_03',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_main_cp_left_smth_03.obj'
+   },
+    ColorTexture = models .. '/main_cp_left_0Shape3_tpAmbient_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_main_cp_mid_smth_02 = {
+Identifier = 'Apollo_Interior_main_cp_mid_smth_02',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_main_cp_mid_smth_02.obj'
+   },
+    ColorTexture = models .. '/main_cp_mid_smth_02Shape_tpAmbient_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_main_cp_rt_smth = {
+Identifier = 'Apollo_Interior_main_cp_rt_smth',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_main_cp_rt_smth.obj'
+   },
+    ColorTexture = models .. '/main_cp_rt_smthShape_tpAmbient_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_main_cp_wheels = {
+Identifier = 'Apollo_Interior_main_cp_wheels',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_main_cp_wheels.obj'
+   },
+    ColorTexture = models .. '/main_cp_wheelsShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_metal_brackets_under_hatch = {
+Identifier = 'Apollo_Interior_metal_brackets_under_hatch',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_metal_brackets_under_hatch.obj'
+   },
+    ColorTexture = models .. '/metal_brackets_under_hatchShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_metal_tunnel_parts = {
+Identifier = 'Apollo_Interior_metal_tunnel_parts',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_metal_tunnel_parts.obj'
+   },
+    ColorTexture = models .. '/metal_tunnel_partsShape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_metal_window_parts = {
+Identifier = 'Apollo_Interior_metal_window_parts',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_metal_window_parts.obj'
+   },
+    ColorTexture = models .. '/metal_window_partsShape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_middle_walls_05 = {
+Identifier = 'Apollo_Interior_middle_walls_05',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_middle_walls_05.obj'
+   },
+    ColorTexture = models .. '/middle_walls_05_tpAmbient_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_middle_walls_0Shape8 = {
+Identifier = 'Apollo_Interior_middle_walls_0Shape8',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_middle_walls_0Shape8.obj'
+   },
+    ColorTexture = models .. '/middle_walls_0Shape8_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_mid_tunnel_parts = {
+Identifier = 'Apollo_Interior_mid_tunnel_parts',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_mid_tunnel_parts.obj'
+   },
+    ColorTexture = models .. '/mid_tunnel_parts_03Shape_tpAmbient_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_new_switch_rails1 = {
+Identifier = 'Apollo_Interior_new_switch_rails1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_new_switch_rails1.obj'
+   },
+    ColorTexture = models .. '/new_switch_rails1Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_nozzles_02 = {
+Identifier = 'Apollo_Interior_nozzles_02',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_nozzles_02.obj'
+   },
+    ColorTexture = models .. '/nozzles_02Shape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_outlet_fabric3 = {
+Identifier = 'Apollo_Interior_outlet_fabric3',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_outlet_fabric3.obj'
+   },
+    ColorTexture = models .. '/outlet_fabric3Shape_tpAmbient_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_pole_end_02 = {
+Identifier = 'Apollo_Interior_pole_end_02',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_pole_end_02.obj'
+   },
+    ColorTexture = models .. '/pole_end_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_pole_end_03 = {
+Identifier = 'Apollo_Interior_pole_end_03',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_pole_end_03.obj'
+   },
+    ColorTexture = models .. '/pole_end_03.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_pole_tex_03 = {
+Identifier = 'Apollo_Interior_pole_tex_03',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_pole_tex_03.obj'
+   },
+    ColorTexture = models .. '/pole_tex_03.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_pole_tex_04 = {
+Identifier = 'Apollo_Interior_pole_tex_04',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_pole_tex_04.obj'
+   },
+    ColorTexture = models .. '/pole_tex_04.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_pole_tex_05 = {
+Identifier = 'Apollo_Interior_pole_tex_05',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_pole_tex_05.obj'
+   },
+    ColorTexture = models .. '/pole_tex_05.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_pole_tex_lower_01 = {
+Identifier = 'Apollo_Interior_pole_tex_lower_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_pole_tex_lower_01.obj'
+   },
+    ColorTexture = models .. '/pole_tex_lower_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_pole_under_seat_paint_01 = {
+Identifier = 'Apollo_Interior_pole_under_seat_paint_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_pole_under_seat_paint_01.obj'
+   },
+    ColorTexture = models .. '/pole_under_seat_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_pole_under_seat_square_bar = {
+Identifier = 'Apollo_Interior_pole_under_seat_square_bar',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_pole_under_seat_square_bar.obj'
+   },
+    ColorTexture = models .. '/pole_under_seat_square_bar_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_push_switches_lft1 = {
+Identifier = 'Apollo_Interior_push_switches_lft1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_push_switches_lft1.obj'
+   },
+    ColorTexture = models .. '/push_switches_lft1Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_random_small_parts_01 = {
+Identifier = 'Apollo_Interior_random_small_parts_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_random_small_parts_01.obj'
+   },
+    ColorTexture = models .. '/random_small_parts_01Shape_tpAmbient_paint_02.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_red = {
+Identifier = 'Apollo_Interior_red',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_red.obj'
+   },
+    ColorTexture = models .. '/red.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+
+-- Apollo_Interior_red.Renderable.LightSources.Intensity = 0.33;
+-- Apollo_Interior_red.Renderable.AmbientIntensity = 0.053530;
+
+local Apollo_Interior_reticle_wheel_tp = {
+Identifier = 'Apollo_Interior_reticle_wheel_tp',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_reticle_wheel_tp.obj'
+   },
+    ColorTexture = models .. '/reticle_wheel_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_rivet_paint_v001 = {
+Identifier = 'Apollo_Interior_rivet_paint_v001',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_rivet_paint_v001.obj'
+   },
+    ColorTexture = models .. '/rivet_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_seats_fabric = {
+Identifier = 'Apollo_Interior_seats_fabric',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_seats_fabric.obj'
+   },
+    ColorTexture = models .. '/seats_fabric_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_seat_left_tp = {
+Identifier = 'Apollo_Interior_seat_left_tp',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_seat_left_tp.obj'
+   },
+    ColorTexture = models .. '/seat_left_tpAmbient_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_seat_lights_left = {
+Identifier = 'Apollo_Interior_seat_lights_left',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_seat_lights_left.obj'
+   },
+    ColorTexture = models .. '/seat_lights_left_Shape_tpAmbient_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_seat_lights_rt = {
+Identifier = 'Apollo_Interior_seat_lights_rt',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_seat_lights_rt.obj'
+   },
+    ColorTexture = models .. '/seat_lights_rt_Shape_tpAmbient_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_seat_middle_tp = {
+Identifier = 'Apollo_Interior_seat_middle_tp',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_seat_middle_tp.obj'
+   },
+    ColorTexture = models .. '/seat_middle_tpAmbient_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_seat_poles_0Shape1 = {
+Identifier = 'Apollo_Interior_seat_poles_0Shape1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_seat_poles_0Shape1.obj'
+   },
+    ColorTexture = models .. '/seat_poles_0Shape1_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_seat_pole_mirror_0Shape1 = {
+Identifier = 'Apollo_Interior_seat_pole_mirror_0Shape1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_seat_pole_mirror_0Shape1.obj'
+   },
+    ColorTexture = models .. '/seat_pole_mirror_0Shape1_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_seat_rt_tp = {
+Identifier = 'Apollo_Interior_seat_rt_tp',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_seat_rt_tp.obj'
+   },
+    ColorTexture = models .. '/seat_rt_tpAmbient_paint_v001.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_sextant_0Shape2 = {
+Identifier = 'Apollo_Interior_sextant_0Shape2',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_sextant_0Shape2.obj'
+   },
+    ColorTexture = models .. '/sextant_0Shape2_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_switch_covers_main_middle1 = {
+Identifier = 'Apollo_Interior_switch_covers_main_middle1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_switch_covers_main_middle1.obj'
+   },
+    ColorTexture = models .. '/switch_covers_main_middle1Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_switch_rails_lft = {
+Identifier = 'Apollo_Interior_switch_rails_lft',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_switch_rails_lft.obj'
+   },
+    ColorTexture = models .. '/switch_rails_lftShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_tunnel_main_cylinder1 = {
+Identifier = 'Apollo_Interior_tunnel_main_cylinder1',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_tunnel_main_cylinder1.obj'
+   },
+    ColorTexture = models .. '/switch_rails_lftShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_tunnel_switches_01 = {
+Identifier = 'Apollo_Interior_tunnel_switches_01',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_tunnel_switches_01.obj'
+   },
+    ColorTexture = models .. '/tunnel_switches_01Shape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_tunnel_wheelsShape = {
+Identifier = 'Apollo_Interior_tunnel_wheelsShape',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_tunnel_wheelsShape.obj'
+   },
+    ColorTexture = models .. '/tunnel_wheelsShape_tpAmbient.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_walls_mid_left = {
+Identifier = 'Apollo_Interior_walls_mid_left',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_walls_mid_left.obj'
+   },
+    ColorTexture = models .. '/walls_mid_leftShape_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+local Apollo_Interior_windows_front_0Shape4 = {
+Identifier = 'Apollo_Interior_windows_front_0Shape4',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_interior_windows_front_0Shape4.obj'
+   },
+    ColorTexture = models .. '/windows_front_0Shape4_tpAmbient_paint_01.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+local Apollo_8_Trail = {
+    Identifier = "Apollo8TrailEarthrise",
+    Parent = "Moon",
+    Renderable = {
+        Type = "RenderableTrailTrajectory",
+        Translation = {
+            Type = "SpiceTranslation",
+            Target = "-908",
+            Observer = "MOON",
+            Frame = "IAU_MOON",            
+            Kernels = LocalKernels
+        },
+        Color = { 0.70, 0.50, 0.20 },
+        StartTime = "1968 DEC 22 04:18:22",
+        EndTime = "1968 DEC 28",
+        SampleInterval = 30
+    },
+    GUI = {
+        Name = "Apollo 8 Trail EarthRise",
+        Path = "/Solar System/Missions/Apollo"
+    }
+}
+
+
+
+local Apollo_8_Trail_Full = {
+    Identifier = "Apollo8TrailFull",
+    Parent = "Moon",
+    Renderable = {
+        Type = "RenderableTrailTrajectory",
+        Translation = {
+            Type = "SpiceTranslation",
+            Target = "-908",
+            Observer = "MOON",
+            Frame = "IAU_MOON",            
+            Kernels = LocalKernels
+        },
+        Color = { 0.70, 0.50, 0.20 },
+        StartTime = "1968 DEC 21",
+        EndTime = "1968 DEC 28",
+        SampleInterval = 30,
+        Enabled = false,
+    },
+    GUI = {
+        Name = "Apollo 8 Trail FULL",
+        Path = "/Solar System/Missions/Apollo"
+    }
+}
+
+
+
+local exportList = {    
+    Apollo8, 
+    Apollo_8,
+    A8Pivot, 
+    -- AP8Cone,
+    -- AP8Service,
+    Apollo_8_Trail,
+    Apollo_8_Trail_Full,
+
+    AP08_cone_command_module,
+    AP08_cone_hatchdoor_handle_scratched_metal,
+    AP08_cone_hatchdoor_interior,
+    AP08_cone_vent_ports_black,
+    AP08_cone_vent_ports_red,
+    AP08_service_black,
+    AP08_service_brown,
+    AP08_service_grey,
+    AP08_service_high_gain_antenna,
+    AP08_service_module,
+    AP08_service_nozzle,
+    AP08_service_pink,
+    AP08_service_red,
+    AP08_service_scratched_metal,    
+    AP08_service_white,    
+
+    -- Apollo_8_Interior_0,
+    -- Apollo_8_Interior_1,
+    -- Apollo_8_Interior_2,
+    -- Apollo_8_Interior_3,
+    -- Apollo_8_Interior_4,
+    -- Apollo_8_Interior_5,
+    -- Apollo_8_Interior_6,
+    -- Apollo_8_Interior_7,
+    -- Apollo_8_Interior_8
+
+
+
+
+
+
+    Apollo_Interior_back_wall_05,
+Apollo_Interior_back_wall_top_0Shape3,
+Apollo_Interior_belt_buckles_02_L2,
+Apollo_Interior_belt_straps_02,
+Apollo_Interior_black_push_buttons,
+Apollo_Interior_bottom_boxes_03,
+Apollo_Interior_bottom_floor_tp,
+Apollo_Interior_box_back_01,
+Apollo_Interior_box_back_02,
+Apollo_Interior_box_back_04,
+Apollo_Interior_box_lft_lower_01,
+Apollo_Interior_box_lft_top,
+Apollo_Interior_box_mid_tp,
+Apollo_Interior_box_rt_top_02,
+Apollo_Interior_brushed_blue_ano,
+Apollo_Interior_brushed_brass,
+Apollo_Interior_brushed_grey_ano,
+Apollo_Interior_canvas_cover,
+Apollo_Interior_Channel_attachment,
+Apollo_Interior_Channel_baseMetal,
+Apollo_Interior_Channel_Material,
+Apollo_Interior_Channel_rsMaterial2,
+Apollo_Interior_cloth_01,
+Apollo_Interior_coiled_hose,
+Apollo_Interior_control_panel_left_win_plates,
+Apollo_Interior_control_panel_rt_win_plates,
+Apollo_Interior_copper_parts_main_cp,
+Apollo_Interior_dials_main2,
+Apollo_Interior_dials_t2,
+Apollo_Interior_dial_fixes_01,
+Apollo_Interior_fire_ex_02,
+Apollo_Interior_floor_panels_3,
+Apollo_Interior_floor_tile_tex_01,
+-- Apollo_Interior_glass,
+Apollo_Interior_grey,
+Apollo_Interior_handholds_cp,
+Apollo_Interior_hatch_release_0Shape5,
+Apollo_Interior_headrests_02,
+Apollo_Interior_hoses_black_01,
+Apollo_Interior_hoses_white_0Shape1,
+Apollo_Interior_josticks1,
+Apollo_Interior_joysticks_fabric1,
+Apollo_Interior_joystick_poles_lft_05,
+Apollo_Interior_joystick_poles_lft_long_05,
+Apollo_Interior_joystick_poles_rt_05,
+Apollo_Interior_latch_mechanisms_01,
+Apollo_Interior_lower_push_buttons,
+Apollo_Interior_lower_walls_back,
+Apollo_Interior_lower_walls_boxes_head,
+Apollo_Interior_main_cp_left_smth_03,
+Apollo_Interior_main_cp_mid_smth_02,
+Apollo_Interior_main_cp_rt_smth,
+Apollo_Interior_main_cp_wheels,
+Apollo_Interior_metal_brackets_under_hatch,
+Apollo_Interior_metal_tunnel_parts,
+Apollo_Interior_metal_window_parts,
+Apollo_Interior_middle_walls_05,
+Apollo_Interior_middle_walls_0Shape8,
+Apollo_Interior_mid_tunnel_parts,
+Apollo_Interior_new_switch_rails1,
+Apollo_Interior_nozzles_02,
+Apollo_Interior_outlet_fabric3,
+Apollo_Interior_pole_end_02,
+Apollo_Interior_pole_end_03,
+Apollo_Interior_pole_tex_03,
+Apollo_Interior_pole_tex_04,
+Apollo_Interior_pole_tex_05,
+Apollo_Interior_pole_tex_lower_01,
+Apollo_Interior_pole_under_seat_paint_01,
+Apollo_Interior_pole_under_seat_square_bar,
+Apollo_Interior_push_switches_lft1,
+Apollo_Interior_random_small_parts_01,
+Apollo_Interior_red,
+Apollo_Interior_reticle_wheel_tp,
+Apollo_Interior_rivet_paint_v001,
+Apollo_Interior_seats_fabric,
+Apollo_Interior_seat_left_tp,
+Apollo_Interior_seat_lights_left,
+Apollo_Interior_seat_lights_rt,
+Apollo_Interior_seat_middle_tp,
+Apollo_Interior_seat_poles_0Shape1,
+Apollo_Interior_seat_pole_mirror_0Shape1,
+Apollo_Interior_seat_rt_tp,
+Apollo_Interior_sextant_0Shape2,
+Apollo_Interior_switch_covers_main_middle1,
+Apollo_Interior_switch_rails_lft,
+Apollo_Interior_tunnel_main_cylinder1,
+Apollo_Interior_tunnel_switches_01,
+Apollo_Interior_tunnel_wheelsShape,
+Apollo_Interior_walls_mid_left,
+Apollo_Interior_windows_front_0Shape4
+
+
+
+
+}
+
+for _, node in pairs(exportList) do
+    node.TimeFrame = { -- Using Spice kernels for 1850-2150
+        Type = "TimeFrameInterval",
+        Start = "1968 DEC 22 04:18:22",
+        End = "1968 DEC 28"
+    }
+end
+
+Apollo_8_Trail.TimeFrame = nil;
+Apollo_8_Trail_Full.TimeFrame = nil;
+
+
+assetHelper.registerSceneGraphNodesAndExport(asset, exportList)

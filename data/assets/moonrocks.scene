@@ -1,0 +1,157 @@
+--moonrocks.scene
+local assetHelper = asset.require('util/asset_helper')
+local sceneHelper = asset.require('util/scene_helper')
+local propertyHelper = asset.require('util/property_helper')
+
+-- Specifying which other assets should be loaded in this scene
+asset.require('spice/base')
+asset.require('scene/solarsystem/planets/earth/atmosphere')
+asset.require('scene/solarsystem/planets/mars/atmosphere')
+
+assetHelper.requestAll(asset, 'scene/solarsystem/sun')
+assetHelper.requestAll(asset, 'scene/digitaluniverse')
+
+-- Load default key bindings applicable to most scenes
+asset.require('util/default_keybindings')
+asset.require('util/default_dashboard')
+asset.require('util/default_joystick')
+
+asset.request('customization/globebrowsing')
+asset.require('util/webgui')
+
+
+local earthAsset = asset.require('scene/solarsystem/planets/earth/earth')
+local moonAsset = asset.require('scene/solarsystem/planets/earth/moon/moon')
+
+local station6 = asset.require('scene/solarsystem/missions/apollo/bouldersstation6')
+local station7 = asset.require('scene/solarsystem/missions/apollo/bouldersstation7')
+
+local Keybindings = {
+    {
+        Key = "H",
+        Command =   "openspace.setPropertyValueSingle('Scene.EarthTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.EarthTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.JupiterTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.DeimosTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.MarsTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.PhobosTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.MercuryTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.NeptuneTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.TritonTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.SaturnTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.UranusTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.MoonTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.StyxTrail.Renderable.Enabled', false);" ..
+                    "openspace.setPropertyValueSingle('Scene.PlutoBarycenterTrail.Renderable.Enabled', false); " ..
+                    "openspace.setPropertyValueSingle('Scene.PlutoBarycentricTrail.Renderable.Enabled', false); " ..
+                    "openspace.setPropertyValueSingle('Scene.CharonBarycentricTrail.Renderable.Enabled', false); "..
+                    "openspace.setPropertyValueSingle('Scene.NixTrail.Renderable.Enabled', false); "..
+                    "openspace.setPropertyValueSingle('Scene.KerberosTrail.Renderable.Enabled', false); "..
+                    "openspace.setPropertyValueSingle('Scene.HydraTrail.Renderable.Enabled', false); "..
+                    "openspace.setPropertyValueSingle('Scene.CharonBarycentricTrail.Renderable.Enabled', false); "..
+                    "openspace.setPropertyValueSingle('Scene.VenusTrail.Renderable.Enabled', false);",
+        Documentation = "Hide all trails",
+        Local = false
+    },
+    {
+        Key = "J",
+        Command =   "openspace.setPropertyValueSingle('Scene.EarthTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.EarthTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.JupiterTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.DeimosTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.MarsTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.PhobosTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.MercuryTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.NeptuneTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.TritonTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.SaturnTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.UranusTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.MoonTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.StyxTrail.Renderable.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.PlutoBarycenterTrail.Renderable.Enabled', true); " ..
+                    "openspace.setPropertyValueSingle('Scene.PlutoBarycentricTrail.Renderable.Enabled', true); " ..
+                    "openspace.setPropertyValueSingle('Scene.CharonBarycentricTrail.Renderable.Enabled', true); "..
+                    "openspace.setPropertyValueSingle('Scene.NixTrail.Renderable.Enabled', true); "..
+                    "openspace.setPropertyValueSingle('Scene.KerberosTrail.Renderable.Enabled', true); "..
+                    "openspace.setPropertyValueSingle('Scene.HydraTrail.Renderable.Enabled', true); "..
+                    "openspace.setPropertyValueSingle('Scene.CharonBarycentricTrail.Renderable.Enabled', true); "..
+                    "openspace.setPropertyValueSingle('Scene.VenusTrail.Renderable.Enabled', true);",
+        Documentation = "Show all trails",
+        Local = false
+    }
+}
+
+
+asset.onInitialize(function ()
+    local now = openspace.time.currentWallTime()
+    -- Jump back one day to show a complete planet
+    openspace.time.setTime("1972 DEC 12 19:47:11")
+    sceneHelper.bindKeys(Keybindings)
+    openspace.setDefaultGuiSorting()
+
+    openspace.globebrowsing.loadWMSServersFromFile(
+        openspace.absPath("${DATA}/globebrowsing_servers.lua")
+    )
+
+    openspace.markInterestingNodes({
+        "Moon",
+    })
+
+    openspace.addVirtualProperty(
+        "BoolProperty",
+        "Show Trails",
+        "Scene.*Trail.renderable.Enabled",
+        "Disable or enable all trails of the scene at the same time",
+        true,
+        nil,
+        nil
+    )
+
+    openspace.navigation.setCameraState({
+        Anchor = moonAsset.Moon.Identifier,
+        Position = { 0, 0, 0 },
+        Rotation = { 0.758797, 0.221490, -0.605693, -0.091135 },
+    })
+
+    openspace.globebrowsing.goToGeo(20.46, 76.89, 10000000)
+    -- openspace.setPropertyValue('NavigationHandler.Origin', 'Moon'); 
+
+
+    -- local lat = 20.29
+    -- local long = 30.80
+    -- local alt = -2550.0
+
+-- openspace.setPropertyValueSingle('Scene.Station6Frag1Model.Renderable.RotationVector', {233.279999,129.600006,286.299194});
+-- openspace.setPropertyValueSingle('Scene.A17S6F2.Renderable.RotationVector', {0.000000,218.879990,308.976379});
+-- openspace.setPropertyValueSingle('Scene.Station6Frag1Model.Renderable.PerformShading', false);
+
+--openspace.setPropertyValueSingle("Scene.Boulder01.Renderable.RotationVec", {3.480000,1.430000,-1.840000})
+--openspace.setPropertyValueSingle("Scene.Boulder01.Renderable.ModelTransform", {-0.037323,-0.135277,-0.990105,0.000000,-0.821888,0.567741,-0.046588,0.000000,0.568425,0.812016,-0.132373,0.000000,0.000000,0.000000,0.000000,1.000000})
+--openspace.setPropertyValueSingle("NavigationHandler.Origin", 'Boulder01')
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_travmap.BlendMode", 0.000000)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_travmap.Enabled", true)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.HeightLayers.LRO_NAC_Apollo_17.Enabled", true)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station6a.Enabled", true)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station6a.BlendMode", 0.000000)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station2.Enabled", true)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station2.BlendMode", 0.000000)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station7.Enabled", true)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station7.BlendMode", 0.000000)
+    -- --getting the position for the boulder and setting it
+    -- local x, y, z = openspace.globebrowsing.getGeoPosition(moonAsset.Moon.Identifier, lat, long, alt)
+    -- openspace.setPropertyValueSingle("Scene.Boulder01.Translation.Position", { x, y, z })
+-- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.MinimumAllowedDistance", 0.050000)
+-- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Aim", '')
+-- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Anchor", 'Station_6_Fragment1')
+-- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.RetargetAnchor", nil)
+openspace.setPropertyValueSingle("Scene.Moon.Renderable.PerformShading", false)
+end)
+
+asset.onDeinitialize(function ()
+
+    openspace.removeVirtualProperty("*Trail.renderable.Enabled")
+
+    openspace.removeInterestingNodes({
+        "Moon",
+    })
+end)
