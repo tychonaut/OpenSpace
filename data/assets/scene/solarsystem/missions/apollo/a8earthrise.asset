@@ -696,16 +696,35 @@ local Apollo_8_Interior_9 = {
 
 
 --apollo
-local Apollo_Interior_back_wall_05 = {
-Identifier = 'Apollo_Interior_back_wall_05',
+-- local Apollo_Interior_back_wall_05 = {
+-- Identifier = 'Apollo_Interior_back_wall_05',
+-- Parent = Apollo_8.Identifier,
+-- Renderable = {
+--    Type = 'RenderableModel',
+--     Geometry = {
+--        Type = 'MultiModelGeometry',
+--        GeometryFile = models .. '/AP11_interior_back_wall_06.obj'
+--    },
+--     ColorTexture = models .. '/back_wall_05Shape_tpAmbient_paint_02_u2_v1.png',
+--     LightSources = LightSources,
+--     PerformShading = false,      
+--     DisableFaceCulling = true   
+-- },
+-- GUI = {
+--     Hidden = true,
+--   }
+-- }
+
+local Apollo_Interior_back_wall_l = {
+Identifier = 'Apollo_Interior_back_wall_l',
 Parent = Apollo_8.Identifier,
 Renderable = {
    Type = 'RenderableModel',
     Geometry = {
        Type = 'MultiModelGeometry',
-       GeometryFile = models .. '/AP11_interior_back_wall_06.obj'
+       GeometryFile = models .. '/AP11_int_back_wall_left.obj'
    },
-    ColorTexture = models .. '/back_wall_05Shape_tpAmbient_paint_02_u2_v1.png',
+    ColorTexture = models .. '/AP11_int_back_wall_left.png',
     LightSources = LightSources,
     PerformShading = false,      
     DisableFaceCulling = true   
@@ -714,6 +733,30 @@ GUI = {
     Hidden = true,
   }
 }
+
+
+
+local Apollo_Interior_back_wall_r = {
+Identifier = 'Apollo_Interior_back_wall_r',
+Parent = Apollo_8.Identifier,
+Renderable = {
+   Type = 'RenderableModel',
+    Geometry = {
+       Type = 'MultiModelGeometry',
+       GeometryFile = models .. '/AP11_int_back_wall_right.obj'
+   },
+    ColorTexture = models .. '/AP11_int_back_wall_right.png',
+    LightSources = LightSources,
+    PerformShading = false,      
+    DisableFaceCulling = true   
+},
+GUI = {
+    Hidden = true,
+  }
+}
+
+
+
 local Apollo_Interior_back_wall_top_0Shape3 = {
 Identifier = 'Apollo_Interior_back_wall_top_0Shape3',
 Parent = Apollo_8.Identifier,
@@ -2457,7 +2500,9 @@ local exportList = {
 
 
 
-    Apollo_Interior_back_wall_05,
+    -- Apollo_Interior_back_wall_05,
+    Apollo_Interior_back_wall_l,
+    Apollo_Interior_back_wall_r,
 Apollo_Interior_back_wall_top_0Shape3,
 Apollo_Interior_belt_buckles_02_L2,
 Apollo_Interior_belt_straps_02,

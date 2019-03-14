@@ -1,0 +1,52 @@
+--apollo_11_lem_flipbook.asset
+local helper = asset.require('util/vrt_flipbook_helper')
+
+local assetPrefix = "A11flip";
+local flipbookCount = 19;
+
+local flipbook = nil;
+
+local vrts = asset.syncedResource({
+    Name = "Apollo 11 Flipbook",
+    Type = "HttpSynchronization",
+    Identifier = "apollo_11_flipbook",
+    Version = 1
+})
+
+openspace.printDebug("set up assetfor vrts:" .. vrts);
+
+
+asset.onInitialize(function ()
+
+	openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Enabled", true)
+	openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.HeightLayers.LRO_NAC_Apollo_11.Enabled", true)
+
+	openspace.globebrowsing.goToGeo(0.6782993, 23.4664611, 5000)
+
+	openspace.globebrowsing.addBlendingLayersFromDirectory(vrts, "Moon");
+
+	flipbook = helper.CreateFlipbook(assetPrefix, 19);
+
+	function nextFlip() 
+		openspace.printDebug("Goto next flip" .. flipbook.CurrentFlipIndex)
+        helper.nextFlipbookPage(flipbook);
+	end
+
+	function previousFlip() 
+        helper.previousFlipbookPage(flipbook);
+	end
+
+    openspace.bindKey("RIGHT", "nextFlip()")
+    openspace.bindKey("LEFT", "previousFlip()")
+
+end)
+
+
+asset.onDeinitialize(function ()
+
+	flipbook = nil;
+
+    openspace.clearKey("RIGHT", "nextFlip()")
+    openspace.clearKey("LEFT", "previousFlip()")
+
+end)

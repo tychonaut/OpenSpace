@@ -1,0 +1,40 @@
+--vrt_slideshow_helper.asset
+local createFlipbook = function (assetPrefix, count)
+    return {
+        AssetPrefix = assetPrefix,
+        TotalCount = count,
+        CurrentFlipIndex = -1,
+    }
+end
+
+local nextFlipbookPage = function (flipbook)
+
+	if (flipbook.CurrentFlipIndex > 0) then
+		local assetSring = flipbook.AssetPrefix + flipbook.CurrentFlipIndex; 
+		openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.".. assetSring .. ".Enabled", false)
+	end
+
+	if (flipbook.CurrentFlipIndex < flipbook.TotalCount - 1) then
+		flipbook.CurrentFlipIndex = flipbook.CurrentFlipIndex + 1;
+		local assetSring = flipbook.AssetPrefix + flipbook.CurrentFlipIndex; 
+		openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.".. assetSring .. ".Enabled", true)
+	else 
+		--at end, should we hide final slide or show log message or fail silently?
+	end
+end
+
+local previousFlipbookPage = function (flipbook)
+	if (flipbook.CurrentFlipIndex == 0 ) then
+		--at begining, should we hide current slide, log  or fail slienelty? rn fail silent
+	else
+		local assetSring = flipbook.AssetPrefix + flipbook.CurrentFlipIndex; 
+		openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.".. assetSring .. ".Enabled", false)
+		flipbook.CurrentFlipIndex = flipbook.CurrentFlipIndex - 1;
+		assetSring = flipbook.AssetPrefix + flipbook.CurrentFlipIndex; 
+		openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.".. assetSring .. ".Enabled", true)
+	end
+end
+
+asset.export('nextFlipbookPage', nextFlipbookPage)
+asset.export('previousFlipbookPage', previousFlipbookPage)
+asset.export('createFlipbook', createFlipbook)
