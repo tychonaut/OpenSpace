@@ -494,6 +494,9 @@ void RenderEngine::render(const glm::mat4& sceneMatrix, const glm::mat4& viewMat
     LTRACE("RenderEngine::render(begin)");
     const WindowDelegate& delegate = global::windowDelegate;
     if (_camera) {
+
+        _camera->invalidateCache();
+
         if (_disableSceneTranslationOnMaster && delegate.isMaster()) {
             _camera->sgctInternal.setViewMatrix(viewMatrix);
         }
