@@ -1,7 +1,7 @@
 local assetHelper = asset.require('util/asset_helper')
 local sunTransforms = asset.require('scene/solarsystem/sun/transforms')
 asset.require('spice/base')
---1968 DEC 21 12:51:51
+
 local models = asset.syncedResource({
     Name = "Apollo Models",
     Type = "HttpSynchronization",
@@ -40,28 +40,36 @@ local LightSources = {
     -- }
 }
 
+-- 1968 DEC 24 16:37:19.0
+
 
 local Apollo8 = {
-    Identifier = "Apollo8_Launch",
-    Parent = "Earth",
+    Identifier = "Apollo8_Earthrise",
+    Parent = "Moon",
     Transform = {
         Translation = {
             Type = "SpiceTranslation",
             Target = "-908",
-            Observer = "EARTH",
-            Frame = "IAU_EARTH",            
+            Observer = "MOON",
+            Frame = "IAU_MOON",
             Kernels = LocalKernels
+        },
+        Rotation = {
+            Type = "SpiceRotation",
+            SourceFrame = "A8_EARTHRISE",
+            DestinationFrame = "GALACTIC"
         },
     },
     GUI = {
-        Name = "Apollo 8 Launch",
+        Name = "Apollo 8 EarthRise",
         Path = "/Solar System/Missions/Apollo/Apollo 8"
     }
 }
 
 
+
 local Apollo_8 = {
-    Identifier = "Apollo_8ModelLaunch",
+    Identifier = "Apollo_8ModelEarthRise",
     Parent = Apollo8.Identifier,
     Transform = {
         Scale = {
@@ -72,14 +80,82 @@ local Apollo_8 = {
     },
     GUI = {
         Hidden = true,
-        Name = "Apollo 8 Model Launch",
+        Name = "Apollo 8 Model",
         Path = "/Solar System/Missions/Apollo/Apollo 8"
     }
 }
 
 
+local PivotOffset = {   -6.9, -4.6,  8.7  }
+local PivotOffset = {0, 0, 0}
+
+local A8Pivot = {
+    Identifier = "A8Pivot",
+    Parent = Apollo_8.Identifier,
+    Transform = {
+        Translation = {
+            Type = "StaticTranslation",
+            Position = PivotOffset
+        },
+        Rotation = {
+            Type = "SpiceRotation",
+            SourceFrame = "GALACTIC",
+            DestinationFrame = "A8_EARTHRISE"
+        },
+
+    },
+    GUI = {
+        Hidden = false,
+        Name = "Apollo 8 Pivot",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+-- local AP8Cone = {
+--     Identifier = "AP8Cone",
+--     Parent = Apollo_8.Identifier,
+--     Renderable = {
+--         Type = "RenderableModel",
+--         Geometry = {
+--             Type = "MultiModelGeometry",
+--             GeometryFile = models .. "/AP8_cone.obj"
+--         },
+--         ColorTexture = models .. "/gray.png",
+--         LightSources = LightSources,
+--         PerformShading = true,
+--         DisableFaceCulling = true 
+--     },
+--     GUI = {
+--         Hidden = false,
+--         Name = "Apollo 8 AP8Cone",
+--         Path = "/Solar System/Missions/Apollo/Apollo 8"
+--     }
+-- }
+
+-- local AP8Service = {
+--     Identifier = "AP8Service",
+--     Parent = Apollo_8.Identifier,
+--     Renderable = {
+--         Type = "RenderableModel",
+--         Geometry = {
+--             Type = "MultiModelGeometry",
+--             GeometryFile = models .. "/AP8_service.obj"
+--         },
+--         ColorTexture = models .. "/gray.png",
+--         LightSources = LightSources,
+--         PerformShading = true,
+--         DisableFaceCulling = true 
+--     },
+--     GUI = {
+--         Hidden = false,
+--         Name = "Apollo 8 AP8Service",
+--         Path = "/Solar System/Missions/Apollo/Apollo 8"
+--     }
+-- }
+
+
 local AP08_cone_command_module = {
-    Identifier = "AP08_cone_command_moduleL",
+    Identifier = "AP08_cone_command_module",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -105,7 +181,7 @@ local AP08_cone_command_module = {
 }
 
 local AP08_cone_hatchdoor_handle_scratched_metal = {
-    Identifier = "AP08_cone_hatchdoor_handle_scratched_metalL",
+    Identifier = "AP08_cone_hatchdoor_handle_scratched_metal",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -126,7 +202,7 @@ local AP08_cone_hatchdoor_handle_scratched_metal = {
 }
 
 local AP08_cone_hatchdoor_interior = {
-    Identifier = "AP08_cone_hatchdoor_interiorL",
+    Identifier = "AP08_cone_hatchdoor_interior",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -152,7 +228,7 @@ local AP08_cone_hatchdoor_interior = {
 }
 
 local AP08_cone_vent_ports_black = {
-    Identifier = "AP08_cone_vent_ports_blackL",
+    Identifier = "AP08_cone_vent_ports_black",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -174,7 +250,7 @@ local AP08_cone_vent_ports_black = {
 
 
 local AP08_cone_vent_ports_red = {
-    Identifier = "AP08_cone_vent_ports_redL",
+    Identifier = "AP08_cone_vent_ports_red",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -196,7 +272,7 @@ local AP08_cone_vent_ports_red = {
 
 
 local AP08_service_black = {
-    Identifier = "AP08_service_blackL",
+    Identifier = "AP08_service_black",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -217,7 +293,7 @@ local AP08_service_black = {
 }
 
 local AP08_service_brown = {
-    Identifier = "AP08_service_brownL",
+    Identifier = "AP08_service_brown",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -238,7 +314,7 @@ local AP08_service_brown = {
 }
 
 local AP08_service_grey = {
-    Identifier = "AP08_service_greyL",
+    Identifier = "AP08_service_grey",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -259,7 +335,7 @@ local AP08_service_grey = {
 }
 
 local AP08_service_high_gain_antenna = {
-    Identifier = "AP08_service_high_gain_antennaL",
+    Identifier = "AP08_service_high_gain_antenna",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -280,7 +356,7 @@ local AP08_service_high_gain_antenna = {
 }
 
 local AP08_service_module = {
-    Identifier = "AP08_service_moduleL",
+    Identifier = "AP08_service_module",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -301,7 +377,7 @@ local AP08_service_module = {
 }
 
 local AP08_service_nozzle = {
-    Identifier = "AP08_service_nozzleL",
+    Identifier = "AP08_service_nozzle",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -322,7 +398,7 @@ local AP08_service_nozzle = {
 }
 
 local AP08_service_pink = {
-    Identifier = "AP08_service_pinkL",
+    Identifier = "AP08_service_pink",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -343,7 +419,7 @@ local AP08_service_pink = {
 }
 
 local AP08_service_red = {
-    Identifier = "AP08_service_redL",
+    Identifier = "AP08_service_red",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -364,7 +440,7 @@ local AP08_service_red = {
 }
 
 local AP08_service_scratched_metal = {
-    Identifier = "AP08_service_scratched_metalL",
+    Identifier = "AP08_service_scratched_metal",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -385,7 +461,7 @@ local AP08_service_scratched_metal = {
 }
 
 local AP08_service_white = {
-    Identifier = "AP08_service_whiteL",
+    Identifier = "AP08_service_white",
     Parent = Apollo_8.Identifier,
     Renderable = {
         Type = "RenderableModel",
@@ -405,33 +481,270 @@ local AP08_service_white = {
     }
 }
 
+
+local Apollo_8_Interior_0 = {
+    Identifier = "Apollo_8_Interior_0",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_01.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule01.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 0",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_1 = {
+    Identifier = "Apollo_8_Interior_1",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_02.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule02.jpg",
+        LightSources = LightSources,
+        PerformShading = false,   
+        DisableFaceCulling = true      
+        --ModelTransform = RotationMatrix
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 1",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_2 = {
+    Identifier = "Apollo_8_Interior_2",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_03.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule03.jpg",
+        LightSources = LightSources,
+        PerformShading = false, 
+        DisableFaceCulling = true        
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 2",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_3 = {
+    Identifier = "Apollo_8_Interior_3",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_04.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule04.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 3",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_4 = {
+    Identifier = "Apollo_8_Interior_4",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_05.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule05.jpg",
+        LightSources = LightSources,
+        PerformShading = false,      
+        DisableFaceCulling = true   
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 4",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_5 = {
+    Identifier = "Apollo_8_Interior_5",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_06.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule06.jpg",
+        LightSources = LightSources,
+        PerformShading = false,   
+        DisableFaceCulling = true      
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 5",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_6 = {
+    Identifier = "Apollo_8_Interior_6",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_07.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule07.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 6",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_7 = {
+    Identifier = "Apollo_8_Interior_7",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_08.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule08.jpg",
+        LightSources = LightSources,
+        PerformShading = false,  
+        DisableFaceCulling = true       
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 7",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_8 = {
+    Identifier = "Apollo_8_Interior_8",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_09.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule09.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 8",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+local Apollo_8_Interior_9 = {
+    Identifier = "Apollo_8_Interior_9",
+    Parent = Apollo_8.Identifier,
+    Renderable = {
+        Type = "RenderableModel",
+        Geometry = {
+            Type = "MultiModelGeometry",
+            GeometryFile = models .. "/AP08_interior_10.obj"
+        },
+        ColorTexture = models .. "/apollo11commandmodule10.jpg",
+        LightSources = LightSources,
+        PerformShading = false,    
+        DisableFaceCulling = true     
+    },
+    GUI = {
+        Hidden = true,
+        Name = "Apollo 8 Interior 9",
+        Path = "/Solar System/Missions/Apollo/Apollo 8"
+    }
+}
+
+
+
 local Apollo_8_Trail = {
-    Identifier = "Apollo8TrailLaunch",
-    Parent = "Earth",
+    Identifier = "Apollo8TrailEarthrise",
+    Parent = "Moon",
     Renderable = {
         Type = "RenderableTrailTrajectory",
         Translation = {
             Type = "SpiceTranslation",
             Target = "-908",
-            Observer = "EARTH",
-            Frame = "IAU_EARTH",            
+            Observer = "MOON",
+            Frame = "IAU_MOON",            
             Kernels = LocalKernels
         },
         Color = { 0.70, 0.50, 0.20 },
-        StartTime = "1968 DEC 21 12:51:00",
-        EndTime = "1968 DEC 21 23:23:22",
+        StartTime = "1968 DEC 22 04:18:22",
+        EndTime = "1968 DEC 28",
         SampleInterval = 30
     },
     GUI = {
-        Name = "Apollo 8 Trail Launch",
+        Name = "Apollo 8 Trail EarthRise",
         Path = "/Solar System/Missions/Apollo"
     }
 }
 
 
-local exportList = {    Apollo8, 
-    Apollo_8, 
+
+local Apollo_8_Trail_Full = {
+    Identifier = "Apollo8TrailFull",
+    Parent = "Moon",
+    Renderable = {
+        Type = "RenderableTrailTrajectory",
+        Translation = {
+            Type = "SpiceTranslation",
+            Target = "-908",
+            Observer = "MOON",
+            Frame = "IAU_MOON",            
+            Kernels = LocalKernels
+        },
+        Color = { 0.70, 0.50, 0.20 },
+        StartTime = "1968 DEC 21",
+        EndTime = "1968 DEC 28",
+        SampleInterval = 30,
+        Enabled = false,
+    },
+    GUI = {
+        Name = "Apollo 8 Trail FULL",
+        Path = "/Solar System/Missions/Apollo"
+    }
+}
+
+
+
+local exportList = {    
+    Apollo8, 
+    Apollo_8,
+    A8Pivot, 
+    -- AP8Cone,
+    -- AP8Service,
     Apollo_8_Trail,
+    Apollo_8_Trail_Full,
 
     AP08_cone_command_module,
     AP08_cone_hatchdoor_handle_scratched_metal,
@@ -449,18 +762,28 @@ local exportList = {    Apollo8,
     AP08_service_scratched_metal,    
     AP08_service_white,    
 
-}
+    Apollo_8_Interior_0,
+    Apollo_8_Interior_1,
+    Apollo_8_Interior_2,
+    Apollo_8_Interior_3,
+    Apollo_8_Interior_4,
+    Apollo_8_Interior_5,
+    Apollo_8_Interior_6,
+    Apollo_8_Interior_7,
+    Apollo_8_Interior_8
 
+}
 
 for _, node in pairs(exportList) do
     node.TimeFrame = { -- Using Spice kernels for 1850-2150
         Type = "TimeFrameInterval",
-        Start = "1968 DEC 21",
-        End = "1968 DEC 23 19:18:22 "
+        Start = "1968 DEC 22 04:18:22",
+        End = "1968 DEC 28"
     }
 end
 
 Apollo_8_Trail.TimeFrame = nil;
+Apollo_8_Trail_Full.TimeFrame = nil;
 
 
 assetHelper.registerSceneGraphNodesAndExport(asset, exportList)

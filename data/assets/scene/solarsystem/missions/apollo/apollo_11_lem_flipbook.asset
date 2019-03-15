@@ -2,6 +2,7 @@
 local helper = asset.require('util/vrt_flipbook_helper')
 
 local assetPrefix = "A11flip";
+local assetGlobe = "Moon";
 local flipbookCount = 19;
 
 local flipbook = nil;
@@ -18,14 +19,16 @@ openspace.printDebug("set up assetfor vrts:" .. vrts);
 
 asset.onInitialize(function ()
 
-	openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Enabled", true)
-	openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.HeightLayers.LRO_NAC_Apollo_11.Enabled", true)
+--	openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Enabled", true)
+--	openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.HeightLayers.LRO_NAC_Apollo_11.Enabled", true)
+-- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Aim", '')
+-- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Anchor", 'Moon')
+-- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.RetargetAnchor", nil)
+-- openspace.globebrowsing.goToGeo(0.6782993, 23.4664611, 2000)
 
-	openspace.globebrowsing.goToGeo(0.6782993, 23.4664611, 5000)
+	openspace.globebrowsing.addBlendingLayersFromDirectory(vrts, assetGlobe);
 
-	openspace.globebrowsing.addBlendingLayersFromDirectory(vrts, "Moon");
-
-	flipbook = helper.CreateFlipbook(assetPrefix, 19);
+	flipbook = helper.createFlipbook(assetPrefix, assetGlobe, 19);
 
 	function nextFlip() 
 		openspace.printDebug("Goto next flip" .. flipbook.CurrentFlipIndex)
@@ -46,7 +49,7 @@ asset.onDeinitialize(function ()
 
 	flipbook = nil;
 
-    openspace.clearKey("RIGHT", "nextFlip()")
-    openspace.clearKey("LEFT", "previousFlip()")
+    openspace.clearKey("RIGHT")
+    openspace.clearKey("LEFT")
 
 end)
