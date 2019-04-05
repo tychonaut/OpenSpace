@@ -2,7 +2,7 @@
  *                                                                                       *
  * OpenSpace                                                                             *
  *                                                                                       *
- * Copyright (c) 2014-2018                                                               *
+ * Copyright (c) 2014-2019                                                               *
  *                                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this  *
  * software and associated documentation files (the "Software"), to deal in the Software *
@@ -581,6 +581,9 @@ void OrbitalNavigator::setAimNode(const std::string& aimNode) {
 }
 
 void OrbitalNavigator::startRetargetAnchor() {
+    if (!_anchorNode) {
+        return;
+    }
     const glm::dvec3 camPos = _camera->positionVec3();
     const glm::dvec3 camDir = _camera->viewDirectionWorldSpace();
 
@@ -600,6 +603,10 @@ void OrbitalNavigator::startRetargetAnchor() {
 }
 
 void OrbitalNavigator::startRetargetAim() {
+    if (!_aimNode) {
+        return;
+    }
+
     const glm::dvec3 camPos = _camera->positionVec3();
     const glm::dvec3 camDir = _camera->viewDirectionWorldSpace();
     const glm::dvec3 centerPos = _aimNode->worldPosition();
