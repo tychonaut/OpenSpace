@@ -5,10 +5,12 @@ local propertyHelper = asset.require('util/property_helper')
 
 -- Specifying which other assets should be loaded in this scene
 asset.require('spice/base')
-asset.require('scene/solarsystem/planets/earth/atmosphere')
-asset.require('scene/solarsystem/planets/mars/atmosphere')
 
 assetHelper.requestAll(asset, 'scene/solarsystem/sun')
+asset.require('scene/solarsystem/planets')
+asset.require('scene/solarsystem/planets/mars/moons/phobos')
+asset.require('scene/solarsystem/planets/mars/moons/deimos')
+asset.require('scene/solarsystem/dwarf_planets/pluto/system')
 assetHelper.requestAll(asset, 'scene/digitaluniverse')
 
 -- Load default key bindings applicable to most scenes
@@ -26,6 +28,7 @@ local moonAsset = asset.require('scene/solarsystem/planets/earth/moon/moon')
 local station2 = asset.require('scene/solarsystem/missions/apollo/bouldersstation2')
 local station6 = asset.require('scene/solarsystem/missions/apollo/bouldersstation6')
 local station7 = asset.require('scene/solarsystem/missions/apollo/bouldersstation7')
+local lem = asset.require('scene/solarsystem/missions/apollo/apollo_lem')
 local flipbook = asset.require('scene/solarsystem/missions/apollo/apollo_11_lem_flipbook')
 
 local Keybindings = {
@@ -80,7 +83,51 @@ local Keybindings = {
                     "openspace.setPropertyValueSingle('Scene.VenusTrail.Renderable.Enabled', true);",
         Documentation = "Show all trails",
         Local = false
-    }
+    },
+    {
+        Key = "m",
+        Command =   "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Moon'); " ..
+                    "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.RetargetAnchor', nil);",
+        Documentation = "Focus on Moon",
+        Name = "Focus on Moon",
+        GuiPath = "/Missions/Apollo",
+        Local = false
+    },
+    {
+        Key = "F11",
+        Command =   "openspace.time.setTime('1969 JUL 20 20:17:40');" .. 
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.HeightLayers.LRO_NAC_Apollo_11.Enabled', true);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.LRO_Apollo_11_alt_p.Enabled', true);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.LodScaleFactor', 20.11);" ..
+                    "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Apollo11Lem');"..
+                    "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.RetargetAnchor', nil);",
+        Documentation = "Setup for A11 site",
+        Name = "Setup A11 layers",
+        GuiPath = "/Missions/Apollo/11",
+        Local = false
+    },
+    {
+        Key = "F7",
+        Command =   "openspace.time.setTime('1972 DEC 12 19:47:11');" .. 
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_travmap.BlendMode', 0.000000);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_travmap.Enabled', true);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.HeightLayers.LRO_NAC_Apollo_17.Enabled', true);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_station6a.Enabled', true);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_station6a.BlendMode', 0.000000);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_station2.Enabled', true);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_station2.BlendMode', 0.000000);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_station7.Enabled', true);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_LEM.Enabled', true);" ..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_LEM.BlendMode', 0.000000);" ..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.LodScaleFactor', 20.17);" ..
+                    "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Apollo17Lem'); "..
+                    "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.RetargetAnchor', nil);" ..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_station7.BlendMode', 0.000000);",
+        Documentation = "Setup for A17 site",
+        Name = "Setup A17 layers",
+        GuiPath = "/Missions/Apollo/17",
+        Local = false
+    },
 }
 
 
@@ -130,15 +177,9 @@ asset.onInitialize(function ()
 --openspace.setPropertyValueSingle("Scene.Boulder01.Renderable.RotationVec", {3.480000,1.430000,-1.840000})
 --openspace.setPropertyValueSingle("Scene.Boulder01.Renderable.ModelTransform", {-0.037323,-0.135277,-0.990105,0.000000,-0.821888,0.567741,-0.046588,0.000000,0.568425,0.812016,-0.132373,0.000000,0.000000,0.000000,0.000000,1.000000})
 --openspace.setPropertyValueSingle("NavigationHandler.Origin", 'Boulder01')
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_travmap.BlendMode", 0.000000)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_travmap.Enabled", true)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.HeightLayers.LRO_NAC_Apollo_17.Enabled", true)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station6a.Enabled", true)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station6a.BlendMode", 0.000000)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station2.Enabled", true)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station2.BlendMode", 0.000000)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station7.Enabled", true)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_station7.BlendMode", 0.000000)
+
+
+
     -- --getting the position for the boulder and setting it
     -- local x, y, z = openspace.globebrowsing.getGeoPosition(moonAsset.Moon.Identifier, lat, long, alt)
     -- openspace.setPropertyValueSingle("Scene.Boulder01.Translation.Position", { x, y, z })
@@ -146,7 +187,7 @@ openspace.setPropertyValueSingle("Scene.Moon.Renderable.Layers.ColorLayers.A17_s
 -- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Aim", '')
 -- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Anchor", 'Station_6_Fragment1')
 -- openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.RetargetAnchor", nil)
-openspace.setPropertyValueSingle("Scene.Moon.Renderable.PerformShading", false)
+    openspace.setPropertyValueSingle("Scene.Moon.Renderable.PerformShading", false)
 end)
 
 asset.onDeinitialize(function ()

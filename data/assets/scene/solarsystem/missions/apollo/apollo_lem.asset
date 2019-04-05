@@ -1,0 +1,128 @@
+--apollo_lem.asset (hopefull title)
+
+local sunTransforms = asset.require('scene/solarsystem/sun/transforms')
+local assetHelper = asset.require('util/asset_helper')
+
+local models = asset.syncedResource({
+    Name = "Apollo Models",
+    Type = "HttpSynchronization",
+    Identifier = "apollo_models",
+    Version = 1
+})
+
+local RotationMatrix = {
+    -1, 0, 0,
+    0, 0, -1,
+    0, -1, 0
+}
+
+local LightSources = {
+    {
+        Type = "SceneGraphLightSource",
+        Identifier = "Sun",
+        Node = sunTransforms.SolarSystemBarycenter.Identifier,
+        Intensity = 1.0
+    },
+    {
+        Identifier = "Camera",
+        Type = "CameraLightSource",
+        Intensity = 0.5
+    }
+}
+
+local earthAsset = asset.require('scene/solarsystem/planets/earth/earth')
+local moonAsset = asset.require('scene/solarsystem/planets/earth/moon/moon')
+
+
+
+
+local Apollo11LemPosition = {
+    Identifier = "Apollo11LemPosition",
+    Parent = moonAsset.Moon.Identifier,
+    Transform = {
+        Translation = {
+            Type = "GlobeTranslation",
+            Globe = moonAsset.Moon.Identifier,
+            Longitude = -360+23.47306,
+            Latitude = 0.67402,
+            FixedAltitude = -1927.65,
+            UseFixedAltitude = true
+        }
+    }
+}
+
+local Apollo17LemPosition = {
+    Identifier = "Apollo17LemPosition",
+    Parent = moonAsset.Moon.Identifier,
+    Transform = {
+        Translation = {
+            Type = "GlobeTranslation",
+            Globe = moonAsset.Moon.Identifier,
+            Longitude = -360+30.77170,
+            Latitude = 20.19092,
+        }
+    }
+}
+
+
+local ApolloLemModel = {
+    Type = "RenderableModel",
+    Geometry = {
+        Type = "MultiModelGeometry",
+        GeometryFile = models .. "/lem_nasa.obj"
+    },
+    ColorTexture = models .. "/darkred.png",
+    -- ModelTransform = RotationMatrix,
+    LightSources = LightSources,
+    PerformShading = true,
+    DisableFaceCulling = false,
+}
+
+
+local Apollo11Lem = {
+    Identifier = "Apollo11Lem",
+    Parent = Apollo11LemPosition.Identifier,
+    Renderable = ApolloLemModel,
+    Transform = {
+          Scale = {
+            Type = "StaticScale",
+            Scale = 14.0
+        },
+    },
+    GUI = {
+        Name = "Apollo 11 Lem",
+        Path = "/Solar System/Missions/Apollo/11"
+    }
+}
+
+
+local Apollo17Lem = {
+    Identifier = "Apollo17Lem",
+    Parent = Apollo17LemPosition.Identifier,
+    Transform = {
+          Scale = {
+            Type = "StaticScale",
+            Scale = 14.0
+        },
+    },
+    Renderable = ApolloLemModel,
+    GUI = {
+        Name = "Apollo 17 Lem",
+        Path = "/Solar System/Missions/Apollo/17/Lem"
+    }
+}
+
+
+
+
+assetHelper.registerSceneGraphNodesAndExport(asset, {
+    Apollo11LemPosition,
+    Apollo17LemPosition,
+    Apollo11Lem,
+    Apollo17Lem,
+})
+
+asset.onInitialize(function ()
+	openspace.setPropertyValueSingle('Scene.Apollo17Lem.Renderable.RotationVector', {68.031502,68.031502,8.545990});
+	openspace.setPropertyValueSingle('Scene.Apollo11Lem.Renderable.RotationVector', {73.074631,89.194031,8.545990});
+end)
