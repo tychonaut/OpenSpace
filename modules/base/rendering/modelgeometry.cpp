@@ -185,10 +185,17 @@ void ModelGeometry::deinitialize() {
 }
 
 bool ModelGeometry::loadObj(const std::string& filename) {
-    const std::string& cachedFile = FileSys.cacheManager()->cachedFilename(
-        filename,
-        ghoul::filesystem::CacheManager::Persistent::Yes
-    );
+    std::string cachedFile;
+    try {
+        cachedFile = FileSys.cacheManager()->cachedFilename(
+            filename,
+            ghoul::filesystem::CacheManager::Persistent::Yes
+        );
+    }
+    catch (const ghoul::filesystem::File::FileException& e) {
+        LERROR(fmt::format("Model file '{}' does not exist", filename));
+        return false;
+    }
 
     const bool hasCachedFile = FileSys.fileExists(cachedFile);
     if (hasCachedFile) {
@@ -214,6 +221,7 @@ bool ModelGeometry::loadObj(const std::string& filename) {
     const bool modelSuccess = loadModel(filename);
 
     if (!modelSuccess) {
+        LERROR(fmt::format("Failed to load model file '{}'", filename));
         return false;
     }
 
