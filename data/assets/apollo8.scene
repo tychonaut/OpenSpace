@@ -91,7 +91,7 @@ local Keybindings = {
     {
         Key = "U",
         Command =   "openspace.time.setTime('1968-12-21T15:41:37.00')" ..
-                    "openspace.setPropertyValue('NavigationHandler.Origin', 'Apollo8_Launch');" ..
+                    "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Apollo8_Launch');" ..
                     "openspace.setPropertyValueSingle('Scene.Apollo8TrailLaunch.Renderable.Enabled', true);",
         Documentation = "Jump to time right before A8 liftoff",
         Local = false

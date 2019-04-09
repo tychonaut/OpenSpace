@@ -34,9 +34,7 @@ namespace {
 float fromLuaConversion(lua_State* state, bool& success) {
     success = (lua_isnumber(state, -1) == 1);
     if (success) {
-        float val = static_cast<float>(lua_tonumber(state, -1));
-        lua_pop(state, 1);
-        return val;
+        return static_cast<float>(lua_tonumber(state, -1));
     }
     else {
         return 0.f;
