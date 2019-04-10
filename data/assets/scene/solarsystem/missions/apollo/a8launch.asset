@@ -1,13 +1,9 @@
 local assetHelper = asset.require('util/asset_helper')
 local sunTransforms = asset.require('scene/solarsystem/sun/transforms')
 asset.require('spice/base')
+local csm = asset.require('./apollo_csm')
+
 --1968 DEC 21 12:51:51
-local models = asset.syncedResource({
-    Name = "Apollo Models",
-    Type = "HttpSynchronization",
-    Identifier = "apollo_models",
-    Version = 1
-})
 
 local kernels = asset.syncedResource({
     Name = "Apollo Kernels",
@@ -15,7 +11,6 @@ local kernels = asset.syncedResource({
     Identifier = "apollo_spice",
     Version = 1
 })
-
 
 local LocalKernels = {
     kernels .. "/moon_080317.tf",
@@ -26,24 +21,14 @@ local LocalKernels = {
     kernels .. '/apollo8_earthrise.bc',
 }
 
-local LightSources = {
-    {
-        Type = "SceneGraphLightSource",
-        Identifier = "Sun",
-        Node = sunTransforms.SolarSystemBarycenter.Identifier,
-        Intensity = 1.0
-    },
-    -- {
-    --     Identifier = "Camera",
-    --     Type = "CameraLightSource",
-    --     Intensity = 0.5
-    -- }
-}
-
-
-local Apollo8 = {
+local Apollo8LaunchPosition = {
     Identifier = "Apollo8_Launch",
     Parent = "Earth",
+    TimeFrame = { -- Using Spice kernels for 1850-2150
+        Type = "TimeFrameInterval",
+        Start = "1968 DEC 21",
+        End = "1968 DEC 23 19:18:22 "
+    },
     Transform = {
         Translation = {
             Type = "SpiceTranslation",
@@ -59,10 +44,9 @@ local Apollo8 = {
     }
 }
 
-
-local Apollo_8 = {
+local Apollo8LaunchModel = {
     Identifier = "Apollo_8ModelLaunch",
-    Parent = Apollo8.Identifier,
+    Parent = Apollo8LaunchPosition.Identifier,
     Transform = {
         Scale = {
             Type = "StaticScale",
@@ -77,335 +61,7 @@ local Apollo_8 = {
     }
 }
 
-
-local AP08_cone_command_module = {
-    Identifier = "AP08_cone_command_moduleL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_cone_command_module.obj"
-        },
-        ColorTexture = models .. "/Command_module_diff.png",
-        LightSources = {{
-            Type = "SceneGraphLightSource",
-            Identifier = "Sun",
-            Node = sunTransforms.SolarSystemBarycenter.Identifier,
-            Intensity = 0.0
-        }},
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Apollo 8 AP08_cone_command_module",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_cone_hatchdoor_handle_scratched_metal = {
-    Identifier = "AP08_cone_hatchdoor_handle_scratched_metalL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_cone_hatchdoor_handle_scratched_metal.obj"
-        },
-        ColorTexture = models .. "/scratched_metal_gloss.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Apollo 8 AP08_cone_hatchdoor_handle_scratched_metal",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_cone_hatchdoor_interior = {
-    Identifier = "AP08_cone_hatchdoor_interiorL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_cone_hatchdoor_interior.obj"
-        },
-        ColorTexture = models .. "/apollo_hatchdoor_interior.jpg",
-        LightSources = {{
-            Type = "SceneGraphLightSource",
-            Identifier = "Sun",
-            Node = sunTransforms.SolarSystemBarycenter.Identifier,
-            Intensity = 0.0
-        }},        
-        PerformShading = false,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Apollo 8 AP08_cone_hatchdoor_interior",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_cone_vent_ports_black = {
-    Identifier = "AP08_cone_vent_ports_blackL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_cone_vent_ports_black.obj"
-        },
-        ColorTexture = models .. "/black.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Apollo 8 AP08_cone_vent_ports_black",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-
-local AP08_cone_vent_ports_red = {
-    Identifier = "AP08_cone_vent_ports_redL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_cone_vent_ports_red.obj"
-        },
-        ColorTexture = models .. "/red.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Apollo 8 AP08_cone_vent_ports_red",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-
-local AP08_service_black = {
-    Identifier = "AP08_service_blackL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_black.obj"
-        },
-        ColorTexture = models .. "/black.png",
-        LightSources = LightSources,
-        PerformShading = true,   
-        DisableFaceCulling = true      
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_black",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_brown = {
-    Identifier = "AP08_service_brownL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_brown.obj"
-        },
-        ColorTexture = models .. "/brown.png",
-        LightSources = LightSources,
-        PerformShading = true,   
-        DisableFaceCulling = true              
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_brown",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_grey = {
-    Identifier = "AP08_service_greyL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_grey.obj"
-        },
-        ColorTexture = models .. "/gray.png",
-        LightSources = LightSources,
-        PerformShading = true,     
-        DisableFaceCulling = true    
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_grey",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_high_gain_antenna = {
-    Identifier = "AP08_service_high_gain_antennaL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_high_gain_antenna.obj"
-        },
-        ColorTexture = models .. "/Antenna_diff.png",
-        LightSources = LightSources,
-        PerformShading = true,   
-        DisableFaceCulling = true      
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Apollo 8 AP08_service_high_gain_antenna",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_module = {
-    Identifier = "AP08_service_moduleL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_module.obj"
-        },
-        ColorTexture = models .. "/Service_module_diff.png",
-        LightSources = LightSources,
-        PerformShading = true,    
-        DisableFaceCulling = true             
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_module",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_nozzle = {
-    Identifier = "AP08_service_nozzleL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_nozzle.obj"
-        },
-        ColorTexture = models .. "/Nozzle_diff.png",
-        LightSources = LightSources,
-        PerformShading = true,       
-        DisableFaceCulling = true          
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_nozzle",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_pink = {
-    Identifier = "AP08_service_pinkL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_pink.obj"
-        },
-        ColorTexture = models .. "/pink.png",
-        LightSources = LightSources,
-        PerformShading = true,   
-        DisableFaceCulling = true      
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_pink",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_red = {
-    Identifier = "AP08_service_redL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_red.obj"
-        },
-        ColorTexture = models .. "/red.png",
-        LightSources = LightSources,
-        PerformShading = true,  
-        DisableFaceCulling = true       
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_red",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_scratched_metal = {
-    Identifier = "AP08_service_scratched_metalL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_scratched_metal.obj"
-        },
-        ColorTexture = models .. "/scratched_metal_gloss.png",
-        LightSources = LightSources,
-        PerformShading = true,        
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_scratched_metal",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local AP08_service_white = {
-    Identifier = "AP08_service_whiteL",
-    Parent = Apollo_8.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/AP08_service_white.obj"
-        },
-        ColorTexture = models .. "/white.png",
-        LightSources = LightSources,
-        PerformShading = true,       
-        DisableFaceCulling = true  
-    },
-    GUI = {
-        Hidden = true,
-        Name = "Apollo 8 AP08_service_white",
-        Path = "/Solar System/Missions/Apollo/Apollo 8"
-    }
-}
-
-local Apollo_8_Trail = {
+local Apollo8LaunchTrail = {
     Identifier = "Apollo8TrailLaunch",
     Parent = "Earth",
     Renderable = {
@@ -429,38 +85,15 @@ local Apollo_8_Trail = {
 }
 
 
-local exportList = {    Apollo8, 
-    Apollo_8, 
-    Apollo_8_Trail,
-
-    AP08_cone_command_module,
-    AP08_cone_hatchdoor_handle_scratched_metal,
-    AP08_cone_hatchdoor_interior,
-    AP08_cone_vent_ports_black,
-    AP08_cone_vent_ports_red,
-    AP08_service_black,
-    AP08_service_brown,
-    AP08_service_grey,
-    AP08_service_high_gain_antenna,
-    AP08_service_module,
-    AP08_service_nozzle,
-    AP08_service_pink,
-    AP08_service_red,
-    AP08_service_scratched_metal,    
-    AP08_service_white,    
-
+local exportList = {   
+    Apollo8LaunchPosition, 
+    Apollo8LaunchModel, 
+    Apollo8LaunchTrail
 }
 
 
-for _, node in pairs(exportList) do
-    node.TimeFrame = { -- Using Spice kernels for 1850-2150
-        Type = "TimeFrameInterval",
-        Start = "1968 DEC 21",
-        End = "1968 DEC 23 19:18:22 "
-    }
-end
-
-Apollo_8_Trail.TimeFrame = nil;
-
-
 assetHelper.registerSceneGraphNodesAndExport(asset, exportList)
+
+-- Registering Command and Service module needs to happen fter the export list
+-- has been registered, since it depends on the Apollo8Model scene graph node.
+csm.registerCsm(asset, Apollo8Model.Identifier)

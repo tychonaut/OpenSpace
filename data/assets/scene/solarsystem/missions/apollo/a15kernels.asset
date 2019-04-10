@@ -6,9 +6,6 @@ local ApolloKernels  = asset.syncedResource({
 })
 
 local Apollo15Kernels = {
-
-
-
   --sclk
   ApolloKernels .. "apollo15.0001.tsc",  
 
@@ -75,12 +72,8 @@ local Apollo15Kernels = {
   ApolloKernels .. "AS15_M_REV70_SMITHED_V01.bc",
   ApolloKernels .. "AS15_M_REV71_SMITHED_V01.bc",
   ApolloKernels .. "AS15_M_REV71_SMITHED_V02.bc",
-  ApolloKernels .. "AS15_M_REV72_v2.bc",
-
-
+  ApolloKernels .. "AS15_M_REV72_v2.bc"
 }
-
-
 
 --asset.export("ApolloKernels", Kernels)
 asset.export("Apollo15Kernels", Apollo15Kernels)

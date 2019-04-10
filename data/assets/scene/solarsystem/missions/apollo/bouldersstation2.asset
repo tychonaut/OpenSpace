@@ -1,6 +1,7 @@
-
 local sunTransforms = asset.require('scene/solarsystem/sun/transforms')
 local assetHelper = asset.require('util/asset_helper')
+local earthAsset = asset.require('scene/solarsystem/planets/earth/earth')
+local moonAsset = asset.require('scene/solarsystem/planets/earth/moon/moon')
 
 local models = asset.syncedResource({
     Name = "Apollo Models",
@@ -8,12 +9,6 @@ local models = asset.syncedResource({
     Identifier = "apollo_boulders",
     Version = 1
 })
-
-local RotationMatrix = {
-    -1, 0, 0,
-    0, 0, -1,
-    0, -1, 0
-}
 
 local LightSources = {
     {
@@ -28,10 +23,6 @@ local LightSources = {
         Intensity = 0.5
     }
 }
-
-local earthAsset = asset.require('scene/solarsystem/planets/earth/earth')
-local moonAsset = asset.require('scene/solarsystem/planets/earth/moon/moon')
-
 
 local Station2Boulder1Holder = {
     Identifier = "Station_2_Boulder1",
@@ -68,7 +59,6 @@ local Station2Boulder1Model = {
             GeometryFile = models .. "/b1-v2.obj"
         },
         ColorTexture = models .. "/b1-v2_u1_v1.jpeg",
-        -- ModelTransform = RotationMatrix,
         LightSources = LightSources,
         PerformShading = false,
         DisableFaceCulling = true
@@ -78,10 +68,6 @@ local Station2Boulder1Model = {
         Path = "/Solar System/Missions/Apollo/17/Station 2"
     }
 }
-
-
-
-
 
 local Station2Boulder2Holder = {
     Identifier = "Station_2_Boulder2",
@@ -118,7 +104,6 @@ local Station2Boulder2Model = {
             GeometryFile = models .. "/b2model.obj"
         },
         ColorTexture = models .. "/b2model_u1_v1.jpeg",
-        -- ModelTransform = RotationMatrix,
         LightSources = LightSources,
         PerformShading = false,
         DisableFaceCulling = true
@@ -128,13 +113,6 @@ local Station2Boulder2Model = {
         Path = "/Solar System/Missions/Apollo/17/Station 2"
     }
 }
-
-
-
-
-
-
-
 
 local Station2Boulder3Holder = {
     Identifier = "Station_2_Boulder3",
@@ -171,7 +149,6 @@ local Station2Boulder3Model = {
             GeometryFile = models .. "/b3model.obj"
         },
         ColorTexture = models .. "/b3model_u1_v1.jpeg",
-        -- ModelTransform = RotationMatrix,
         LightSources = LightSources,
         PerformShading = false,
         DisableFaceCulling = true
@@ -182,8 +159,6 @@ local Station2Boulder3Model = {
     }
 }
 
-
-
 assetHelper.registerSceneGraphNodesAndExport(asset, {
     Station2Boulder1Holder, Station2Boulder1Model,
     Station2Boulder2Holder, Station2Boulder2Model,
@@ -191,7 +166,18 @@ assetHelper.registerSceneGraphNodesAndExport(asset, {
 })
 
 asset.onInitialize(function ()
-    openspace.setPropertyValueSingle('Scene.Station2Boulder1Model.Renderable.RotationVector', {243.243256,206.270264,309.677429});
-    openspace.setPropertyValueSingle('Scene.Station2Boulder3Model.Renderable.RotationVector', {161.513519,243.243256,65.806450});
-    openspace.setPropertyValueSingle('Scene.Station2Boulder2Model.Renderable.RotationVector', {66.162155,7.783780,114.193550});
+    openspace.setPropertyValueSingle(
+        'Scene.Station2Boulder1Model.Renderable.RotationVector',
+        { 243.243256 ,206.270264, 309.677429 }
+    );
+
+    openspace.setPropertyValueSingle(
+        'Scene.Station2Boulder3Model.Renderable.RotationVector',
+        { 161.513519 ,243.243256, 65.806450 }
+    );
+
+    openspace.setPropertyValueSingle(
+        'Scene.Station2Boulder2Model.Renderable.RotationVector',
+        { 66.162155, 7.783780, 114.193550 }
+    );
 end)

@@ -20,6 +20,10 @@ asset.request('customization/globebrowsing')
 local a8Asset = asset.require('scene/solarsystem/missions/apollo/a8launch')
 local a8Asset = asset.require('scene/solarsystem/missions/apollo/a8earthrise')
 local flipbook = asset.require('scene/solarsystem/missions/apollo/apollo_11_lem_flipbook')
+asset.require('scene/solarsystem/missions/apollo/insignias_map')
+
+
+asset.require('util/webgui')
 
 
 -- Custom Keybindings

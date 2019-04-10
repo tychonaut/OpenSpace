@@ -10,12 +10,6 @@ local models = asset.syncedResource({
     Version = 1
 })
 
-local RotationMatrix = {
-    -1, 0, 0,
-    0, 0, -1,
-    0, -1, 0
-}
-
 local LightSources = {
     {
         Type = "SceneGraphLightSource",
@@ -30,7 +24,6 @@ local LightSources = {
     }
 }
 
-local earthAsset = asset.require('scene/solarsystem/planets/earth/earth')
 local moonAsset = asset.require('scene/solarsystem/planets/earth/moon/moon')
 
 
@@ -62,7 +55,6 @@ local Apollo17LemPosition = {
     }
 }
 
-
 local ApolloLemModel = {
     Type = "RenderableModel",
     Geometry = {
@@ -70,7 +62,6 @@ local ApolloLemModel = {
         GeometryFile = models .. "/lem_nasa.obj"
     },
     ColorTexture = models .. "/darkred.png",
-    -- ModelTransform = RotationMatrix,
     LightSources = LightSources,
     PerformShading = true,
     DisableFaceCulling = false,
@@ -383,9 +374,6 @@ local Apollo17Lem = {
     }
 }
 
-
-
-
 assetHelper.registerSceneGraphNodesAndExport(asset, {
     Apollo11LemPosition,
     Apollo17LemPosition,
@@ -400,7 +388,7 @@ assetHelper.registerSceneGraphNodesAndExport(asset, {
     Lem_Part_dark_grey_dish,
 
     Lem_Part_Black,
-   Lem_Part_blue_glass,
+    Lem_Part_blue_glass,
     Lem_Part_dull_white,
     Lem_Part_gold,
     Lem_Part_light_grey,
@@ -410,18 +398,16 @@ assetHelper.registerSceneGraphNodesAndExport(asset, {
 })
 
 asset.onInitialize(function ()
-	openspace.setPropertyValueSingle('Scene.Apollo17Lem.Renderable.RotationVector', {68.031502,68.031502,8.545990});
---	openspace.setPropertyValueSingle('Scene.Apollo11Lem.Renderable.RotationVector', {73.074631,89.194031,8.545990});
+    openspace.setPropertyValueSingle('Scene.Apollo17Lem.Renderable.RotationVector', {68.031502,68.031502,8.545990});
+--  openspace.setPropertyValueSingle('Scene.Apollo11Lem.Renderable.RotationVector', {73.074631,89.194031,8.545990});
 
     openspace.setPropertyValueSingle('Scene.Lem_Part_texture_lem_flag.Renderable.RotationVector', {73.074631,89.194031,8.545990});
     openspace.setPropertyValueSingle('Scene.Lem_Part_texture_lem_unitedstates.Renderable.RotationVector', {73.074631,89.194031,8.545990});
     openspace.setPropertyValueSingle('Scene.Lem_Part_booster.Renderable.RotationVector', {73.074631,89.194031,8.545990});
     openspace.setPropertyValueSingle('Scene.Lem_Part_bright_white.Renderable.RotationVector', {73.074631,89.194031,8.545990});
 
-
-
     openspace.setPropertyValueSingle('Scene.Lem_Part_Black.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-   openspace.setPropertyValueSingle('Scene.Lem_Part_blue_glass.Renderable.RotationVector', {73.074631,89.194031,8.545990});
+    openspace.setPropertyValueSingle('Scene.Lem_Part_blue_glass.Renderable.RotationVector', {73.074631,89.194031,8.545990});
     openspace.setPropertyValueSingle('Scene.Lem_Part_dark_grey_dish.Renderable.RotationVector', {73.074631,89.194031,8.545990});
     openspace.setPropertyValueSingle('Scene.Lem_Part_dull_white.Renderable.RotationVector', {73.074631,89.194031,8.545990});
     openspace.setPropertyValueSingle('Scene.Lem_Part_gold.Renderable.RotationVector', {73.074631,89.194031,8.545990});
