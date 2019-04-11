@@ -33,6 +33,8 @@
 #include <openspace/util/mouse.h>
 #include <openspace/util/keys.h>
 
+#include <optional>
+
 namespace openspace {
     class Camera;
     class SceneGraphNode;
@@ -48,6 +50,14 @@ class OrbitalNavigator;
 
 class NavigationHandler : public properties::PropertyOwner {
 public:
+
+    struct CameraState {
+        std::string anchor;
+        std::string aim;
+        glm::dvec3 position;
+        glm::dquat rotation;
+    };
+
     NavigationHandler();
     ~NavigationHandler();
 
@@ -105,6 +115,9 @@ public:
     void saveCameraStateToFile(const std::string& filepath);
     void restoreCameraStateFromFile(const std::string& filepath);
 
+    void setCameraStateNextFrame(CameraState state);
+
+
     /**
     * \return The Lua library that contains all Lua functions available to affect the
     * interaction
@@ -112,7 +125,8 @@ public:
     static scripting::LuaLibrary luaLibrary();
 
 private:
-    bool _cameraUpdatedFromScript = false;
+    void applyPendingCameraState();
+
     bool _playbackModeEnabled = false;
 
     std::unique_ptr<InputState> _inputState;
@@ -121,6 +135,8 @@ private:
 
     std::unique_ptr<OrbitalNavigator> _orbitalNavigator;
     std::unique_ptr<KeyframeNavigator> _keyframeNavigator;
+
+    std::optional<CameraState> _pendingCameraState;
 
     properties::BoolProperty _useKeyFrameInteraction;
 };

@@ -1,5 +1,3 @@
---apollo.scene
-
 local assetHelper = asset.require('util/asset_helper')
 local sceneHelper = asset.require('util/scene_helper')
 local propertyHelper = asset.require('util/property_helper')
@@ -17,75 +15,15 @@ asset.require('util/default_dashboard')
 
 asset.request('customization/globebrowsing')
 
-local a8Asset = asset.require('scene/solarsystem/missions/apollo/a8launch')
-local a8Asset = asset.require('scene/solarsystem/missions/apollo/a8earthrise')
-local flipbook = asset.require('scene/solarsystem/missions/apollo/apollo_11_lem_flipbook')
+asset.require('scene/solarsystem/missions/apollo/apollo8')
+asset.require('scene/solarsystem/missions/apollo/apollo_11_lem_flipbook')
 asset.require('scene/solarsystem/missions/apollo/insignias_map')
-
 
 asset.require('util/webgui')
 
 
 -- Custom Keybindings
 local Keybindings = {
-
-
-    {
-        Key = "F5",
-        Command =   "openspace.time.setPause(true);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[A8_EARTHRISE]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.DestinationFrame', [[GALACTIC]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[A8_EARTHRISE]]);" ..
-                    "openspace.sessionRecording.startPlayback(\"c:/os/163727.dat\");",
-        Documentation = "Jump to time for clip 1",
-        Local = false
-    },
-    {
-        Key = "F6",
-        Command =   "openspace.time.setPause(true);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[GALACTIC]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.DestinationFrame', [[IAU_MOON]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.SourceFrame', [[IAU_MOON]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[GALACTIC]]);" ..
-                    "openspace.sessionRecording.startPlayback(\"c:/os/023558.dat\");",
-        Documentation = "Jump to time for clip 2",
-        Local = false
-    },
-    {
-        Key = "F7",
-        Command =   "openspace.time.setPause(true);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[GALACTIC]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.DestinationFrame', [[IAU_MOON]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.SourceFrame', [[IAU_MOON]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[GALACTIC]]);" ..
-                    "openspace.sessionRecording.startPlayback(\"c:/os/025426.dat\");",
-        Documentation = "Jump to time for clip 3",
-        Local = false
-    },
-    {
-        Key = "INSERT",
-        Command = "openspace.asset.add('scene/solarsystem/missions/apollo/slides-apollo8earthrise');\n",
-        Documentation = "show apollo 8 slide show",
-        Local = false
-    },
-    {
-        Key = "DELETE",
-        Command = "openspace.asset.remove('scene/solarsystem/missions/apollo/slides-apollo8earthrise');\n",
-        Documentation = "Hide slide show",
-        Local = false
-    },    
-    {
-        Key = "SHIFT+INSERT",
-        Command = "openspace.asset.add('scene/solarsystem/missions/apollo/slides-apollo8logos');\n",
-        Documentation = "show apollo 8 slide show",
-        Local = false
-    },
-    {
-        Key = "SHIFT+DELETE",
-        Command = "openspace.asset.remove('scene/solarsystem/missions/apollo/slides-apollo8logos');\n",
-        Documentation = "Hide slide show",
-        Local = false
-    },
     {
         Key = "END",
         Command = "openspace.sessionRecording.stopRecording();\n",
@@ -95,60 +33,37 @@ local Keybindings = {
     {
         Key = "U",
         Command =   "openspace.time.setTime('1968-12-21T15:41:37.00')" ..
-                    "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Apollo8_Launch');" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8TrailLaunch.Renderable.Enabled', true);",
+                    "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Apollo8');" ..
+                    "openspace.setPropertyValueSingle('Scene.Apollo8LaunchTrail.Renderable.Enabled', true);",
         Documentation = "Jump to time right before A8 liftoff",
         Local = false
     },
-
     {
         Key = "E",
         Command =   "openspace.time.setPause(true);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[A8_EARTHRISE]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.DestinationFrame', [[GALACTIC]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.SourceFrame', [[GALACTIC]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[A8_EARTHRISE]]);" ..
-                    "openspace.sessionRecording.startPlayback(openspace.absPath(\"${DATA}/assets/scene/solarsystem/missions/apollo/preearthrise.osrecording\"));",
-        Documentation = "Jump to time of main earthrise photo",
+                    'openspace.time.setTime("1968 DEC 24 16:37:31");' ..
+                    'openspace.navigation.setCameraState({' ..
+                        'Anchor = "Apollo8Pivot",' ..
+                        'Aim = "",' ..
+                        'Position = { 12.94543, 17.25316, -23.16316 },' ..
+                        'Rotation = { -0.0996527, 0.727683, 0.615566, 0.285701 },' ..
+                    '});',
+        Documentation = "Jump to right before the earthrise photo",
         Local = false
     },
     {
         Key = "SHIFT+E",
         Command =   "openspace.time.setPause(true);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[A8_EARTHRISE]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.DestinationFrame', [[GALACTIC]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.SourceFrame', [[GALACTIC]]);" ..
-                    "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[A8_EARTHRISE]]);" ..
-                    "openspace.sessionRecording.startPlayback(openspace.absPath(\"${DATA}/assets/scene/solarsystem/missions/apollo/earthrise.osrecording\"));",
-        Documentation = "Jump to time of main earthrise photo",
+                    'openspace.time.setTime("1968 DEC 24 16:38:43");'  ..
+                    'openspace.navigation.setCameraState({'  ..
+                    '    Anchor = "Apollo8Pivot",'  ..
+                    '    Aim = "",' ..
+                    '    Position = { 0.00863647, -1.014866, -0.747894 },'  ..
+                    '    Rotation = { -0.123114, 0.695592, 0.655970, 0.265891 }'  ..
+                    '});',
+        Documentation = "Jump to time and place of main earthrise photo",
         Local = false
     },
-
-
-
-
-    -- {
-    --     Key = "E",
-    --     Command =   "openspace.time.setPause(true);" ..
-    --                 "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[A8_EARTHRISE]]);" ..
-    --                 "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.DestinationFrame', [[GALACTIC]]);" ..
-    --                 "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.SourceFrame', [[GALACTIC]]);" ..
-    --                 "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[A8_EARTHRISE]]);" ..
-    --                 "openspace.sessionRecording.startPlayback(openspace.absPath(\"${DATA}/assets/scene/solarsystem/missions/apollo/163939.dat\"));",
-    --     Documentation = "Jump to time of main earthrise photo",
-    --     Local = false
-    -- },
-    -- {
-    --     Key = "SHIFT+E",
-    --     Command =   "openspace.time.setPause(true);" ..
-    --                 "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[A8_EARTHRISE]]);" ..
-    --                 "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.DestinationFrame', [[GALACTIC]]);" ..
-    --                 "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.SourceFrame', [[GALACTIC]]);" ..
-    --                 "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[A8_EARTHRISE]]);" ..
-    --                 "openspace.sessionRecording.startPlayback(\"C:/os/163844cam2moveF3.dat\");",
-    --     Documentation = "Jump to time of main earthrise photo",
-    --     Local = false
-    -- },
     {
         Key = "K",
         Command = propertyHelper.invert('Scene.Moon.Renderable.Layers.ColorLayers.Kaguya_Utah.Enabled'),
@@ -157,14 +72,20 @@ local Keybindings = {
     },
     {
         Key = "T",
-        Command = propertyHelper.invert('Scene.Apollo8TrailEarthrise.Renderable.Enabled'),
-        Documentation = "Toggles the trails of the Apollo8 orbits",
+        Command = propertyHelper.invert('Scene.Apollo8MoonTrail.Renderable.Enabled'),
+        Documentation = "Toggles the Apollo 8 trail when orbiting the Moon",
         Local = false
     },
     {
         Key = "SHIFT+T",
-        Command = propertyHelper.invert('Scene.Apollo8TrailLaunch.Renderable.Enabled'),
-        Documentation = "Toggles the trails of the Apollo8 orbits",
+        Command = propertyHelper.invert('Scene.Apollo8LaunchTrail.Renderable.Enabled'),
+        Documentation = "Toggles the Apollo 8 trail related to the launch",
+        Local = false
+    },
+    {
+        Key = "CTRL+T",
+        Command = propertyHelper.invert('Scene.Apollo8EarthBarycenterTrail.Renderable.Enabled'),
+        Documentation = "Toggles the full Apollo 8 trail relative to Earth's barycenter",
         Local = false
     },
     {
@@ -174,40 +95,26 @@ local Keybindings = {
         Local = false
     },
     {
-        Key = "B",
-        Command =  "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[A8_EARTHRISE]]);" ..
-                   "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[A8_EARTHRISE]]);",
-        Documentation = "Toggles acurate normals for the moon",
-        Local = false
-    },
-    {
-        Key = "SHIFT+B",
-        Command =  "openspace.setPropertyValueSingle('Scene.Apollo8_Earthrise.Rotation.SourceFrame', [[GALACTIC]]);" ..
-                   "openspace.setPropertyValueSingle('Scene.A8Pivot.Rotation.DestinationFrame', [[GALACTIC]]);",
-        Documentation = "Toggles acurate normals for the moon",
-        Local = false
-    },
-    {
         Key = "S",
         Command = propertyHelper.invert('Scene.Moon.Renderable.PerformShading'),
-        Documentation = "Toggles acurate normals for the moon",
+        Documentation = "Toggles shading for the moon",
         Local = false
     },
     {
         Key = "PAGE_UP",
-        Command = "openspace.setPropertyValue('NavigationHandler.Origin', 'Apollo8_Earthrise');",
-        Documentation = "Toggles acurate normals for the moon",
+        Command = "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Apollo8');",
+        Documentation = "Focus on Apollo 8",
         Local = false
     },
     {
         Key = "PAGE_DOWN",
-        Command = "openspace.setPropertyValue('NavigationHandler.Origin', 'Moon');",
+        Command = "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Moon');",
         Documentation = "Toggles acurate normals for the moon",
         Local = false
     },
     {
         Key = "HOME",
-        Command = "openspace.setPropertyValue('NavigationHandler.Origin', 'Earth');",
+        Command = "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Earth');",
         Documentation = "Toggles acurate normals for the moon",
         Local = false
     },
@@ -224,24 +131,13 @@ local Keybindings = {
 
 
 asset.onInitialize(function ()
+    -- Launch time:
     openspace.time.setTime("1968-12-21T12:51:51.0")
---    openspace.time.setTime("1968-12-24T16:37:19.0")
+
+    -- Earthrise:
+    -- openspace.time.setTime("1968-12-24T16:37:19.0")
 
     sceneHelper.bindKeys(Keybindings)
-
-    function clearAllSlides()
-        local slideCounts = {
-            ['apollo8'] = 3, 
-        }
-        for mission,count in pairs(slideCounts) do 
-            for i=1,count,1 do 
-                openspace.removeScreenSpaceRenderable("slides-" .. mission .. "-left" .. i)
-                openspace.removeScreenSpaceRenderable("slides-" .. mission .. "-right" .. i)
-            end 
-        end
-    end
-
-    openspace.bindKey("BACKSPACE", "clearAllSlides()")
 
     openspace.setDefaultGuiSorting()
 
@@ -251,7 +147,7 @@ asset.onInitialize(function ()
     })
 
     openspace.markInterestingNodes({
-        "Earth", "Moon", "Apollo15", "Apollo8_Earthrise", "A8Pivot", "Apollo8_Launch"
+        "Earth", "Moon", "Apollo8Pivot", "Apollo8"
     })
 
     openspace.addVirtualProperty(
@@ -273,10 +169,7 @@ asset.onInitialize(function ()
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.Kaguya_Utah.BlendMode', 4);
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.Kaguya_Utah.Settings.Multiplier', 1.084750);
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.WAC_Utah.BlendMode', 4);
---    openspace.setPropertyValueSingle('Scene.Moon.Renderable.LodScaleFactor', 24.0);
 
-
---new for preso
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Settings.Gamma', 2.4);
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_travmap.Settings.Gamma', 1.45);
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_LEM.Settings.Gamma', 1.70);
@@ -285,7 +178,6 @@ asset.onInitialize(function ()
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Settings.Gamma', 2.4);
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Settings.Gamma', 2.4);
 
-
     openspace.navigation.setCameraState({
         Anchor = "Earth",
         Position = { 0, 0, 0 },
@@ -293,16 +185,15 @@ asset.onInitialize(function ()
     })
 
     openspace.globebrowsing.goToGeo(28.5729, 80.6490, 20000000)
-openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Aim", '')
-openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Anchor", 'Apollo8_Launch')
-openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.RetargetAnchor", nil)
+    openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Aim", '')
+    openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Anchor", 'Apollo8')
+    openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.RetargetAnchor", nil)
 
 end)
 
 asset.onDeinitialize(function ()
     openspace.removeVirtualProperty("*Trail.renderable.Enabled")
-
     openspace.removeInterestingNodes({
-        "Earth", "Moon", "Apollo15"
+        "Earth", "Moon", "Apollo8Pivot", "Apollo8"
     })
 end)

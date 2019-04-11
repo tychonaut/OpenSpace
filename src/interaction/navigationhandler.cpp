@@ -35,6 +35,7 @@
 #include <ghoul/filesystem/file.h>
 #include <ghoul/filesystem/filesystem.h>
 #include <ghoul/logging/logmanager.h>
+#include <ghoul/misc/dictionaryluaformatter.h>
 #include <fstream>
 
 namespace {
@@ -121,8 +122,9 @@ void NavigationHandler::updateCamera(double deltaTime) {
     ghoul_assert(_inputState != nullptr, "InputState must not be nullptr");
     ghoul_assert(_camera != nullptr, "Camera must not be nullptr");
 
-    if (_cameraUpdatedFromScript) {
-        _cameraUpdatedFromScript = false;
+    if (_pendingCameraState.has_value()) {
+        applyPendingCameraState();
+        _pendingCameraState.reset();
     }
     else if ( ! _playbackModeEnabled ) {
         if (_camera) {
@@ -198,13 +200,32 @@ void NavigationHandler::setCameraStateFromDictionary(const ghoul::Dictionary& ca
         );
     }
 
-    // Set state
-    _orbitalNavigator->setAnchorNode(anchor);
-    _orbitalNavigator->setAimNode(aim);
+    setCameraStateNextFrame(CameraState{
+        anchor,
+        aim,
+        cameraPosition,
+        glm::dquat(cameraRotation.x, cameraRotation.y, cameraRotation.z, cameraRotation.w)
+    });
+}
 
-    _camera->setPositionVec3(cameraPosition);
-    _camera->setRotation(glm::dquat(
-        cameraRotation.x, cameraRotation.y, cameraRotation.z, cameraRotation.w));
+void NavigationHandler::setCameraStateNextFrame(CameraState c) {
+    _pendingCameraState = c;
+}
+
+void NavigationHandler::applyPendingCameraState() {
+    if (!_pendingCameraState.has_value()) {
+        return;
+    }
+
+    CameraState& c = _pendingCameraState.value();
+    _orbitalNavigator->setAnchorNode(c.anchor);
+    _orbitalNavigator->setAimNode(c.aim);
+
+    const SceneGraphNode* anchorNode = _orbitalNavigator->anchorNode();
+    glm::dvec3 offset = anchorNode ? anchorNode->worldPosition() : glm::dvec3(0.0);
+
+    _camera->setPositionVec3(c.position + offset);
+    _camera->setRotation(c.rotation);
 }
 
 ghoul::Dictionary NavigationHandler::cameraStateDictionary() {
@@ -217,9 +238,14 @@ ghoul::Dictionary NavigationHandler::cameraStateDictionary() {
     cameraRotation = glm::dvec4(quat.w, quat.x, quat.y, quat.z);
 
     ghoul::Dictionary cameraDict;
-    cameraDict.setValue(KeyPosition, cameraPosition);
+
+    const SceneGraphNode* anchorNode = _orbitalNavigator->anchorNode();
+    glm::dvec3 offset = anchorNode ? anchorNode->worldPosition() : glm::dvec3(0.0);
+
+    cameraDict.setValue(KeyPosition, cameraPosition - offset);
     cameraDict.setValue(KeyRotation, cameraRotation);
     cameraDict.setValue(KeyAnchor, _orbitalNavigator->anchorNode()->identifier());
+
     if (_orbitalNavigator->aimNode()) {
         cameraDict.setValue(KeyAim, _orbitalNavigator->aimNode()->identifier());
     }
@@ -234,36 +260,9 @@ void NavigationHandler::saveCameraStateToFile(const std::string& filepath) {
 
         ghoul::Dictionary cameraDict = cameraStateDictionary();
 
-        // TODO(abock): Should get the camera state as a dictionary and save the
-        // dictionary to a file in form of a lua state and not use ofstreams here.
-
+        ghoul::DictionaryLuaFormatter formatter;
         std::ofstream ofs(fullpath.c_str());
-
-        glm::dvec3 p = _camera->positionVec3();
-        glm::dquat q = _camera->rotationQuaternion();
-
-        ofs << "return {" << std::endl;
-        ofs << "    " << KeyAnchor << " = " << "\"" << 
-            _orbitalNavigator->anchorNode()->identifier() << "\""
-            << "," << std::endl;
-
-        if (_orbitalNavigator->aimNode()) {
-            ofs << "    " << KeyAim << " = " << "\"" <<
-                _orbitalNavigator->aimNode()->identifier() << "\""
-                << "," << std::endl;
-        }
-
-        ofs << "    " << KeyPosition << " = {"
-            << std::to_string(p.x) << ", "
-            << std::to_string(p.y) << ", "
-            << std::to_string(p.z) << "}," << std::endl;
-        ofs << "    " << KeyRotation << " = {"
-            << std::to_string(q.w) << ", "
-            << std::to_string(q.x) << ", "
-            << std::to_string(q.y) << ", "
-            << std::to_string(q.z) << "}," << std::endl;
-        ofs << "}"<< std::endl;
-
+        ofs << formatter.format(cameraDict);
         ofs.close();
     }
 }
@@ -278,7 +277,6 @@ void NavigationHandler::restoreCameraStateFromFile(const std::string& filepath) 
     try {
         ghoul::lua::loadDictionaryFromFile(filepath, cameraDict);
         setCameraStateFromDictionary(cameraDict);
-        _cameraUpdatedFromScript = true;
     }
     catch (ghoul::RuntimeError& e) {
         LWARNING("Unable to set camera position");
