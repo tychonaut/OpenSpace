@@ -1,7 +1,14 @@
 --apollo_lem.asset (hopefull title)
 
-local sunTransforms = asset.require('scene/solarsystem/sun/transforms')
+
+-- This asset exports a function to create an Apollo Command and Service Module (CSM).
+-- Instead of hard-coding the scene graph node parent,
+-- client assets can decide which object that the CSM should be attached to.
+-- Usage example: registerCsm(asset, Apollo8.Idenfitier)
+-- ...where Apollo8 is the scene graph node identifier to attach the CSM to.
+
 local assetHelper = asset.require('util/asset_helper')
+local sunTransforms = asset.require('scene/solarsystem/sun/transforms')
 
 local models = asset.syncedResource({
     Name = "Apollo Models",
@@ -10,410 +17,37 @@ local models = asset.syncedResource({
     Version = 1
 })
 
-local LightSources = {
-    {
-        Type = "SceneGraphLightSource",
-        Identifier = "Sun",
-        Node = sunTransforms.SolarSystemBarycenter.Identifier,
-        Intensity = 1.0
-    },
-    {
-        Identifier = "Camera",
-        Type = "CameraLightSource",
-        Intensity = 0.5
-    }
-}
-
-local moonAsset = asset.require('scene/solarsystem/planets/earth/moon/moon')
-
-
-local Apollo11LemPosition = {
-    Identifier = "Apollo11LemPosition",
-    Parent = moonAsset.Moon.Identifier,
-    Transform = {
-        Translation = {
-            Type = "GlobeTranslation",
-            Globe = moonAsset.Moon.Identifier,
-            Longitude = -360+23.47306,
-            Latitude = 0.67402,
-            FixedAltitude = -1927.65,
-            UseFixedAltitude = true
-        }
-    }
-}
-
-local Apollo17LemPosition = {
-    Identifier = "Apollo17LemPosition",
-    Parent = moonAsset.Moon.Identifier,
-    Transform = {
-        Translation = {
-            Type = "GlobeTranslation",
-            Globe = moonAsset.Moon.Identifier,
-            Longitude = -360+30.77170,
-            Latitude = 20.19092,
-        }
-    }
-}
-
-local ApolloLemModel = {
-    Type = "RenderableModel",
-    Geometry = {
-        Type = "MultiModelGeometry",
-        GeometryFile = models .. "/lem_nasa.obj"
-    },
-    ColorTexture = models .. "/darkred.png",
-    LightSources = LightSources,
-    PerformShading = true,
-    DisableFaceCulling = false,
+local partsInfo = {
+    -- Data is structured as: Geometry file name (except .obj suffix), texture file name, shading
+    -- Exterior
+    {"black", "black.png", true},
+    {"blue_glass", "blue_glass.png", true},
+    {"booster", "booster3.png", true},
+    {"bright_white", "white.png", true},
+    {"dark_grey_dish", "dark_gray.png", true},
+    {"dull_white", "dull_white.png", true},
+    {"gold", "gold.png", true},
+    {"light_grey", "light_gray.png", true},
+    {"mid_grey", "gray.png", true},
+    {"orange", "orange.png", true},
+    {"texture_lem_flag", "texture_lem_flag.png", true},
+    {"texture_lem_unitedstates", "texture_lem_unitedstates.png", true},
+    {"yellow_buttons", "yellow.png", true},
 }
 
 
-local Apollo11Lem = {
-    Identifier = "Apollo11Lem",
-    Parent = Apollo11LemPosition.Identifier,
-    Transform = {
-          Scale = {
-            Type = "StaticScale",
-            Scale = 1.0
-        },
-    },
-    GUI = {
-        Name = "Apollo 11 Lem",
-        Path = "/Solar System/Missions/Apollo/11"
-    }
-}
-
-
-local Lem_Part_Black = {
-    Identifier = "Lem_Part_Black",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/black.obj"
-        },
-        ColorTexture = models .. "/lem/black.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part Black",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem Part Black"
-    }
-}
-
-local Lem_Part_blue_glass = {
-    Identifier = "Lem_Part_blue_glass",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/blue_glass.obj"
-        },
-        ColorTexture = models .. "/lem/blue_glass.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part blue_glass",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem Part blue_glass"
-    }
-}
-
-local Lem_Part_booster = {
-    Identifier = "Lem_Part_booster",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/booster.obj"
-        },
-        ColorTexture = models .. "/lem/booster3.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part booster",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem Part booster"
-    }
-}
-
-local Lem_Part_bright_white = {
-    Identifier = "Lem_Part_bright_white",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/bright_white.obj"
-        },
-        ColorTexture = models .. "/lem/white.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part bright_white",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem bright_white"
-    }
-}
-
-local Lem_Part_dark_grey_dish = {
-    Identifier = "Lem_Part_dark_grey_dish",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/dark_grey_dish.obj"
-        },
-        ColorTexture = models .. "/lem/dark_gray.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part dark_grey_dish",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem dark_grey_dish"
-    }
-}
-
-local Lem_Part_dull_white = {
-    Identifier = "Lem_Part_dull_white",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/dull_white.obj"
-        },
-        ColorTexture = models .. "/lem/dull_white.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part dull_white",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem dull_white"
-    }
-}
-
-local Lem_Part_gold = {
-    Identifier = "Lem_Part_gold",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/gold.obj"
-        },
-        ColorTexture = models .. "/lem/gold.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part gold",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem gold"
-    }
-}
-
-local Lem_Part_light_grey = {
-    Identifier = "Lem_Part_light_grey",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/light_grey.obj"
-        },
-        ColorTexture = models .. "/lem/light_gray.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part light_grey",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem light_grey"
-    }
-}
-
-local Lem_Part_mid_grey = {
-    Identifier = "Lem_Part_mid_grey",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/mid_grey.obj"
-        },
-        ColorTexture = models .. "/lem/gray.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part mid_grey",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem mid_grey"
-    }
-}
-
-local Lem_Part_orange = {
-    Identifier = "Lem_Part_orange",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/orange.obj"
-        },
-        ColorTexture = models .. "/lem/orange.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part orange",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem orange"
-    }
-}
-
-local Lem_Part_texture_lem_flag = {
-    Identifier = "Lem_Part_texture_lem_flag",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/texture_lem_flag.obj"
-        },
-        ColorTexture = models .. "/lem/texture_lem_flag.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part texture_lem_flag",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem texture_lem_flag"
-    }
-}
-
-local Lem_Part_texture_lem_unitedstates = {
-    Identifier = "Lem_Part_texture_lem_unitedstates",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/texture_lem_unitedstates.obj"
-        },
-        ColorTexture = models .. "/lem/texture_lem_unitedstates.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part texture_lem_unitedstates",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem texture_lem_unitedstates"
-    }
-}
-
-local Lem_Part_yellow_buttons = {
-    Identifier = "Lem_Part_yellow_buttons",
-    Parent = Apollo11Lem.Identifier,
-    Renderable = {
-        Type = "RenderableModel",
-        Geometry = {
-            Type = "MultiModelGeometry",
-            GeometryFile = models .. "/lem/yellow_buttons.obj"
-        },
-        ColorTexture = models .. "/lem/yellow.png",
-        LightSources = LightSources,
-        PerformShading = true,
-        DisableFaceCulling = true 
-    },
-    GUI = {
-        Hidden = false,
-        Name = "Lem Part yellow_buttons",
-        Path = "/Solar System/Missions/Apollo/Apoll 11 Lem yellow_buttons"
-    }
-}
-
-
-local Apollo17Lem = {
-    Identifier = "Apollo17Lem",
-    Parent = Apollo17LemPosition.Identifier,
-    Transform = {
-          Scale = {
-            Type = "StaticScale",
-            Scale = 14.0
-        },
-    },
-    Renderable = ApolloLemModel,
-    GUI = {
-        Name = "Apollo 17 Lem",
-        Path = "/Solar System/Missions/Apollo/17/Lem"
-    }
-}
-
-assetHelper.registerSceneGraphNodesAndExport(asset, {
-    Apollo11LemPosition,
-    Apollo17LemPosition,
-    Apollo11Lem,
-    Apollo17Lem,
-
-
-    Lem_Part_texture_lem_flag,
-    Lem_Part_texture_lem_unitedstates,
-    Lem_Part_booster,
-    Lem_Part_bright_white,
-    Lem_Part_dark_grey_dish,
-
-    Lem_Part_Black,
-    Lem_Part_blue_glass,
-    Lem_Part_dull_white,
-    Lem_Part_gold,
-    Lem_Part_light_grey,
-    Lem_Part_mid_grey,
-    Lem_Part_orange,
-    Lem_Part_yellow_buttons,
-})
-
-asset.onInitialize(function ()
-    openspace.setPropertyValueSingle('Scene.Apollo17Lem.Renderable.RotationVector', {68.031502,68.031502,8.545990});
---  openspace.setPropertyValueSingle('Scene.Apollo11Lem.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-
-    openspace.setPropertyValueSingle('Scene.Lem_Part_texture_lem_flag.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_texture_lem_unitedstates.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_booster.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_bright_white.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-
-    openspace.setPropertyValueSingle('Scene.Lem_Part_Black.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_blue_glass.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_dark_grey_dish.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_dull_white.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_gold.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_light_grey.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_mid_grey.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_orange.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-    openspace.setPropertyValueSingle('Scene.Lem_Part_yellow_buttons.Renderable.RotationVector', {73.074631,89.194031,8.545990});
-
+asset.export("registerLem", function (asset, parentNodeIdentifier) 
+    local parts = {}
+    for i, info in ipairs(partsInfo) do
+        parts[#parts + 1] = assetHelper.createModelPart(
+            parentNodeIdentifier,
+            sunTransforms.SolarSystemBarycenter.Identifier,
+            models .. "/lem",
+            info[1],
+            info[2],
+            info[3]
+        )
+    end
+    assetHelper.registerSceneGraphNodesAndExport(asset, parts)
 end)
+

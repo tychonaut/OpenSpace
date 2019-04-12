@@ -1,3 +1,4 @@
+
 local sunTransforms = asset.require('scene/solarsystem/sun/transforms')
 local assetHelper = asset.require('util/asset_helper')
 
@@ -31,8 +32,8 @@ local Station7BoulderHolder = {
         Translation = {
             Type = "GlobeTranslation",
             Globe = moonAsset.Moon.Identifier,
-            Longitude = -360+30.8165625,
-            Latitude = 20.2909008,
+            Longitude = -360+30.8165882,
+            Latitude = 20.2908556,
             FixedAltitude = -2593.5,
             UseFixedAltitude = true
         }
@@ -75,6 +76,5 @@ assetHelper.registerSceneGraphNodesAndExport(asset, {
 })
 
 asset.onInitialize(function ()
---   openspace.setPropertyValueSingle('Scene.Station7BoulderModel.Renderable.RotationVector', {0.000000,265.909088,200.454544});
     openspace.setPropertyValueSingle('Scene.Station7BoulderModel.Renderable.RotationVector', {1.945950,274.378387,212.903214});
 end)

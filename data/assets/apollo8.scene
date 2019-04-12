@@ -109,13 +109,13 @@ local Keybindings = {
     {
         Key = "PAGE_DOWN",
         Command = "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Moon');",
-        Documentation = "Toggles acurate normals for the moon",
+        Documentation = "Focus on moon",
         Local = false
     },
     {
         Key = "HOME",
         Command = "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Earth');",
-        Documentation = "Toggles acurate normals for the moon",
+        Documentation = "Focus on Earth",
         Local = false
     },
     {
@@ -170,14 +170,6 @@ asset.onInitialize(function ()
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.Kaguya_Utah.Settings.Multiplier', 1.084750);
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.WAC_Utah.BlendMode', 4);
 
-    openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Settings.Gamma', 2.4);
-    openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_travmap.Settings.Gamma', 1.45);
-    openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_LEM.Settings.Gamma', 1.70);
-    openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A17_LEM.Settings.Multiplier', 0.474140);
-    openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Settings.Gamma', 2.4);
-    openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Settings.Gamma', 2.4);
-    openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.LRO_NAC_Apollo_11.Settings.Gamma', 2.4);
-
     openspace.navigation.setCameraState({
         Anchor = "Earth",
         Position = { 0, 0, 0 },
@@ -185,10 +177,6 @@ asset.onInitialize(function ()
     })
 
     openspace.globebrowsing.goToGeo(28.5729, 80.6490, 20000000)
-    openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Aim", '')
-    openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Anchor", 'Apollo8')
-    openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.RetargetAnchor", nil)
-
 end)
 
 asset.onDeinitialize(function ()

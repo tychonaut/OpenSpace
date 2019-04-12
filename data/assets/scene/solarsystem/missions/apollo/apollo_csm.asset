@@ -30,10 +30,10 @@ local partsInfo = {
     {"AP08_service_high_gain_antenna", "Antenna_diff.png", true},
     {"AP08_service_module", "Service_module_diff.png", true},
     {"AP08_service_nozzle", "Nozzle_diff.png", true},
-    {"AP08_service_pink", "AP08_service_pink.png", true},
-    {"AP08_service_red", "AP08_service_red.png", true},
-    {"AP08_service_scratched_metal", "AP08_service_scratched_metal.png", true},
-    {"AP08_service_white", "AP08_service_white.png", true},
+    {"AP08_service_pink", "pink.png", true},
+    {"AP08_service_red", "red.png", true},
+    {"AP08_service_scratched_metal", "scratched_metal_gloss.png", true},
+    {"AP08_service_white", "white.png", true},
 
     -- Interior
     {"AP11_int_back_wall_left", "AP11_int_back_wall_left.png", false},
@@ -63,7 +63,7 @@ local partsInfo = {
     {"AP11_interior_coiled_hose", "coiled_hoseShape_tpAmbient.png", false},
     {"AP11_interior_control_panel_left_win_plates", "control_panel_left_win_platesShape_tpAmbient.png", false},
     {"AP11_interior_control_panel_rt_win_plates", "control_panel_rt_win_platesShape_tpAmbient.png", false},
-    {"AP11_interior_copper_parts_main_cp", "copper_parts_main_cpShape_tpAmbient", false},
+    {"AP11_interior_copper_parts_main_cp", "copper_parts_main_cpShape_tpAmbient.png", false},
     {"AP11_interior_dials_main2", "dials_main2Shape_tpAmbient.png", false},
     {"AP11_interior_dials_t2", "dials_t2Shape_tpAmbient.png", false},
     {"AP11_interior_dial_fixes_01", "dial_fixes_01Shape_tpAmbient.png", false},
@@ -130,41 +130,15 @@ local partsInfo = {
 }
 
 
-function createPart(parent, geometry, texture, performShading)
-    local lightSources = {}
-    if performShading then
-        lightSources[1] = {
-            Type = "SceneGraphLightSource",
-            Identifier = "Sun",
-            Node = sunTransforms.SolarSystemBarycenter.Identifier,
-            Intensity = 1.0
-        }
-    end
-    return {
-        Identifier = parent .. "-" .. geometry,
-        Parent = parent,
-        Renderable = {
-            Type = "RenderableModel",
-            Geometry = {
-                Type = "MultiModelGeometry",
-                GeometryFile =  models .. "/" .. geometry .. ".obj"
-            },
-            ColorTexture = models .. "/" .. texture,
-            LightSources = lightSources,
-            PerformShading = performShading,
-            DisableFaceCulling = true 
-        },
-        GUI = {
-            Hidden = true
-        }
-    }
-end
+
 
 asset.export("registerCsm", function (asset, parentNodeIdentifier) 
     local parts = {}
     for i, info in ipairs(partsInfo) do
-        parts[#parts + 1] = createPart(
+        parts[#parts + 1] = assetHelper.createModelPart(
             parentNodeIdentifier,
+            sunTransforms.SolarSystemBarycenter.Identifier,
+            models,
             info[1],
             info[2],
             info[3]
