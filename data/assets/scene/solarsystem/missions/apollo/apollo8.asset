@@ -71,7 +71,7 @@ local Apollo8Model = {
     GUI = {
         Hidden = false,
         Name = "Apollo 8 Model",
-        Path = "/Solar System/Missions/Apollo/8"
+        Path = "/Solar System/Missions/Apollo"
     }
 }
 
