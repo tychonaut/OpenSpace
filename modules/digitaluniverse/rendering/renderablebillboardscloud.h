@@ -38,6 +38,8 @@
 #include <ghoul/opengl/uniformcache.h>
 #include <functional>
 #include <unordered_map>
+#include <map>
+#include <string>
 
 namespace ghoul::filesystem { class File; }
 namespace ghoul::fontrendering { class Font; }
@@ -67,14 +69,27 @@ public:
     static documentation::Documentation Documentation();
 
 private:
+    std::map<std::string, float> LengthUnitsMap = { 
+        {"Meters", 1.0}, {"Km", 1e3}, {"AU", 1.496e11},
+        {"Lighthours", 1.079e12}, {"Lightdays", 2.59e13}, {"Lightmonths", 7.771e14}, 
+        {"Lightyears", 9.461e15}, {"Parsecs", 3.086e16}, {"Kiloparsecs", 3.086e19}, 
+        {"Megaparsecs", 3.086e22}, {"Gigaparsecs", 3.086e25}
+    };
+
+    std::map<int, std::string> MenuLengthUnitsMap = {
+        {0, "Meters"}, {1, "Km"}, {2, "AU"},
+        {3, "Lighthours"}, {4, "Lightdays"}, {5, "Lightmonths"},
+        {6, "Lightyears"}, {7, "Parsecs"}, {8, "Kiloparsecs"},
+        {9, "Megaparsecs"}, {10, "Gigaparsecs"}
+    };
+
     enum Unit {
         Meter = 0,
         Kilometer = 1,
         Parsec = 2,
         Kiloparsec = 3,
         Megaparsec = 4,
-        Gigaparsec = 5,
-        GigalightYears = 6
+        Gigaparsec = 5
     };
 
     void createDataSlice();
@@ -127,6 +142,8 @@ private:
     properties::FloatProperty _billboardMinSize;
     properties::FloatProperty _correctionSizeEndDistance;
     properties::FloatProperty _correctionSizeFactor;
+    properties::OptionProperty _fadeInStartUnitOption;
+    properties::OptionProperty _fadeInEndUnitOption;
 
     // DEBUG:
     properties::OptionProperty _renderOption;

@@ -226,6 +226,20 @@ namespace {
         "Enable pixel size control.",
         "Enable pixel size control for rectangular projections."
     };
+
+    constexpr openspace::properties::Property::PropertyInfo FadeInStartUnitOptionInfo = {
+        "FadeInStartUnit",
+        "Fade In Start Unit Option",
+        "This value gives the physical unit for the initial position where the fade in "
+        "effect starts being evaluated."
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo FadeInEndUnitOptionInfo = {
+        "FadeInEndUnit",
+        "Fade In End Unit Option",
+        "This value gives the physical unit for the final position where the fade in "
+        "effect finishes being evaluated."
+    };
 }  // namespace
 
 namespace openspace {
@@ -369,6 +383,18 @@ documentation::Documentation RenderableBillboardsCloud::Documentation() {
                 CorrectionSizeFactorInfo.description
             },
             {
+                FadeInStartUnitOptionInfo.identifier,
+                new StringListVerifier,
+                Optional::Yes,
+                FadeInStartUnitOptionInfo.description
+            },
+            {
+                FadeInEndUnitOptionInfo.identifier,
+                new StringListVerifier,
+                Optional::Yes,
+                FadeInEndUnitOptionInfo.description
+            },
+            {
                 PixelSizeControlInfo.identifier,
                 new BoolVerifier,
                 Optional::Yes,
@@ -404,14 +430,16 @@ RenderableBillboardsCloud::RenderableBillboardsCloud(const ghoul::Dictionary& di
     , _fadeInDistance(
         FadeInDistancesInfo,
         glm::vec2(0.0f),
-        glm::vec2(0.0),
-        glm::vec2(100.0)
+        glm::vec2(1E-10),
+        glm::vec2(1E10)
     )
     , _disableFadeInDistance(DisableFadeInInfo, true)
     , _billboardMaxSize(BillboardMaxSizeInfo, 400.0, 0.0, 1000.0)
     , _billboardMinSize(BillboardMinSizeInfo, 0.0, 0.0, 100.0)
     , _correctionSizeEndDistance(CorrectionSizeEndDistanceInfo, 17.0, 12.0, 25.0)
     , _correctionSizeFactor(CorrectionSizeFactorInfo, 8, 0.0, 20.0)
+    , _fadeInStartUnitOption(FadeInStartUnitOptionInfo, properties::OptionProperty::DisplayType::Dropdown)
+    , _fadeInEndUnitOption(FadeInEndUnitOptionInfo, properties::OptionProperty::DisplayType::Dropdown)
     , _renderOption(RenderOptionInfo, properties::OptionProperty::DisplayType::Dropdown)
 {
     documentation::testSpecificationAndThrow(
@@ -458,9 +486,6 @@ RenderableBillboardsCloud::RenderableBillboardsCloud(const ghoul::Dictionary& di
         }
         else if (unit == GigaparsecUnit) {
             _unit = Gigaparsec;
-        }
-        else if (unit == GigalightyearUnit) {
-            _unit = GigalightYears;
         }
         else {
             LWARNING(
@@ -586,6 +611,105 @@ RenderableBillboardsCloud::RenderableBillboardsCloud(const ghoul::Dictionary& di
         _fadeInDistance.set(fadeInValue);
         _disableFadeInDistance.set(false);
         addProperty(_fadeInDistance);
+        
+        int i = 0;
+        for (std::pair<const std::string, const float>const& entry : LengthUnitsMap) {
+            _fadeInStartUnitOption.addOption(i++, entry.first);
+        }
+        addProperty(_fadeInStartUnitOption);
+
+        i = 0;
+        for (std::pair<const std::string, const float>const& entry : LengthUnitsMap) {
+            _fadeInEndUnitOption.addOption(i++, entry.first);
+        }
+        addProperty(_fadeInEndUnitOption);
+
+        if (dictionary.hasKey(FadeInStartUnitOptionInfo.identifier)) {
+            const std::string startUnit(
+                dictionary.value<std::string>(FadeInStartUnitOptionInfo.identifier)
+            );
+            if (LengthUnitsMap.find(startUnit) != LengthUnitsMap.end()) {
+                int k = 0;
+                for (std::pair<const std::string, const float>const& entry : LengthUnitsMap) {
+                    if (entry.first != startUnit)
+                        k++;
+                    else
+                        break;
+                }
+                _fadeInStartUnitOption.set(k);
+            }
+        }
+        else {
+            if (_unit == Meter) {
+                _fadeInStartUnitOption.set(9);
+            }
+            else if (_unit == Kilometer) {
+                _fadeInStartUnitOption.set(3);
+            }
+            else if (_unit == Parsec) {
+                _fadeInStartUnitOption.set(10);
+            }
+            else if (_unit == Kiloparsec) {
+                _fadeInStartUnitOption.set(2);
+            }
+            else if (_unit == Megaparsec) {
+                _fadeInStartUnitOption.set(8);
+            }
+            else if (_unit == Gigaparsec) {
+                _fadeInStartUnitOption.set(1);
+            }
+            else {
+                LWARNING(
+                    "No unit given for start fade in unit in RenderableBillboardsCloud. "
+                    "Using meters as units."
+                );
+                _fadeInStartUnitOption.set(9);
+            }
+        }
+
+        if (dictionary.hasKey(FadeInEndUnitOptionInfo.identifier)) {
+            const std::string endUnit(
+                dictionary.value<std::string>(FadeInEndUnitOptionInfo.identifier)
+            );
+            if (LengthUnitsMap.find(endUnit) != LengthUnitsMap.end()) {
+                int k = 0;
+                for (std::pair<const std::string, const float>const& entry : LengthUnitsMap) {
+                    if (entry.first != endUnit)
+                        k++;
+                    else
+                        break;
+                }
+                _fadeInEndUnitOption.set(k);
+            }
+        }
+        else {
+            if (_unit == Meter) {
+                _fadeInEndUnitOption.set(9);
+            }
+            else if (_unit == Kilometer) {
+                _fadeInEndUnitOption.set(3);
+            }
+            else if (_unit == Parsec) {
+                _fadeInEndUnitOption.set(10);
+            }
+            else if (_unit == Kiloparsec) {
+                _fadeInEndUnitOption.set(2);
+            }
+            else if (_unit == Megaparsec) {
+                _fadeInEndUnitOption.set(8);
+            }
+            else if (_unit == Gigaparsec) {
+                _fadeInEndUnitOption.set(1);
+            }
+            else {
+                LWARNING(
+                    "No unit given for start fade in unit in RenderableBillboardsCloud. "
+                    "Using meters as units."
+                );
+                _fadeInEndUnitOption.set(9);
+            }
+        }
+
         addProperty(_disableFadeInDistance);
     }
 
@@ -837,9 +961,6 @@ void RenderableBillboardsCloud::renderLabels(const RenderData& data,
         case Gigaparsec:
             scale = static_cast<float>(1e9 * PARSEC);
             break;
-        case GigalightYears:
-            scale = static_cast<float>(306391534.73091 * PARSEC);
-            break;
     }
 
     glm::vec4 textColor = _textColor;
@@ -889,18 +1010,24 @@ void RenderableBillboardsCloud::render(const RenderData& data, RendererTasks&) {
         case Gigaparsec:
             scale = static_cast<float>(1e9 * PARSEC);
             break;
-        case GigalightYears:
-            scale = static_cast<float>(306391534.73091 * PARSEC);
-            break;
     }
 
     float fadeInVariable = 1.f;
     if (!_disableFadeInDistance) {
         float distCamera = static_cast<float>(glm::length(data.camera.positionVec3()));
-        const glm::vec2 fadeRange = _fadeInDistance;
+        /*const glm::vec2 fadeRange = _fadeInDistance;
         const float a = 1.f / ((fadeRange.y - fadeRange.x) * scale);
         const float b = -(fadeRange.x / (fadeRange.y - fadeRange.x));
+        const float funcValue = a * distCamera + b;*/
+
+        glm::vec2 fadeRange = _fadeInDistance;
+
+        fadeRange.x *= LengthUnitsMap[MenuLengthUnitsMap[_fadeInStartUnitOption]];
+        fadeRange.y *= LengthUnitsMap[MenuLengthUnitsMap[_fadeInEndUnitOption]];
+        const float a = 1.f / (fadeRange.y - fadeRange.x);
+        const float b = -(fadeRange.x / (fadeRange.y - fadeRange.x));
         const float funcValue = a * distCamera + b;
+
         fadeInVariable *= funcValue > 1.f ? 1.f : funcValue;
 
         if (funcValue < 0.01f) {
