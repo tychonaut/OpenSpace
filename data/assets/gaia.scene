@@ -34,7 +34,9 @@ asset.onInitialize(function ()
 
     openspace.navigation.setCameraState({
         Anchor = "Gaia",
-        Position = { 1000000000000.0, 1000000000000.0, 1000000000000.0 },
-        Rotation = { 0.683224, -0.765934, -0.601234, -0.418073 },
+        ReferenceFrame = "GaiaPosition",
+        Position = {-3.074686E1,1.421375E1,1.656601E0},
+        Rotation = {-0.535785E0,-0.431560E0,0.318505E0,0.652108E0}
     })
+
 end)

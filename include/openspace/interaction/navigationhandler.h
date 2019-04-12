@@ -69,7 +69,7 @@ public:
     void setCamera(Camera* camera);
     void setInterpolationTime(float durationInSeconds);
 
-    void setCameraStateFromDictionary(const ghoul::Dictionary& cameraDict);
+    CameraState cameraStateFromDictionary(const ghoul::Dictionary& cameraDict);
     void updateCamera(double deltaTime);
     void setEnableKeyFrameInteraction();
     void setDisableKeyFrameInteraction();
@@ -77,7 +77,7 @@ public:
     void stopPlayback();
 
     // Accessors
-    ghoul::Dictionary cameraStateDictionary();
+    ghoul::Dictionary cameraStateToDictionary(const CameraState& state);
     Camera* camera() const;
     const InputState& inputState() const;
     const OrbitalNavigator& orbitalNavigator() const;

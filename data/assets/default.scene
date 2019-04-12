@@ -95,7 +95,7 @@ asset.onInitialize(function ()
         nil
     )
 
-    openspace.globebrowsing.goToGeo("Earth", 20, -60, 15000000)
+    openspace.globebrowsing.goToGeo("Earth", 20, -60, 20000000)
 end)
 
 asset.onDeinitialize(function ()

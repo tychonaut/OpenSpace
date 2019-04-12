@@ -184,7 +184,8 @@ void NavigationHandler::keyboardCallback(Key key, KeyModifier modifier, KeyActio
     _inputState->keyboardCallback(key, modifier, action);
 }
 
-void NavigationHandler::setCameraStateFromDictionary(const ghoul::Dictionary& cameraDict)
+NavigationHandler::CameraState NavigationHandler::cameraStateFromDictionary(
+                                                      const ghoul::Dictionary& cameraDict)
 {
     bool readSuccessful = true;
 
@@ -208,13 +209,13 @@ void NavigationHandler::setCameraStateFromDictionary(const ghoul::Dictionary& ca
         );
     }
 
-    setCameraStateNextFrame(CameraState{
+    return CameraState{
         anchor,
         aim,
         referenceFrame,
         cameraPosition,
         glm::dquat(cameraRotation.w, cameraRotation.x, cameraRotation.y, cameraRotation.z)
-    });
+    };
 }
 
 void NavigationHandler::setCameraStateNextFrame(CameraState c) {
@@ -279,10 +280,9 @@ NavigationHandler::CameraState NavigationHandler::cameraState() const {
     };
 }
 
-ghoul::Dictionary NavigationHandler::cameraStateDictionary() {
+ghoul::Dictionary NavigationHandler::cameraStateToDictionary(const CameraState& state) {
     ghoul::Dictionary cameraDict;
 
-    CameraState state = cameraState();
     if (state.anchor.has_value()) {
         cameraDict.setValue(KeyAnchor, state.anchor.value());
     }
@@ -309,7 +309,7 @@ void NavigationHandler::saveCameraStateToFile(const std::string& filepath) {
         std::string fullpath = absPath(filepath);
         LINFO(fmt::format("Saving camera position: {}", filepath));
 
-        ghoul::Dictionary cameraDict = cameraStateDictionary();
+        ghoul::Dictionary cameraDict = cameraStateToDictionary(cameraState());
 
         ghoul::DictionaryLuaFormatter formatter;
         std::ofstream ofs(fullpath.c_str());
@@ -327,7 +327,7 @@ void NavigationHandler::restoreCameraStateFromFile(const std::string& filepath) 
     ghoul::Dictionary cameraDict;
     try {
         ghoul::lua::loadDictionaryFromFile(filepath, cameraDict);
-        setCameraStateFromDictionary(cameraDict);
+        setCameraStateNextFrame(cameraStateFromDictionary(cameraDict));
     }
     catch (ghoul::RuntimeError& e) {
         LWARNING("Unable to set camera position");

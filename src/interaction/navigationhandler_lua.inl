@@ -51,7 +51,11 @@ int setCameraState(lua_State* L) {
     try {
         ghoul::Dictionary dictionary;
         ghoul::lua::luaDictionaryFromState(L, dictionary);
-        global::navigationHandler.setCameraStateFromDictionary(dictionary);
+        interaction::NavigationHandler::CameraState state =
+            global::navigationHandler.cameraStateFromDictionary(dictionary);
+
+        global::navigationHandler.setCameraStateNextFrame(state);
+
     } catch (const ghoul::RuntimeError& e) {
         lua_settop(L, 0);
         return ghoul::lua::luaError(
