@@ -181,7 +181,7 @@ asset.onInitialize(function ()
     openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.Anchor", 'Moon')
     openspace.setPropertyValueSingle("NavigationHandler.OrbitalNavigator.RetargetAnchor", nil)
 
-    openspace.globebrowsing.goToGeo(20.46, 76.89, 10000000)
+    openspace.globebrowsing.goToGeo("Earth", 20, -60, 15000000)
 
     openspace.setPropertyValueSingle("Scene.Moon.Renderable.PerformShading", false)
 end)

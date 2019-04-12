@@ -60,6 +60,8 @@ public:
     Camera* camera() const;
     void setCamera(Camera* camera);
 
+    void clearPreviousState();
+
     void setFocusNode(const std::string& focusNode);
     void setAnchorNode(const std::string& anchorNode);
     void setAimNode(const std::string& aimNode);

@@ -369,7 +369,6 @@ void OrbitalNavigator::updateCameraStateFromStates(double deltaTime) {
         _camera->rotationQuaternion()
     };
 
-
     const bool hasPreviousPositions =
         _previousAnchorNodePosition.has_value() &&
         _previousAimNodePosition.has_value();
@@ -569,6 +568,13 @@ void OrbitalNavigator::setAnchorNode(const SceneGraphNode* anchorNode) {
         _previousAnchorNodePosition.reset();
         _previousAnchorNodeRotation.reset();
     }
+}
+
+void OrbitalNavigator::clearPreviousState() {
+    _previousAnchorNodePosition.reset();
+    _previousAnchorNodeRotation.reset();
+    _previousAimNodePosition.reset();
+    _previousAimNodeRotation.reset();
 }
 
 void OrbitalNavigator::setAimNode(const SceneGraphNode* aimNode) {

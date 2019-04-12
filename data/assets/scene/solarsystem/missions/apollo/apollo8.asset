@@ -69,7 +69,7 @@ local Apollo8Model = {
         }
     },
     GUI = {
-        Hidden = true,
+        Hidden = false,
         Name = "Apollo 8 Model",
         Path = "/Solar System/Missions/Apollo/8"
     }

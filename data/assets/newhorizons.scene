@@ -226,6 +226,7 @@ asset.onInitialize(function ()
 
     openspace.navigation.setCameraState({
         Anchor = NewHorizonsAsset.NewHorizons.Identifier,
+        ReferenceFrame = NewHorizonsAsset.NewHorizons.Identifier,
         Position = { 9.284984E11, 8.918132E11, 1.181499E12 },
         Rotation = { -0.780997, 0.115575, -0.539849, -0.291975 }
     })

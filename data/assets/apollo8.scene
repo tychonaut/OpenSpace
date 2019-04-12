@@ -32,7 +32,7 @@ local Keybindings = {
     },
     {
         Key = "U",
-        Command =   "openspace.time.setTime('1968-12-21T15:41:37.00')" ..
+        Command =   "openspace.time.setTime('1968-12-21T12:51:51.0')" ..
                     "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Apollo8');" ..
                     "openspace.setPropertyValueSingle('Scene.Apollo8LaunchTrail.Renderable.Enabled', true);",
         Documentation = "Jump to time right before A8 liftoff",
@@ -43,10 +43,11 @@ local Keybindings = {
         Command =   "openspace.time.setPause(true);" ..
                     'openspace.time.setTime("1968 DEC 24 16:37:31");' ..
                     'openspace.navigation.setCameraState({' ..
-                        'Anchor = "Apollo8Pivot",' ..
-                        'Aim = "",' ..
-                        'Position = { 12.94543, 17.25316, -23.16316 },' ..
-                        'Rotation = { -0.0996527, 0.727683, 0.615566, 0.285701 },' ..
+                    '    Anchor = "Apollo8Pivot",' ..
+                    '    Aim = "",' ..
+                    '    ReferenceFrame = "Apollo8Pivot",'  ..
+                    '    Position = {-7.174805E0,-1.820108E1,-3.634688E1},' ..
+                    '    Rotation = {0.697424E0,-0.694746E0,0.539866E-1,0.167373E0},' ..
                     '});',
         Documentation = "Jump to right before the earthrise photo",
         Local = false
@@ -57,9 +58,10 @@ local Keybindings = {
                     'openspace.time.setTime("1968 DEC 24 16:38:43");'  ..
                     'openspace.navigation.setCameraState({'  ..
                     '    Anchor = "Apollo8Pivot",'  ..
+                    '    ReferenceFrame = "Apollo8Pivot",'  ..
                     '    Aim = "",' ..
-                    '    Position = { 0.00863647, -1.014866, -0.747894 },'  ..
-                    '    Rotation = { -0.123114, 0.695592, 0.655970, 0.265891 }'  ..
+                    '    Position={-0.250397E0,-0.606144E0,-1.124966E0},'  ..
+                    '    Rotation={-0.429855E0,0.584589E0,-0.498124E0,-0.474713E0}'  ..
                     '});',
         Documentation = "Jump to time and place of main earthrise photo",
         Local = false
@@ -170,13 +172,7 @@ asset.onInitialize(function ()
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.Kaguya_Utah.Settings.Multiplier', 1.084750);
     openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.WAC_Utah.BlendMode', 4);
 
-    openspace.navigation.setCameraState({
-        Anchor = "Earth",
-        Position = { 0, 0, 0 },
-        Rotation = { 0.758797, 0.221490, -0.605693, -0.091135 },
-    })
-
-    openspace.globebrowsing.goToGeo(28.5729, 80.6490, 20000000)
+    openspace.globebrowsing.goToGeo("Earth", 20, -60, 15000000)
 end)
 
 asset.onDeinitialize(function ()

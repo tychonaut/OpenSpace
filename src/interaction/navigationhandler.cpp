@@ -32,11 +32,13 @@
 #include <openspace/interaction/inputstate.h>
 #include <openspace/network/parallelpeer.h>
 #include <openspace/util/camera.h>
+#include <openspace/query/query.h>
 #include <ghoul/filesystem/file.h>
 #include <ghoul/filesystem/filesystem.h>
 #include <ghoul/logging/logmanager.h>
 #include <ghoul/misc/dictionaryluaformatter.h>
 #include <fstream>
+
 
 namespace {
     constexpr const char* _loggerCat = "NavigationHandler";
@@ -45,6 +47,7 @@ namespace {
     constexpr const char* KeyAim = "Aim";
     constexpr const char* KeyPosition = "Position";
     constexpr const char* KeyRotation = "Rotation";
+    constexpr const char* KeyReferenceFrame = "ReferenceFrame";
 
     constexpr const openspace::properties::Property::PropertyInfo KeyFrameInfo = {
         "UseKeyFrameInteraction",
@@ -126,7 +129,8 @@ void NavigationHandler::updateCamera(double deltaTime) {
         applyPendingCameraState();
         _pendingCameraState.reset();
     }
-    else if ( ! _playbackModeEnabled ) {
+
+    if ( ! _playbackModeEnabled ) {
         if (_camera) {
             if (_useKeyFrameInteraction) {
                 _keyframeNavigator->updateCamera(*_camera, _playbackModeEnabled);
@@ -186,25 +190,30 @@ void NavigationHandler::setCameraStateFromDictionary(const ghoul::Dictionary& ca
 
     std::string anchor;
     std::string aim;
+    std::string referenceFrame;
+
     glm::dvec3 cameraPosition;
     glm::dvec4 cameraRotation; // Need to read the quaternion as a vector first.
 
     readSuccessful &= cameraDict.getValue(KeyAnchor, anchor);
     readSuccessful &= cameraDict.getValue(KeyPosition, cameraPosition);
     readSuccessful &= cameraDict.getValue(KeyRotation, cameraRotation);
-    cameraDict.getValue(KeyAim, aim); // Aim is not required
+    readSuccessful &= cameraDict.getValue(KeyReferenceFrame, referenceFrame);
+    cameraDict.getValue(KeyAim, aim); // Aim is not required. Defaults to no aim.
 
     if (!readSuccessful) {
         throw ghoul::RuntimeError(
-            "Position, Rotation and Focus need to be defined for camera dictionary."
+            "Position, Rotation, ReferenceFrame and Anchor "
+            "need to be defined for camera dictionary."
         );
     }
 
     setCameraStateNextFrame(CameraState{
         anchor,
         aim,
+        referenceFrame,
         cameraPosition,
-        glm::dquat(cameraRotation.x, cameraRotation.y, cameraRotation.z, cameraRotation.w)
+        glm::dquat(cameraRotation.w, cameraRotation.x, cameraRotation.y, cameraRotation.z)
     });
 }
 
@@ -218,36 +227,78 @@ void NavigationHandler::applyPendingCameraState() {
     }
 
     CameraState& c = _pendingCameraState.value();
-    _orbitalNavigator->setAnchorNode(c.anchor);
-    _orbitalNavigator->setAimNode(c.aim);
+    if (c.anchor.has_value()) {
+        _orbitalNavigator->setAnchorNode(c.anchor.value());
+    }
+    if (c.aim.has_value()) {
+        _orbitalNavigator->setAimNode(c.aim.value());
+    }
 
+    glm::dmat4 modelTransform(1.0);
+    glm::dmat3 modelRotation(1.0);
+
+    if (c.referenceFrame.has_value()) {
+        const SceneGraphNode* referenceFrame = sceneGraphNode(c.referenceFrame.value());
+        if (referenceFrame) {
+            modelTransform = referenceFrame->modelTransform();
+            modelRotation = referenceFrame->worldRotationMatrix();
+        }
+    }
+
+    _camera->setPositionVec3(modelTransform * glm::dvec4(c.position, 1.0));
+
+    if (c.rotation.has_value()) {
+        _camera->setRotation(glm::quat_cast(modelRotation) * c.rotation.value());
+    }
+
+    _orbitalNavigator->clearPreviousState();
+}
+
+NavigationHandler::CameraState NavigationHandler::cameraState() const {
     const SceneGraphNode* anchorNode = _orbitalNavigator->anchorNode();
-    glm::dvec3 offset = anchorNode ? anchorNode->worldPosition() : glm::dvec3(0.0);
+    const SceneGraphNode* aimNode = _orbitalNavigator->aimNode();
 
-    _camera->setPositionVec3(c.position + offset);
-    _camera->setRotation(c.rotation);
+    glm::dvec3 position = _camera->positionVec3();
+    glm::dquat rotation = _camera->rotationQuaternion();
+
+    if (anchorNode) {
+        position = anchorNode->inverseModelTransform() * glm::dvec4(position, 1.0);
+        rotation =
+            glm::inverse(glm::quat_cast(anchorNode->worldRotationMatrix())) * rotation;
+    }
+
+    std::string anchor = anchorNode ? anchorNode->identifier() : "";
+    std::string aim = aimNode ? aimNode->identifier() : "";
+
+    return CameraState{
+        anchor,
+        aim,
+        anchor,
+        position,
+        rotation
+    };
 }
 
 ghoul::Dictionary NavigationHandler::cameraStateDictionary() {
-    glm::dvec3 cameraPosition;
-    glm::dquat quat;
-    glm::dvec4 cameraRotation;
-
-    cameraPosition = _camera->positionVec3();
-    quat = _camera->rotationQuaternion();
-    cameraRotation = glm::dvec4(quat.w, quat.x, quat.y, quat.z);
-
     ghoul::Dictionary cameraDict;
 
-    const SceneGraphNode* anchorNode = _orbitalNavigator->anchorNode();
-    glm::dvec3 offset = anchorNode ? anchorNode->worldPosition() : glm::dvec3(0.0);
+    CameraState state = cameraState();
+    if (state.anchor.has_value()) {
+        cameraDict.setValue(KeyAnchor, state.anchor.value());
+    }
+    if (state.aim.has_value()) {
+        cameraDict.setValue(KeyAim, state.aim.value());
+    }
+    if (state.referenceFrame.has_value()) {
+        cameraDict.setValue(KeyReferenceFrame, state.referenceFrame.value());
+    }
+    cameraDict.setValue(KeyPosition, state.position);
 
-    cameraDict.setValue(KeyPosition, cameraPosition - offset);
-    cameraDict.setValue(KeyRotation, cameraRotation);
-    cameraDict.setValue(KeyAnchor, _orbitalNavigator->anchorNode()->identifier());
-
-    if (_orbitalNavigator->aimNode()) {
-        cameraDict.setValue(KeyAim, _orbitalNavigator->aimNode()->identifier());
+    if (state.rotation.has_value()) {
+        const glm::dquat rotationQuat = state.rotation.value();
+        cameraDict.setValue(KeyRotation, glm::dvec4(
+            rotationQuat.x, rotationQuat.y, rotationQuat.z, rotationQuat.w
+        ));
     }
 
     return cameraDict;
@@ -262,7 +313,7 @@ void NavigationHandler::saveCameraStateToFile(const std::string& filepath) {
 
         ghoul::DictionaryLuaFormatter formatter;
         std::ofstream ofs(fullpath.c_str());
-        ofs << formatter.format(cameraDict);
+        ofs << "return " << formatter.format(cameraDict);
         ofs.close();
     }
 }

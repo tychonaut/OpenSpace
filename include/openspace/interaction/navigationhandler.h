@@ -52,10 +52,11 @@ class NavigationHandler : public properties::PropertyOwner {
 public:
 
     struct CameraState {
-        std::string anchor;
-        std::string aim;
+        std::optional<std::string> anchor;
+        std::optional<std::string> aim;
+        std::optional<std::string> referenceFrame;
         glm::dvec3 position;
-        glm::dquat rotation;
+        std::optional<glm::dquat> rotation;
     };
 
     NavigationHandler();
@@ -84,6 +85,7 @@ public:
     KeyframeNavigator& keyframeNavigator() const;
     bool isKeyFrameInteractionEnabled() const;
     float interpolationTime() const;
+    CameraState cameraState() const;
 
     // Callback functions
     void keyboardCallback(Key key, KeyModifier modifier, KeyAction action);
