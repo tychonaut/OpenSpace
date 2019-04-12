@@ -99,7 +99,7 @@ local Keybindings = {
         Key = "F11",
         Command =   "openspace.time.setTime('1969 JUL 20 20:17:40');" .. 
                     "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.HeightLayers.LRO_NAC_Apollo_11.Enabled', true);"..
-                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A11_lro_nac_M162154734.Enabled', true);"..
+                    "openspace.setPropertyValueSingle('Scene.Moon.Renderable.Layers.ColorLayers.A11_M177481212_p_longlat.Enabled', true);"..
                     "openspace.setPropertyValueSingle('Scene.Moon.Renderable.LodScaleFactor', 20.11);" ..
                     "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.Anchor', 'Apollo11Lem');"..
                     "openspace.setPropertyValue('NavigationHandler.OrbitalNavigator.RetargetAnchor', nil);",
