@@ -612,15 +612,13 @@ RenderableBillboardsCloud::RenderableBillboardsCloud(const ghoul::Dictionary& di
         _disableFadeInDistance.set(false);
         addProperty(_fadeInDistance);
         
-        int i = 0;
-        for (std::pair<const std::string, const float>const& entry : LengthUnitsMap) {
-            _fadeInStartUnitOption.addOption(i++, entry.first);
+        for (std::pair<int, std::string>const& entry : MenuLengthUnitsMap) {
+            _fadeInStartUnitOption.addOption(entry.first, entry.second);
         }
         addProperty(_fadeInStartUnitOption);
 
-        i = 0;
-        for (std::pair<const std::string, const float>const& entry : LengthUnitsMap) {
-            _fadeInEndUnitOption.addOption(i++, entry.first);
+        for (std::pair<int, std::string>const& entry : MenuLengthUnitsMap) {
+            _fadeInEndUnitOption.addOption(entry.first, entry.second);
         }
         addProperty(_fadeInEndUnitOption);
 
@@ -628,42 +626,38 @@ RenderableBillboardsCloud::RenderableBillboardsCloud(const ghoul::Dictionary& di
             const std::string startUnit(
                 dictionary.value<std::string>(FadeInStartUnitOptionInfo.identifier)
             );
-            if (LengthUnitsMap.find(startUnit) != LengthUnitsMap.end()) {
-                int k = 0;
-                for (std::pair<const std::string, const float>const& entry : LengthUnitsMap) {
-                    if (entry.first != startUnit)
-                        k++;
-                    else
-                        break;
+            for (std::pair<int, std::string>const& entry : MenuLengthUnitsMap) {
+                if (startUnit == entry.second) {
+                    _fadeInStartUnitOption.set(entry.first);
+                    break;
                 }
-                _fadeInStartUnitOption.set(k);
             }
         }
         else {
             if (_unit == Meter) {
-                _fadeInStartUnitOption.set(9);
+                _fadeInStartUnitOption.set(0);
             }
             else if (_unit == Kilometer) {
-                _fadeInStartUnitOption.set(3);
+                _fadeInStartUnitOption.set(1);
             }
             else if (_unit == Parsec) {
-                _fadeInStartUnitOption.set(10);
+                _fadeInStartUnitOption.set(7);
             }
             else if (_unit == Kiloparsec) {
-                _fadeInStartUnitOption.set(2);
-            }
-            else if (_unit == Megaparsec) {
                 _fadeInStartUnitOption.set(8);
             }
+            else if (_unit == Megaparsec) {
+                _fadeInStartUnitOption.set(9);
+            }
             else if (_unit == Gigaparsec) {
-                _fadeInStartUnitOption.set(1);
+                _fadeInStartUnitOption.set(10);
             }
             else {
                 LWARNING(
                     "No unit given for start fade in unit in RenderableBillboardsCloud. "
                     "Using meters as units."
                 );
-                _fadeInStartUnitOption.set(9);
+                _fadeInStartUnitOption.set(0);
             }
         }
 
@@ -671,42 +665,38 @@ RenderableBillboardsCloud::RenderableBillboardsCloud(const ghoul::Dictionary& di
             const std::string endUnit(
                 dictionary.value<std::string>(FadeInEndUnitOptionInfo.identifier)
             );
-            if (LengthUnitsMap.find(endUnit) != LengthUnitsMap.end()) {
-                int k = 0;
-                for (std::pair<const std::string, const float>const& entry : LengthUnitsMap) {
-                    if (entry.first != endUnit)
-                        k++;
-                    else
-                        break;
+            for (std::pair<int, std::string>const& entry : MenuLengthUnitsMap) {
+                if (endUnit == entry.second) {
+                    _fadeInEndUnitOption.set(entry.first);
+                    break;
                 }
-                _fadeInEndUnitOption.set(k);
             }
         }
         else {
             if (_unit == Meter) {
-                _fadeInEndUnitOption.set(9);
+                _fadeInEndUnitOption.set(0);
             }
             else if (_unit == Kilometer) {
-                _fadeInEndUnitOption.set(3);
+                _fadeInEndUnitOption.set(1);
             }
             else if (_unit == Parsec) {
-                _fadeInEndUnitOption.set(10);
+                _fadeInEndUnitOption.set(7);
             }
             else if (_unit == Kiloparsec) {
-                _fadeInEndUnitOption.set(2);
-            }
-            else if (_unit == Megaparsec) {
                 _fadeInEndUnitOption.set(8);
             }
+            else if (_unit == Megaparsec) {
+                _fadeInEndUnitOption.set(9);
+            }
             else if (_unit == Gigaparsec) {
-                _fadeInEndUnitOption.set(1);
+                _fadeInEndUnitOption.set(10);
             }
             else {
                 LWARNING(
                     "No unit given for start fade in unit in RenderableBillboardsCloud. "
                     "Using meters as units."
                 );
-                _fadeInEndUnitOption.set(9);
+                _fadeInEndUnitOption.set(0);
             }
         }
 
