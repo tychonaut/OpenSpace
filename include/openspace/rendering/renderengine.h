@@ -31,6 +31,7 @@
 #include <openspace/properties/scalar/boolproperty.h>
 #include <openspace/properties/scalar/intproperty.h>
 #include <openspace/properties/scalar/floatproperty.h>
+#include <openspace/properties/vector/vec3property.h>
 #include <openspace/properties/triggerproperty.h>
 
 namespace ghoul {
@@ -150,6 +151,9 @@ public:
     glm::ivec2 renderingResolution() const;
     glm::ivec2 fontResolution() const;
 
+    glm::mat4 globalRotation() const;
+    glm::mat4 nodeRotation() const;
+
 private:
     void setRenderer(std::unique_ptr<Renderer> renderer);
     RendererImplementation rendererFromString(const std::string& renderingMethod) const;
@@ -181,7 +185,6 @@ private:
     properties::BoolProperty _applyWarping;
     properties::BoolProperty _showFrameNumber;
     properties::BoolProperty _disableMasterRendering;
-    properties::BoolProperty _disableSceneTranslationOnMaster;
 
     float _globalBlackOutFactor = 1.f;
     float _fadeDuration = 2.f;
@@ -191,6 +194,9 @@ private:
     properties::FloatProperty _hdrExposure;
     properties::FloatProperty _hdrBackground;
     properties::FloatProperty _gamma;
+
+    properties::Vec3Property _globalRotation;
+    properties::Vec3Property _masterRotation;
 
     uint64_t _frameNumber = 0;
 
