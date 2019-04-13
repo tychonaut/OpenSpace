@@ -97,6 +97,9 @@ void to_json(json& j, const Dictionary& dictionary) {
             const glm::dvec2 v = dictionary.value<glm::dvec2>(key);
             object[key] = json::array({ v[0], v[1] });
         }
+        else if (dictionary.hasValue<bool>(key)) {
+            object[key] = dictionary.value<bool>(key);
+        }
         else if (dictionary.hasValue<float>(key)) {
             object[key] = dictionary.value<float>(key);
         }
