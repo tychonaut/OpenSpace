@@ -225,27 +225,6 @@ RenderEngine::RenderEngine()
     , _applyWarping(ApplyWarpingInfo, false)
     , _showFrameNumber(ShowFrameNumberInfo, false)
     , _disableMasterRendering(DisableMasterInfo, false)
-<<<<<<< HEAD
-    , _globalRotation(
-        GlobalRotationInfo,
-        glm::vec3(0.f),
-        glm::vec3(-glm::pi<float>()),
-        glm::vec3(glm::pi<float>())
-    )
-    , _screenSpaceRotation(
-        ScreenSpaceRotationInfo,
-        glm::vec3(0.f),
-        glm::vec3(-glm::pi<float>()),
-        glm::vec3(glm::pi<float>())
-    )
-    , _masterRotation(
-        MasterRotationInfo,
-        glm::vec3(0.f),
-        glm::vec3(-glm::pi<float>()),
-        glm::vec3(glm::pi<float>())
-    )
-=======
->>>>>>> 5b215a1e64610078f7a59567ea2dddf67e41a488
     , _nAaSamples(AaSamplesInfo, 4, 1, 8)
     , _hdrExposure(HDRExposureInfo, 0.4f, 0.01f, 10.0f)
     , _hdrBackground(BackgroundExposureInfo, 2.8f, 0.01f, 10.0f)
@@ -507,37 +486,21 @@ glm::ivec2 RenderEngine::fontResolution() const {
 }
 
 glm::mat4 RenderEngine::globalRotation() const {
-<<<<<<< HEAD
-    glm::vec3 rot = _globalRotation.value();
-
-    glm::quat pitch = glm::angleAxis(rot.x, glm::vec3(1, 0, 0));
-    glm::quat yaw = glm::angleAxis(rot.y, glm::vec3(0, 1, 0));
-    glm::quat roll = glm::angleAxis(rot.z, glm::vec3(0, 0, 1));
-=======
     glm::vec3 rot = _globalRotation;
 
     glm::quat pitch = glm::angleAxis(rot.x, glm::vec3(1.f, 0.f, 0.f));
     glm::quat yaw = glm::angleAxis(rot.y, glm::vec3(0.f, 1.f, 0.f));
     glm::quat roll = glm::angleAxis(rot.z, glm::vec3(0.f, 0.f, 1.f));
->>>>>>> 5b215a1e64610078f7a59567ea2dddf67e41a488
 
     return glm::mat4_cast(glm::normalize(pitch * yaw * roll));
 }
 
 glm::mat4 RenderEngine::screenSpaceRotation() const {
-<<<<<<< HEAD
-    glm::vec3 rot = _screenSpaceRotation.value();
-
-    glm::quat pitch = glm::angleAxis(rot.x, glm::vec3(1, 0, 0));
-    glm::quat yaw = glm::angleAxis(rot.y, glm::vec3(0, 1, 0));
-    glm::quat roll = glm::angleAxis(rot.z, glm::vec3(0, 0, 1));
-=======
     glm::vec3 rot = _screenSpaceRotation;
 
     glm::quat pitch = glm::angleAxis(rot.x, glm::vec3(1.f, 0.f, 0.f));
     glm::quat yaw = glm::angleAxis(rot.y, glm::vec3(0.f, 1.f, 0.f));
     glm::quat roll = glm::angleAxis(rot.z, glm::vec3(0.f, 0.f, 1.f));
->>>>>>> 5b215a1e64610078f7a59567ea2dddf67e41a488
 
     return glm::mat4_cast(glm::normalize(pitch * yaw * roll));
 }
@@ -546,19 +509,12 @@ glm::mat4 RenderEngine::nodeRotation() const {
     if (!global::windowDelegate.isMaster()) {
         return glm::mat4(1.f);
     }
-<<<<<<< HEAD
-    glm::vec3 rot = _masterRotation.value();
 
-    glm::quat pitch = glm::angleAxis(rot.x, glm::vec3(1, 0, 0));
-    glm::quat yaw = glm::angleAxis(rot.y, glm::vec3(0, 1, 0));
-    glm::quat roll = glm::angleAxis(rot.z, glm::vec3(0, 0, 1));
-=======
     glm::vec3 rot = _masterRotation;
 
     glm::quat pitch = glm::angleAxis(rot.x, glm::vec3(1.f, 0.f, 0.f));
     glm::quat yaw = glm::angleAxis(rot.y, glm::vec3(0.f, 1.f, 0.f));
     glm::quat roll = glm::angleAxis(rot.z, glm::vec3(0.f, 0.f, 1.f));
->>>>>>> 5b215a1e64610078f7a59567ea2dddf67e41a488
 
     return glm::mat4_cast(glm::normalize(pitch * yaw * roll));
 }
