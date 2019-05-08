@@ -313,6 +313,7 @@ void NavigationHandler::saveCameraStateToFile(const std::string& filepath) {
 
         ghoul::DictionaryLuaFormatter formatter;
         std::ofstream ofs(fullpath.c_str());
+
         ofs << "return " << formatter.format(cameraDict);
         ofs.close();
     }
