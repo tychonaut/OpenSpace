@@ -24,7 +24,7 @@ local apolloSpiceId = "-908"
 
 local Apollo8 = {
     Identifier = "Apollo8",
-    Parent = "EarthBarycenter",
+    Parent = "Moon",
     TimeFrame = { -- Using Spice kernels for 1850-2150
         Type = "TimeFrameInterval",
         Start = "1968 DEC 21",
@@ -34,8 +34,8 @@ local Apollo8 = {
         Translation = {
             Type = "SpiceTranslation",
             Target = apolloSpiceId,
-            Observer = "EARTH BARYCENTER",
-            Frame = "GALACTIC",            
+            Observer = "MOON",
+            Frame = "IAU_MOON",
             Kernels = kernels
         },
         Rotation = {
