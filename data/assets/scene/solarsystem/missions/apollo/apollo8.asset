@@ -24,7 +24,7 @@ local apolloSpiceId = "-908"
 
 local Apollo8 = {
     Identifier = "Apollo8",
-    Parent = "Moon",
+    Parent = "EarthBarycenter",
     TimeFrame = { -- Using Spice kernels for 1850-2150
         Type = "TimeFrameInterval",
         Start = "1968 DEC 21",
@@ -34,8 +34,8 @@ local Apollo8 = {
         Translation = {
             Type = "SpiceTranslation",
             Target = apolloSpiceId,
-            Observer = "MOON",
-            Frame = "IAU_MOON",
+            Observer = "EARTH_BARYCENTER",
+            Frame = "GALACTIC",
             Kernels = kernels
         },
         Rotation = {
@@ -66,6 +66,10 @@ local Apollo8Model = {
             Type = "StaticScale",
             -- The scale of the model is in cm; OpenSpace is in m
             Scale = 0.01
+        },
+        Rotation = {
+            Type = "StaticRotation",
+            Rotation = {0.0, 0.0, -3.1415/2}
         }
     },
     GUI = {
@@ -75,7 +79,7 @@ local Apollo8Model = {
     }
 }
 
-local PivotOffset = { 0, 2.5, 0}
+local PivotOffset = { 2.5, 0, 0 }
 
 -- The pivot node is used for navigation inside the spacecraft
 
