@@ -155,10 +155,9 @@ void OpenSpaceEngine::registerPathTokens() {
     LTRACE("OpenSpaceEngine::initialize(begin)");
 
     // Registering Path tokens. If the BASE path is set, it is the only one that will
-// overwrite the default path of the cfg directory
-    for (const std::pair<std::string, std::string>& path :
-        global::configuration.pathTokens)
-    {
+    // overwrite the default path of the cfg directory
+    using T = std::string;
+    for (const std::pair<const T, T>& path : global::configuration.pathTokens) {
         std::string fullKey = ghoul::filesystem::FileSystem::TokenOpeningBraces +
             path.first +
             ghoul::filesystem::FileSystem::TokenClosingBraces;
@@ -185,6 +184,10 @@ void OpenSpaceEngine::initialize() {
 
     global::initialize();
 
+    const std::string versionCheckUrl = global::configuration.versionCheckUrl;
+    if (!versionCheckUrl.empty()) {
+        global::versionChecker.requestLatestVersion(versionCheckUrl);
+    }
 
     std::string cacheFolder = absPath("${CACHE}");
     if (global::configuration.usePerSceneCache) {
@@ -757,9 +760,6 @@ void OpenSpaceEngine::loadSingleAsset(const std::string& assetPath) {
 
     global::renderEngine.updateScene();
 
-    global::renderEngine.setGlobalBlackOutFactor(0.f);
-    global::renderEngine.startFading(1, 3.f);
-
     global::syncEngine.addSyncables(global::timeManager.getSyncables());
     if (_scene && _scene->camera()) {
         global::syncEngine.addSyncables(_scene->camera()->getSyncables());
@@ -881,7 +881,8 @@ void OpenSpaceEngine::runGlobalCustomizationScripts() {
 void OpenSpaceEngine::loadFonts() {
     global::fontManager.initialize();
 
-    for (const std::pair<std::string, std::string>& font : global::configuration.fonts) {
+    using T = std::string;
+    for (const std::pair<const T, T>& font : global::configuration.fonts) {
         std::string key = font.first;
         std::string fontName = absPath(font.second);
 
@@ -1039,7 +1040,6 @@ void OpenSpaceEngine::postSynchronizationPreDraw() {
     }
 
     global::renderEngine.updateScene();
-    global::renderEngine.updateFade();
     global::renderEngine.updateRenderer();
     global::renderEngine.updateScreenSpaceRenderables();
     global::renderEngine.updateShaderPrograms();

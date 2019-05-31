@@ -1,8 +1,8 @@
 local guiCustomization = asset.require('customization/gui')
 
 -- Select which commit hashes to use for the frontend and backend
-local frontendHash = "32c481c9337a62745669de66d909cf15bd2bae7a"
-local backendHash = "6e773425b3e90ba93f0090e44427e474fe5c633f"
+local frontendHash = "f6c17563e5fc3b3e16d18b50e8932f258b34a3bc"
+local backendHash = "408142f26d3fa3d041399fcf58645874589d5b64"
 
 local dataProvider = "data.openspaceproject.com/files/webgui"
 

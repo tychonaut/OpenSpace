@@ -63,7 +63,9 @@ namespace {
     constexpr const char* KeyOnScreenTextScaling = "OnScreenTextScaling";
     constexpr const char* KeyRenderingMethod = "RenderingMethod";
     constexpr const char* KeyDisableRenderingOnMaster = "DisableRenderingOnMaster";
-    constexpr const char* KeyDisableSceneOnMaster = "DisableSceneOnMaster";
+    constexpr const char* KeyGlobalRotation = "GlobalRotation";
+    constexpr const char* KeyScreenSpaceRotation = "ScreenSpaceRotation";
+    constexpr const char* KeyMasterRotation = "MasterRotation";
     constexpr const char* KeyDisableInGameConsole = "DisableInGameConsole";
     constexpr const char* KeyScreenshotUseDate = "ScreenshotUseDate";
     constexpr const char* KeyHttpProxy = "HttpProxy";
@@ -82,6 +84,7 @@ namespace {
     constexpr const char* KeyFilterSeverity = "FilterSeverity";
     constexpr const char* KeyCheckOpenGLState = "CheckOpenGLState";
     constexpr const char* KeyLogEachOpenGLCall = "LogEachOpenGLCall";
+    constexpr const char* KeyVersionCheckUrl = "VersionCheckUrl";
     constexpr const char* KeyUseMultithreadedInitialization =
                                                          "UseMultithreadedInitialization";
     constexpr const char* KeyLoadingScreen = "LoadingScreen";
@@ -127,8 +130,16 @@ namespace {
             );
         }
 
+        if constexpr (std::is_same_v<T, glm::dvec3>) {
+            ghoul::Dictionary d = ghoul::lua::value<ghoul::Dictionary>(L);
+            glm::dvec3 res;
+            res.x = d.value<double>("1");
+            res.y = d.value<double>("2");
+            res.z = d.value<double>("3");
+            value = res;
+        }
         // NOLINTNEXTLINE
-        if constexpr (std::is_same_v<T, std::vector<std::string>>) {
+        else if constexpr (std::is_same_v<T, std::vector<std::string>>) {
             ghoul::Dictionary d = ghoul::lua::value<ghoul::Dictionary>(L);
 
             std::vector<std::string> res;
@@ -280,6 +291,7 @@ void parseLuaState(Configuration& configuration) {
     getValue(s, KeyPaths, c.pathTokens);
     getValue(s, KeyFonts, c.fonts);
     getValue(s, KeyScriptLog, c.scriptLog);
+    getValue(s, KeyVersionCheckUrl, c.versionCheckUrl);
     getValue(s, KeyUseMultithreadedInitialization, c.useMultithreadedInitialization);
     getValue(s, KeyCheckOpenGLState, c.isCheckingOpenGLState);
     getValue(s, KeyLogEachOpenGLCall, c.isLoggingOpenGLCalls);
@@ -288,7 +300,10 @@ void parseLuaState(Configuration& configuration) {
     getValue(s, KeyOnScreenTextScaling, c.onScreenTextScaling);
     getValue(s, KeyPerSceneCache, c.usePerSceneCache);
     getValue(s, KeyDisableRenderingOnMaster, c.isRenderingOnMasterDisabled);
-    getValue(s, KeyDisableSceneOnMaster, c.isSceneTranslationOnMasterDisabled);
+
+    getValue(s, KeyGlobalRotation, c.globalRotation);
+    getValue(s, KeyScreenSpaceRotation, c.screenSpaceRotation);
+    getValue(s, KeyMasterRotation, c.masterRotation);
     getValue(s, KeyDisableInGameConsole, c.isConsoleDisabled);
     getValue(s, KeyRenderingMethod, c.renderingMethod);
 

@@ -45,7 +45,6 @@ set(OPENSPACE_SOURCE
   ${OPENSPACE_BASE_DIR}/src/engine/virtualpropertymanager.cpp
   ${OPENSPACE_BASE_DIR}/src/interaction/camerainteractionstates.cpp
   ${OPENSPACE_BASE_DIR}/src/interaction/inputstate.cpp
-  ${OPENSPACE_BASE_DIR}/src/interaction/inputdevicestates.cpp
   ${OPENSPACE_BASE_DIR}/src/interaction/joystickinputstate.cpp
   ${OPENSPACE_BASE_DIR}/src/interaction/joystickcamerastates.cpp
   ${OPENSPACE_BASE_DIR}/src/interaction/keybindingmanager.cpp
@@ -70,7 +69,6 @@ set(OPENSPACE_SOURCE
   ${OPENSPACE_BASE_DIR}/src/performance/performancemeasurement.cpp
   ${OPENSPACE_BASE_DIR}/src/performance/performancelayout.cpp
   ${OPENSPACE_BASE_DIR}/src/performance/performancemanager.cpp
-  ${OPENSPACE_BASE_DIR}/src/properties/binaryproperty.cpp
   ${OPENSPACE_BASE_DIR}/src/properties/optionproperty.cpp
   ${OPENSPACE_BASE_DIR}/src/properties/property.cpp
   ${OPENSPACE_BASE_DIR}/src/properties/propertyowner.cpp
@@ -176,7 +174,6 @@ set(OPENSPACE_SOURCE
   ${OPENSPACE_BASE_DIR}/src/util/keys.cpp
   ${OPENSPACE_BASE_DIR}/src/util/openspacemodule.cpp
   ${OPENSPACE_BASE_DIR}/src/util/powerscaledcoordinate.cpp
-  ${OPENSPACE_BASE_DIR}/src/util/powerscaledscalar.cpp
   ${OPENSPACE_BASE_DIR}/src/util/powerscaledsphere.cpp
   ${OPENSPACE_BASE_DIR}/src/util/progressbar.cpp
   ${OPENSPACE_BASE_DIR}/src/util/resourcesynchronization.cpp
@@ -196,6 +193,7 @@ set(OPENSPACE_SOURCE
   ${OPENSPACE_BASE_DIR}/src/util/time_lua.inl
   ${OPENSPACE_BASE_DIR}/src/util/timerange.cpp
   ${OPENSPACE_BASE_DIR}/src/util/transformationmanager.cpp
+  ${OPENSPACE_BASE_DIR}/src/util/versionchecker.cpp
 )
 
 if (APPLE)
@@ -227,7 +225,6 @@ set(OPENSPACE_HEADER
   ${OPENSPACE_BASE_DIR}/include/openspace/interaction/delayedvariable.h
   ${OPENSPACE_BASE_DIR}/include/openspace/interaction/delayedvariable.inl
   ${OPENSPACE_BASE_DIR}/include/openspace/interaction/camerainteractionstates.h
-  ${OPENSPACE_BASE_DIR}/include/openspace/interaction/inputdevicestates.h
   ${OPENSPACE_BASE_DIR}/include/openspace/interaction/inputstate.h
   ${OPENSPACE_BASE_DIR}/include/openspace/interaction/interpolator.h
   ${OPENSPACE_BASE_DIR}/include/openspace/interaction/interpolator.inl
@@ -251,7 +248,6 @@ set(OPENSPACE_HEADER
   ${OPENSPACE_BASE_DIR}/include/openspace/performance/performancemeasurement.h
   ${OPENSPACE_BASE_DIR}/include/openspace/performance/performancelayout.h
   ${OPENSPACE_BASE_DIR}/include/openspace/performance/performancemanager.h
-  ${OPENSPACE_BASE_DIR}/include/openspace/properties/binaryproperty.h
   ${OPENSPACE_BASE_DIR}/include/openspace/properties/numericalproperty.h
   ${OPENSPACE_BASE_DIR}/include/openspace/properties/numericalproperty.inl
   ${OPENSPACE_BASE_DIR}/include/openspace/properties/optionproperty.h
@@ -369,7 +365,6 @@ set(OPENSPACE_HEADER
   ${OPENSPACE_BASE_DIR}/include/openspace/util/mouse.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/openspacemodule.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/powerscaledcoordinate.h
-  ${OPENSPACE_BASE_DIR}/include/openspace/util/powerscaledscalar.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/powerscaledsphere.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/progressbar.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/resourcesynchronization.h
@@ -390,6 +385,7 @@ set(OPENSPACE_HEADER
   ${OPENSPACE_BASE_DIR}/include/openspace/util/timemanager.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/timerange.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/updatestructures.h
+  ${OPENSPACE_BASE_DIR}/include/openspace/util/versionchecker.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/transformationmanager.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/threadpool.h
   ${OPENSPACE_BASE_DIR}/include/openspace/util/histogram.h

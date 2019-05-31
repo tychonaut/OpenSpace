@@ -29,6 +29,7 @@
 
 #include <openspace/properties/scalar/boolproperty.h>
 #include <openspace/properties/scalar/floatproperty.h>
+#include <openspace/properties/stringproperty.h>
 
 namespace ghoul { class Dictionary; }
 namespace ghoul::opengl {
@@ -46,7 +47,6 @@ struct SurfacePositionHandle;
 namespace documentation { struct Documentation; }
 
 class Camera;
-class PowerScaledCoordinate;
 
 class Renderable : public properties::PropertyOwner {
 public:
@@ -60,7 +60,6 @@ public:
     static std::unique_ptr<Renderable> createFromDictionary(
         const ghoul::Dictionary& dictionary);
 
-    // constructors & destructor
     Renderable(const ghoul::Dictionary& dictionary);
     virtual ~Renderable() = default;
 
@@ -88,14 +87,12 @@ public:
 
     void onEnabledChange(std::function<void(bool)> callback);
 
-    static void setPscUniforms(ghoul::opengl::ProgramObject& program,
-        const Camera& camera, const PowerScaledCoordinate& position);
-
     static documentation::Documentation Documentation();
 
 protected:
     properties::BoolProperty _enabled;
     properties::FloatProperty _opacity;
+    properties::StringProperty _renderableType;
 
     void registerUpdateRenderBinFromOpacity();
 
