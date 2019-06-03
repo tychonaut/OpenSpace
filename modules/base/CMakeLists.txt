@@ -41,7 +41,7 @@ set(HEADER_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/multimodelgeometry.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableboxgrid.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablecartesianaxes.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableline.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablelines.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablemodel.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableplane.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableplaneimagelocal.h
@@ -86,7 +86,7 @@ set(SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/multimodelgeometry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableboxgrid.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablecartesianaxes.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableline.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablelines.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablemodel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableplane.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableplaneimagelocal.cpp

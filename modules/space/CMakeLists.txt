@@ -27,6 +27,7 @@ include(${OPENSPACE_CMAKE_EXT_DIR}/module_definition.cmake)
 set(HEADER_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/planetgeometry.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableconstellationbounds.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableearthmoonline.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablerings.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablestars.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/simplespheregeometry.h
@@ -41,6 +42,7 @@ source_group("Header Files" FILES ${HEADER_FILES})
 set(SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/planetgeometry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableconstellationbounds.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableearthmoonline.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablerings.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablestars.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/simplespheregeometry.cpp
