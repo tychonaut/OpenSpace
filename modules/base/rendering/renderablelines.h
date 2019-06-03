@@ -84,6 +84,7 @@ private:
     void updateAspectRatio();
     void updateGPUData();
     void createFilterTexture();
+    void checkGLErrors(const std::string& identifier) const;
     
 protected:
     properties::OptionProperty _blendMode;

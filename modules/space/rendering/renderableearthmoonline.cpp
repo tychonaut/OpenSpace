@@ -128,6 +128,7 @@ RenderableEarthMoonLine::RenderableEarthMoonLine(const ghoul::Dictionary& dictio
 
 void RenderableEarthMoonLine::update(const UpdateData& ud) {
     
+    // Clean previous line
     reset();
     
     // JCC: add Line

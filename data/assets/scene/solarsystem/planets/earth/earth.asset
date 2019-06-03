@@ -296,6 +296,13 @@ local Earth = {
 -- Testing AA Lines
 local EarthMoonLine = {
     Identifier = "EarthMoonLine",
+    Parent = transforms.EarthIAU.Identifier,
+    Transform = {
+        Scale = {
+            Type = "StaticScale",
+            Scale = 1.0
+        }
+    },
     Renderable = {
         Type = "RenderableEarthMoonLine",
         Enable = false,

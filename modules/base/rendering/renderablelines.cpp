@@ -44,6 +44,8 @@
 #include <algorithm>
 
 namespace {
+    constexpr const char* _loggerCat = "RenderableLines";
+
     constexpr const char* ProgramName = "AALine";
 
     enum BlendMode {
@@ -189,6 +191,7 @@ void RenderableLines::deinitializeGL() {
 }
 
 void RenderableLines::render(const RenderData& data, RendererTasks&) {
+    checkGLErrors("before rendering");
     _program->activate();
 
     //_program->setUniform("opacity", _opacity);
@@ -220,7 +223,7 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     _program->setUniform(_uniformCache.lineColor, _lineColor);
     _program->setUniform(
         _uniformCache.modelViewProjection, 
-        data.camera.projectionMatrix() * glm::mat4(modelViewTransform)
+        glm::mat4(glm::dmat4(data.camera.projectionMatrix()) * modelViewTransform)
     );
     _program->setUniform(_uniformCache.aspectRatio, _aspectRatio);
 
@@ -242,6 +245,8 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     }
 
     _program->deactivate();
+
+    checkGLErrors("after rendering");
 }
 
 void RenderableLines::update(const UpdateData&) {
@@ -267,6 +272,7 @@ void RenderableLines::updateAspectRatio() {
 }
 
 void RenderableLines::updateGPUData() {
+    checkGLErrors("before update GPU data");
     if (_vao == 0u) {
         glGenVertexArrays(1, &_vao);
         glGenBuffers(1, &_vbo);
@@ -277,16 +283,18 @@ void RenderableLines::updateGPUData() {
         return;
     }
 
+    // Update vertex buffer
     glBindVertexArray(_vao);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
     glBufferData(
         GL_ARRAY_BUFFER, 
-        _verticesArray.size() * sizeof(_verticesArray), 
+        _verticesArray.size() * sizeof(AAVertex), 
         _verticesArray.data(), 
         GL_STATIC_DRAW
     );
 
+    // Update index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER, 
@@ -298,57 +306,55 @@ void RenderableLines::updateGPUData() {
     // p0
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
-        0, 
-        3, 
-        GL_FLOAT, 
-        GL_FALSE, 
-        sizeof(AAVertex), 
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(AAVertex),
         (void*)0
     );
-        
+
     // p1
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(
-        1, 
-        3, 
-        GL_FLOAT, 
-        GL_FALSE, 
+        1,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
         sizeof(AAVertex),
-        (void*)offsetof(AAVertex, _p0)
+        (void*)offsetof(AAVertex, _p1)
     );
-        
+
     // weights
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(
-        2, 
-        4, 
-        GL_FLOAT, 
-        GL_FALSE, 
-        sizeof(AAVertex), 
+        2,
+        4,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(AAVertex),
         (void*)offsetof(AAVertex, _weights)
     );
-        
+
     // radius
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(
-        3, 
-        1, 
-        GL_FLOAT, 
-        GL_FALSE, 
-        sizeof(AAVertex), 
+        3,
+        1,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(AAVertex),
         (void*)offsetof(AAVertex, _radius));
 
     glBindVertexArray(0);
+
+    checkGLErrors("after update GPU data");
 }
 
 void RenderableLines::createFilterTexture() {
     // Allocate the filter texture.
-    unsigned int** filterTextureData = new unsigned int*[_filterTextureSize];
-    for (int i = 0; i < _filterTextureSize; i++)
-    {
-        filterTextureData[i] = new unsigned int[_filterTextureSize];
-    }
-
+    unsigned int* filterTextureData = new unsigned int[_filterTextureSize * _filterTextureSize];
+    
     // Hermite interpolation (see The Renderman Companion - Upstill)
     auto smoothStep = [](float a, float b, float val) {
         float x = std::clamp((val - a) / (b - a), 0.0f, 1.0f);
@@ -374,7 +380,7 @@ void RenderableLines::createFilterTexture() {
                 val = 50;
             */
 
-            filterTextureData[i][j] = 0x00ffffff + (val << 24);
+            filterTextureData[i * _filterTextureSize + j] = 0x00ffffff + (val << 24);
         }
     }
 
@@ -387,11 +393,11 @@ void RenderableLines::createFilterTexture() {
     glTexImage2D(
         GL_TEXTURE_2D,
         0, // level
-        GL_RGBA8,
+        GL_RED,
         _filterTextureSize,
         _filterTextureSize,
         0, // border
-        GL_RGBA,
+        GL_RED,
         GL_UNSIGNED_INT,
         filterTextureData
     );
@@ -403,6 +409,7 @@ void RenderableLines::createFilterTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
+    checkGLErrors("after built filter texture");
 }
 
 void RenderableLines::addNewLine(
@@ -463,8 +470,34 @@ void RenderableLines::addNewLine(
 }
 
 void RenderableLines::reset() {
-    _dataIsDirty = false;
+    _dataIsDirty = true;
     _verticesArray.clear();
     _indicesArray.clear();
+}
+
+void RenderableLines::checkGLErrors(const std::string& identifier) const {
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        switch (error) {
+        case GL_INVALID_ENUM:
+            LINFO(identifier + " - GL_INVALID_ENUM");
+            break;
+        case GL_INVALID_VALUE:
+            LINFO(identifier + " - GL_INVALID_VALUE");
+            break;
+        case GL_INVALID_OPERATION:
+            LINFO(identifier + " - GL_INVALID_OPERATION");
+            break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            LINFO(identifier + " - GL_INVALID_FRAMEBUFFER_OPERATION");
+            break;
+        case GL_OUT_OF_MEMORY:
+            LINFO(identifier + " - GL_OUT_OF_MEMORY");
+            break;
+        default:
+            LINFO(identifier + " - Unknown error");
+            break;
+        }
+    }
 }
 } // namespace openspace
