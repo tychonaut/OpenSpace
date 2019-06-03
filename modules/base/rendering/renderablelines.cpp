@@ -221,9 +221,14 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     }
 
     _program->setUniform(_uniformCache.lineColor, _lineColor);
+    
+    glm::mat4 modelViewProjection(
+        glm::dmat4(data.camera.projectionMatrix()) * modelViewTransform
+    );
+    
     _program->setUniform(
-        _uniformCache.modelViewProjection, 
-        glm::mat4(glm::dmat4(data.camera.projectionMatrix()) * modelViewTransform)
+        _uniformCache.modelViewProjection,
+        modelViewProjection
     );
     _program->setUniform(_uniformCache.aspectRatio, _aspectRatio);
 
@@ -272,7 +277,7 @@ void RenderableLines::updateAspectRatio() {
 }
 
 void RenderableLines::updateGPUData() {
-    checkGLErrors("before update GPU data");
+    //checkGLErrors("before update GPU data");
     if (_vao == 0u) {
         glGenVertexArrays(1, &_vao);
         glGenBuffers(1, &_vbo);
@@ -348,7 +353,7 @@ void RenderableLines::updateGPUData() {
 
     glBindVertexArray(0);
 
-    checkGLErrors("after update GPU data");
+    //checkGLErrors("after update GPU data");
 }
 
 void RenderableLines::createFilterTexture() {
