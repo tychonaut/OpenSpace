@@ -35,7 +35,7 @@ uniform sampler2D filterTexture;
 Fragment getFragment() {
     Fragment frag;
 
-    frag.color = lineColor;// * textureProj(filterTexture, textureUV).rrrr;
+    frag.color = lineColor * textureProj(filterTexture, textureUV).rrrr;
 
     frag.depth     = vs_screenSpaceDepth;
     //frag.gPosition = vs_position;

@@ -80,7 +80,7 @@ void main() {
     vec3 offset = U * weights.z + V * weights.w;
 
     // Apply line thickness.
-    offset.xy *= radius;
+    offset.xy *= radius/1000;
 
     // Unwarp by inverse of aspectRatio ratio.
     offset.y *= aspectRatio;

@@ -199,11 +199,10 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     const glm::dmat4 modelTransform =
         glm::translate(glm::dmat4(1.0), data.modelTransform.translation) *
         glm::dmat4(data.modelTransform.rotation) *
-        glm::scale(glm::dmat4(1.0), glm::dvec3(data.modelTransform.scale)) *
-        glm::dmat4(1.0);
-    const glm::dmat4 modelViewTransform =
-        data.camera.combinedViewMatrix() * modelTransform;    
-
+        glm::scale(glm::dmat4(1.0), glm::dvec3(data.modelTransform.scale));
+    /*const glm::dmat4 modelViewTransform =
+        data.camera.combinedViewMatrix() * modelTransform;
+*/
     bool usingFramebufferRenderer = global::renderEngine.rendererImplementation() ==
         RenderEngine::RendererImplementation::Framebuffer;
 
@@ -223,7 +222,8 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     _program->setUniform(_uniformCache.lineColor, _lineColor);
     
     glm::mat4 modelViewProjection(
-        glm::dmat4(data.camera.projectionMatrix()) * modelViewTransform
+        glm::dmat4(data.camera.projectionMatrix()) * data.camera.combinedViewMatrix() *
+        modelTransform
     );
     
     _program->setUniform(
@@ -239,11 +239,18 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
 
     _program->setUniform(_uniformCache.filterTexture, filterTextureUnit);
 
+    // test
+    //glFrontFace(GL_CCW);
+    glDisable(GL_CULL_FACE);
+
     // Drawing by indices:
     glBindVertexArray(_vao);
-    glDrawElements(GL_TRIANGLES, _indicesArray.size(), GL_UNSIGNED_INT, (void *)0);
+    glDrawElements(GL_TRIANGLES, _indicesArray.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
+    // test
+    glEnable(GL_CULL_FACE);
+    
     if (additiveBlending) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(true);

@@ -294,27 +294,27 @@ local Earth = {
 }
 
 -- Testing AA Lines
--- local EarthMoonLine = {
---     Identifier = "EarthMoonLine",
---     Parent = transforms.EarthIAU.Identifier,
---     Transform = {
---         Scale = {
---             Type = "StaticScale",
---             Scale = 1.0
---         }
---     },
---     Renderable = {
---         Type = "RenderableEarthMoonLine",
---         Enable = false,
---         LineColor = {1.0, 0.0, 0.0, 1.0},
---         LineWidth = 20.0
---     },
---     GUI = {
---         Name = "Earth-Moon Line",
---         Path = "/Solar System/Planets/Earth"
---     }
--- }
+local EarthMoonLine = {
+    Identifier = "EarthMoonLine",
+    Parent = transforms.EarthIAU.Identifier,
+    Transform = {
+        Scale = {
+            Type = "StaticScale",
+            Scale = 1.0
+        }
+    },
+    Renderable = {
+        Type = "RenderableEarthMoonLine",
+        Enable = false,
+        LineColor = {1.0, 0.0, 0.0, 1.0},
+        LineWidth = 20.0
+    },
+    GUI = {
+        Name = "Earth-Moon Line",
+        Path = "/Solar System/Planets/Earth"
+    }
+}
 
--- assetHelper.registerSceneGraphNodesAndExport(asset, { Earth, EarthMoonLine })
+assetHelper.registerSceneGraphNodesAndExport(asset, { Earth, EarthMoonLine })
 
-assetHelper.registerSceneGraphNodesAndExport(asset, { Earth })
+--assetHelper.registerSceneGraphNodesAndExport(asset, { Earth })
