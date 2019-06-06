@@ -45,27 +45,27 @@ void main() {
     // Transform the input points.
     vec4 p0 = modelViewProjection * vec4( pos0, 1.0f );
     vec4 p1 = modelViewProjection * vec4( pos1, 1.0f );
-
+    vec4 center = modelViewProjection * vec4( vec3(0.0), 1.0f );
+    
     // Warp transformed points by aspectRatio ratio.
     vec4 w0 = p0;
     vec4 w1 = p1;
+
+    float s = abs(w1.x - w0.x) + abs(w1.y - w0.y);
+    // if (s < 0.005) {
+    //     return;
+    // }
+
     w0.y /= aspectRatio;
     w1.y /= aspectRatio;
 
     // Calc vectors between points in screen space.
-    vec2 delta2 = w1.xy / w1.z - w0.xy / w0.z;
-    vec3 delta_p;
-
-    delta_p.xy = delta2;
-    delta_p.z = w1.z - w0.z;
-
+    vec3 delta = w1.xyz / w1.w - w0.xyz / w0.w;
+    
     //
     // Calc UV basis vectors.
     //
-    // Calc U
-    float len = length( delta2 );
-    vec3 U = delta_p / len;
-
+    vec3 U = normalize(delta);
     // Create V orthogonal to U.
     vec3 V;
     V.x = U.y;
@@ -80,14 +80,14 @@ void main() {
     vec3 offset = U * weights.z + V * weights.w;
 
     // Apply line thickness.
-    offset.xy *= radius/1000;
+    offset.xy *= (radius / 1000);// * (1.0/(center.z));
 
     // Unwarp by inverse of aspectRatio ratio.
     offset.y *= aspectRatio;
 
     // Undo perspective divide since the hardware will do it.
-    position.xy += offset.xy * position.z;
-
+    position.xyz += offset.xyz * position.w;
+    
     // Set up UVs.  We have to use projected sampling rather
     // than regular sampling because we don't want to get
     // perspective correction.

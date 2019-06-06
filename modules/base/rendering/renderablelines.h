@@ -104,7 +104,13 @@ protected:
     
     bool _dataIsDirty = true;
 
-    UniformCache(modelViewProjection, aspectRatio, lineColor, filterTexture) _uniformCache;
+    UniformCache(
+        modelViewProjection, 
+        aspectRatio, 
+        lineColor, 
+        filterTexture,
+        opacity
+    ) _uniformCache;
 
     std::vector<AAVertex> _verticesArray;
     std::vector<GLuint> _indicesArray;

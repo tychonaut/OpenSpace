@@ -53,8 +53,8 @@ namespace {
         BlendModeAdditive
     };
 
-    constexpr const std::array<const char*, 4> UniformNames = {
-        "modelViewProjection", "aspectRatio", "lineColor", "filterTexture"
+    constexpr const std::array<const char*, 5> UniformNames = {
+        "modelViewProjection", "aspectRatio", "lineColor", "filterTexture", "opacity"
     };
 
     constexpr openspace::properties::Property::PropertyInfo FilteringTextureSizeInfo = {
@@ -139,6 +139,8 @@ RenderableLines::RenderableLines(const ghoul::Dictionary& dictionary)
             _blendMode = BlendModeAdditive;
         }
     }
+
+    addProperty(_blendMode);
 }
 
 bool RenderableLines::isReady() const {
@@ -191,7 +193,25 @@ void RenderableLines::deinitializeGL() {
 }
 
 void RenderableLines::render(const RenderData& data, RendererTasks&) {
-    checkGLErrors("before rendering");
+
+    // Saving current OpenGL state
+    GLboolean blendEnabled = glIsEnabled(GL_BLEND);
+    GLenum blendEquationRGB;
+    GLenum blendEquationAlpha;
+    GLenum blendDestAlpha;
+    GLenum blendDestRGB;
+    GLenum blendSrcAlpha;
+    GLenum blendSrcRGB;
+
+    glGetIntegerv(GL_BLEND_EQUATION_RGB, &blendEquationRGB);
+    glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &blendEquationAlpha);
+    glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDestAlpha);
+    glGetIntegerv(GL_BLEND_DST_RGB, &blendDestRGB);
+    glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcAlpha);
+    glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcRGB);
+
+    GLboolean isCullFaceEnabled = glIsEnabled(GL_CULL_FACE);
+    
     _program->activate();
 
     //_program->setUniform("opacity", _opacity);
@@ -214,9 +234,13 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     }
 
     bool additiveBlending = (_blendMode == BlendModeAdditive) && usingFramebufferRenderer;
+    glEnable(GL_BLEND);
     if (additiveBlending) {
         glDepthMask(false);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    }
+    else {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     _program->setUniform(_uniformCache.lineColor, _lineColor);
@@ -225,12 +249,13 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
         glm::dmat4(data.camera.projectionMatrix()) * data.camera.combinedViewMatrix() *
         modelTransform
     );
-    
+
     _program->setUniform(
         _uniformCache.modelViewProjection,
         modelViewProjection
     );
     _program->setUniform(_uniformCache.aspectRatio, _aspectRatio);
+    _program->setUniform(_uniformCache.opacity, _opacity);
 
     ghoul::opengl::TextureUnit filterTextureUnit;
     filterTextureUnit.activate();
@@ -239,8 +264,6 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
 
     _program->setUniform(_uniformCache.filterTexture, filterTextureUnit);
 
-    // test
-    //glFrontFace(GL_CCW);
     glDisable(GL_CULL_FACE);
 
     // Drawing by indices:
@@ -248,13 +271,17 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     glDrawElements(GL_TRIANGLES, _indicesArray.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
-    // test
-    glEnable(GL_CULL_FACE);
-    
-    if (additiveBlending) {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthMask(true);
+    if (isCullFaceEnabled) {
+        glEnable(GL_CULL_FACE);
     }
+
+    // Restores OpenGL blending state
+    if (!blendEnabled) {
+        glDisable(GL_BLEND);
+    }
+
+    glBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
+    glBlendFuncSeparate(blendSrcRGB, blendDestRGB, blendSrcAlpha, blendDestAlpha);
 
     _program->deactivate();
 

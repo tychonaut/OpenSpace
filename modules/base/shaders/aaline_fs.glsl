@@ -29,6 +29,7 @@ in vec4 textureUV;
 in float vs_screenSpaceDepth;
 //in vec4 vs_positionViewSpace;
 
+uniform float opacity;
 uniform vec4 lineColor;
 uniform sampler2D filterTexture;
 
@@ -36,10 +37,11 @@ Fragment getFragment() {
     Fragment frag;
 
     frag.color = lineColor * textureProj(filterTexture, textureUV).rrrr;
-
+    frag.color.a *= opacity;
+    
     frag.depth     = vs_screenSpaceDepth;
     //frag.gPosition = vs_position;
-    frag.gNormal   = vec4(0.0, 0.0, 0.0, 1.0);
+    frag.gNormal   = vec4(0.0, 0.0, -1.0, 1.0);
     
     return frag;
 }

@@ -226,11 +226,14 @@ RenderableEarthMoonLine::RenderableEarthMoonLine(const ghoul::Dictionary& dictio
     );
 
     addProperty(_currentLineColor);
-    _lineWidth.onChange([this]() {
+    _currentLineColor.onChange([this]() {
         this->_lineColor = _currentLineColor;
         }
     );
     
+    //addProperty(_blendMode);
+    //addProperty(_opacity);
+
     drawnTank();
 }
 
