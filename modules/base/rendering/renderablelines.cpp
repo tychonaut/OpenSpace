@@ -69,6 +69,12 @@ namespace {
         "Blending Mode",
         "This determines the blending mode that is applied to this plane."
     };
+    
+    constexpr openspace::properties::Property::PropertyInfo OpacityInfo = {
+       "Opacity",
+       "Opacity",
+       "This value gives the current opacity of the lines."
+    };
 } // namespace
 
 namespace openspace {
@@ -89,15 +95,23 @@ documentation::Documentation RenderableLines::Documentation() {
                 BlendModeInfo.identifier,
                 new StringInListVerifier({ "Normal", "Additive" }),
                 Optional::Yes,
-                BlendModeInfo.description, // + " The default value is 'Normal'.",
+                BlendModeInfo.description,
+            },
+            {
+                OpacityInfo.identifier,
+                new DoubleVerifier,
+                Optional::Yes,
+                OpacityInfo.description,
             }
         }
     };
 }
 
 RenderableLines::RenderableLines(const ghoul::Dictionary& dictionary)
-    : Renderable(dictionary)
+    : properties::PropertyOwner({ "Lines" })
     , _blendMode(BlendModeInfo, properties::OptionProperty::DisplayType::Dropdown)
+    , _opacity(OpacityInfo, 1.f, 0.f, 1.f)
+    , _renderBinOpt(Renderable::RenderBin::Transparent)
 {
     documentation::testSpecificationAndThrow(
         Documentation(),
@@ -105,21 +119,19 @@ RenderableLines::RenderableLines(const ghoul::Dictionary& dictionary)
         "RenderableLines"
     );
 
-    addProperty(_opacity);
-    registerUpdateRenderBinFromOpacity();
-
     _blendMode.addOptions({
         { BlendModeNormal, "Normal" },
         { BlendModeAdditive, "Additive"}
         });
-        
-    _blendMode.onChange([&]() {
+    _blendMode.set(1);
+
+    _blendMode.onChange([&, this]() {
         switch (_blendMode) {
         case BlendModeNormal:
-            setRenderBin(Renderable::RenderBin::Opaque);
+            _renderBinOpt =  Renderable::RenderBin::Opaque;
             break;
         case BlendModeAdditive:
-            setRenderBin(Renderable::RenderBin::Transparent);
+            _renderBinOpt = Renderable::RenderBin::Transparent;
             break;
         default:
             throw ghoul::MissingCaseException();
@@ -141,6 +153,7 @@ RenderableLines::RenderableLines(const ghoul::Dictionary& dictionary)
     }
 
     addProperty(_blendMode);
+    addProperty(_opacity);
 }
 
 bool RenderableLines::isReady() const {
@@ -192,7 +205,7 @@ void RenderableLines::deinitializeGL() {
     _program = nullptr;
 }
 
-void RenderableLines::render(const RenderData& data, RendererTasks&) {
+void RenderableLines::render(const RenderData& data) {
 
     // Saving current OpenGL state
     GLboolean blendEnabled = glIsEnabled(GL_BLEND);
@@ -213,8 +226,6 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     GLboolean isCullFaceEnabled = glIsEnabled(GL_CULL_FACE);
     
     _program->activate();
-
-    //_program->setUniform("opacity", _opacity);
 
     const glm::dmat4 modelTransform =
         glm::translate(glm::dmat4(1.0), data.modelTransform.translation) *
@@ -288,7 +299,7 @@ void RenderableLines::render(const RenderData& data, RendererTasks&) {
     checkGLErrors("after rendering");
 }
 
-void RenderableLines::update(const UpdateData&) {
+void RenderableLines::update() {
     if (_program->isDirty()) {
         _program->rebuildFromFile();
         ghoul::opengl::updateUniformLocations(*_program, _uniformCache, UniformNames);
@@ -330,7 +341,7 @@ void RenderableLines::updateGPUData() {
         GL_ARRAY_BUFFER, 
         _verticesArray.size() * sizeof(AAVertex), 
         _verticesArray.data(), 
-        GL_STATIC_DRAW
+        _memoryType
     );
 
     // Update index buffer
@@ -339,7 +350,7 @@ void RenderableLines::updateGPUData() {
         GL_ELEMENT_ARRAY_BUFFER, 
         _indicesArray.size() * sizeof(unsigned int),
         _indicesArray.data(), 
-        GL_STATIC_DRAW
+        _memoryType
     );
 
     // p0

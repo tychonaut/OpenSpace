@@ -45,7 +45,6 @@ void main() {
     // Transform the input points.
     vec4 p0 = modelViewProjection * vec4( pos0, 1.0f );
     vec4 p1 = modelViewProjection * vec4( pos1, 1.0f );
-    vec4 center = modelViewProjection * vec4( vec3(0.0), 1.0f );
     
     // Warp transformed points by aspectRatio ratio.
     vec4 w0 = p0;
@@ -80,13 +79,14 @@ void main() {
     vec3 offset = U * weights.z + V * weights.w;
 
     // Apply line thickness.
-    offset.xy *= (radius / 1000);// * (1.0/(center.z));
+    offset.xy *= (radius / 1000.0);
 
     // Unwarp by inverse of aspectRatio ratio.
     offset.y *= aspectRatio;
 
     // Undo perspective divide since the hardware will do it.
     position.xyz += offset.xyz * position.w;
+    
     
     // Set up UVs.  We have to use projected sampling rather
     // than regular sampling because we don't want to get

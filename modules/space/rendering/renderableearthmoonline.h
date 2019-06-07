@@ -54,16 +54,16 @@ struct UpdateData;
 
 namespace documentation { struct Documentation; }
 
-class RenderableEarthMoonLine : public RenderableLines {
+class RenderableEarthMoonLine : public Renderable {
 public:
     RenderableEarthMoonLine(const ghoul::Dictionary& dictionary);
 
-    /*void initializeGL() override;
-    void deinitializeGL() override;*/
+    void initializeGL() override;
+    void deinitializeGL() override;
 
-    //bool isReady() const override;
+    bool isReady() const override;
 
-    //void render(const RenderData& data, RendererTasks& rendererTask) override;
+    void render(const RenderData& data, RendererTasks& rendererTask) override;
     void update(const UpdateData& data) override;
 
     static documentation::Documentation Documentation();
@@ -71,6 +71,8 @@ public:
 private:
     properties::FloatProperty _lineWidth;
     properties::Vec4Property _currentLineColor;
+
+    RenderableLines _renderableLines;
 };
 
 } // namespace openspace

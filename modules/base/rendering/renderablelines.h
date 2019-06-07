@@ -27,6 +27,7 @@
 
 #include <openspace/rendering/renderable.h>
 
+#include <openspace/properties/propertyowner.h>
 #include <openspace/properties/optionproperty.h>
 #include <openspace/properties/stringproperty.h>
 #include <openspace/properties/scalar/boolproperty.h>
@@ -50,7 +51,7 @@ struct UpdateData;
 
 namespace documentation { struct Documentation; }
 
-class RenderableLines : public Renderable {
+class RenderableLines : public properties::PropertyOwner {
 public:
     struct AAVertex {
         AAVertex() {};
@@ -65,20 +66,28 @@ public:
     };
 public:
     RenderableLines(const ghoul::Dictionary& dictionary);
+    ~RenderableLines() = default;
+    
+    void initializeGL();
+    void deinitializeGL();
 
-    void initializeGL() override;
-    void deinitializeGL() override;
+    bool isReady() const ;
 
-    bool isReady() const override;
-
-    void render(const RenderData& data, RendererTasks& rendererTask) override;
-    void update(const UpdateData& data) override;
+    void render(const RenderData& data);
+    void update();
 
     static documentation::Documentation Documentation();
 
     void addNewLine(const glm::vec3& p0, const glm::vec3& p1, float radius);
 
     void reset();
+
+    void setLineColor(const glm::vec4 color) { _lineColor = std::move(color); }
+    glm::vec4 lineColor() const { return _lineColor; }
+
+    Renderable::RenderBin renderBin() const { return _renderBinOpt; }
+
+    void setGPUMemoryAccessType(const GLenum type) { _memoryType = std::move(type); }
 
 private:
     void updateAspectRatio();
@@ -88,6 +97,7 @@ private:
     
 protected:
     properties::OptionProperty _blendMode;
+    properties::FloatProperty _opacity;
 
     ghoul::opengl::ProgramObject* _program = nullptr;
 
@@ -118,6 +128,9 @@ protected:
     //JCC: Change this later
     glm::vec4 _lineColor = glm::vec4(1.0);
 
+    Renderable::RenderBin _renderBinOpt;
+
+    GLenum _memoryType = GL_STATIC_DRAW;
 };
 
 } // namespace openspace
