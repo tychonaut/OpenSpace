@@ -33,6 +33,7 @@
 #include <openspace/interaction/orbitalnavigator.h>
 #include <openspace/rendering/renderengine.h>
 #include <openspace/rendering/screenspacerenderable.h>
+#include <ghoul/filesystem/filesystem.h>
 #include <ghoul/logging/logmanager.h>
 #include <sstream>
 #include <string>
@@ -43,6 +44,18 @@
 #endif
 
 using namespace TUIO;
+
+namespace {
+    constexpr const char* _loggerCat = "TouchModule";
+
+    constexpr openspace::properties::Property::PropertyInfo TouchServerEnabledInfo = {
+        "TouchServerProcessEnabled",
+        "Enable Touch Server Process",
+        "Enable the TUIO touch server process used to serve touch events to this module."
+    };
+
+    constexpr const char* KeyTouchServerPath = "ServerPath";
+}
 
 namespace openspace {
 
@@ -144,7 +157,9 @@ void TouchModule::hasNewWebInput(const std::vector<TuioCursor>& listOfContactPoi
 
 TouchModule::TouchModule()
     : OpenSpaceModule("Touch")
+    , _enabled(TouchServerEnabledInfo, true)
 {
+    addProperty(_enabled);
     addPropertySubOwner(touch);
     addPropertySubOwner(markers);
 
@@ -183,6 +198,88 @@ TouchModule::TouchModule()
 
     global::callback::render.push_back([&]() { markers.render(listOfContactPoints); });
 
+}
+
+void TouchModule::internalInitialize(const ghoul::Dictionary& configuration) {
+    if (configuration.hasKeyAndValue<bool>("Enabled")) {
+        _enabled = configuration.value<bool>("Enabled");
+        if (!_enabled) {
+            LINFOC(
+                "TouchModule",
+                "Touch module disabled according to configuration file."
+            );
+        }
+    }
+    else {
+        LWARNINGC(
+            "TouchModule",
+            "No enabled value for touch server found in configuration file."
+        );
+        _enabled = false;
+    }
+
+    if (configuration.hasKey(KeyTouchServerPath)) {
+        _serverPath = configuration.value<std::string>(KeyTouchServerPath);
+    }
+    else {
+        LWARNINGC(
+            "TouchModule",
+            "No path to touch server found. Disabling touch interaction."
+        );
+        _enabled = false;
+    }
+
+    auto startOrStop = [this]() {
+        if (_enabled) {
+            startProcess();
+        }
+        else {
+            stopProcess();
+        }
+    };
+
+    auto restartIfEnabled = [this]() {
+        stopProcess();
+        if (_enabled) {
+            startProcess();
+        }
+    };
+
+    _enabled.onChange(startOrStop);
+    startOrStop();
+}
+
+void TouchModule::startProcess() {
+    const std::string command = absPath(_serverPath);
+    ghoul::filesystem::File p(command);
+    std::string directoryToServer = p.directoryName();
+
+    if (!FileSys.fileExists(command)) {
+        LERRORC(
+            "TouchModule",
+            "Invalid path to TUIO touch server in config file."
+        );
+    }
+
+    _process = std::make_unique<ghoul::Process>(
+        command,
+        directoryToServer,
+        [](const char* data, size_t n) {
+            const std::string str(data, n);
+            LDEBUG(fmt::format("Touch TUIO server output: {}", str));
+        },
+        [](const char* data, size_t n) {
+            const std::string str(data, n);
+            LDEBUG(fmt::format("Touch TUIO server error output: {}", str));
+        }
+    );
+}
+
+void TouchModule::stopProcess() {
+    if (_process) {
+        _process->kill();
+    }
+    _process = nullptr;
 }
 
 } // namespace openspace

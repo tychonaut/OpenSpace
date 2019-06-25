@@ -28,6 +28,7 @@
 #include <openspace/util/openspacemodule.h>
 #include <modules/touch/include/touchmarker.h>
 #include <modules/touch/include/touchinteraction.h>
+#include <ghoul/misc/process.h>
 
 
 namespace openspace {
@@ -37,7 +38,12 @@ namespace openspace {
     public:
         TouchModule();
 
+    protected:
+        void internalInitialize(const ghoul::Dictionary& configuration) override;
+
     private:
+        void startProcess();
+        void stopProcess();
         /**
         * Returns true if new touch input occured since the last frame
         */
@@ -46,6 +52,8 @@ namespace openspace {
         * Checks if touchevent should be parsed to the webgui
         */
         void hasNewWebInput(const std::vector<TUIO::TuioCursor>& listOfContactPoints);
+        std::unique_ptr<ghoul::Process> _process;
+        properties::BoolProperty _enabled;
 
         TuioEar ear;
         TouchInteraction touch;
@@ -54,6 +62,7 @@ namespace openspace {
         // contains an id and the TuioPoint that was processed last frame
         std::vector<Point> lastProcessed;
         glm::ivec2 webPositionCallback = glm::ivec2(0,0);
+        std::string _serverPath;
     };
 
 } // namespace openspace
