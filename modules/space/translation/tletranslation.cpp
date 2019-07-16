@@ -27,6 +27,7 @@
 #include <openspace/documentation/verifier.h>
 #include <ghoul/filesystem/file.h>
 #include <ghoul/filesystem/filesystem.h>
+
 #include <chrono>
 #include <fstream>
 #include <vector>
@@ -34,6 +35,7 @@
 namespace {
     constexpr const char* KeyFile = "File";
     constexpr const char* KeyLineNumber = "LineNumber";
+    constexpr const char* KeyBodyMass = "BodyMass";
 
     // The list of leap years only goes until 2056 as we need to touch this file then
     // again anyway ;)
@@ -207,10 +209,10 @@ namespace {
         return epoch;
     }
 
-    double calculateSemiMajorAxis(double meanMotion) {
+    double calculateSemiMajorAxis(double meanMotion, double bodyMass) {
+
         constexpr const double GravitationalConstant = 6.6740831e-11;
-        constexpr const double MassEarth = 5.9721986e24;
-        constexpr const double muEarth = GravitationalConstant * MassEarth;
+        const double muBody = GravitationalConstant * bodyMass;
 
         // Use Kepler's 3rd law to calculate semimajor axis
         // a^3 / P^2 = mu / (2pi)^2
@@ -221,7 +223,7 @@ namespace {
         double period = std::chrono::seconds(std::chrono::hours(24)).count() / meanMotion;
 
         const double pisq = glm::pi<double>() * glm::pi<double>();
-        double semiMajorAxis = pow((muEarth * period*period) / (4 * pisq), 1.0 / 3.0);
+        double semiMajorAxis = pow((muBody* period*period) / (4 * pisq), 1.0 / 3.0);
 
         // We need the semi major axis in km instead of m
         return semiMajorAxis / 1000.0;
@@ -254,6 +256,13 @@ documentation::Documentation TLETranslation::Documentation() {
                 Optional::Yes,
                 "Specifies the line number within the file where the group of 3 TLE "
                 "lines begins (1-based). Defaults to 1."
+            },
+            {
+                KeyBodyMass,
+                new DoubleGreaterVerifier(0),
+                Optional::Yes,
+                "Specifies the body mass to use. "
+                "Not necessary if the TLE translation is for earth."
             }
         }
     };
@@ -271,6 +280,11 @@ TLETranslation::TLETranslation(const ghoul::Dictionary& dictionary) {
     if (dictionary.hasKeyAndValue<double>(KeyLineNumber)) {
         lineNum = static_cast<int>(dictionary.value<double>(KeyLineNumber));
     }
+
+    if (dictionary.hasKeyAndValue<double>(KeyBodyMass)) {
+        _bodyMass = dictionary.value<double>(KeyBodyMass);
+    }
+
     readTLEFile(file, lineNum);
 }
 
@@ -379,7 +393,13 @@ void TLETranslation::readTLEFile(const std::string& filename, int lineNum) {
     file.close();
 
     // Calculate the semi major axis based on the mean motion using kepler's laws
-    keplerElements.semiMajorAxis = calculateSemiMajorAxis(keplerElements.meanMotion);
+    if (_bodyMass > 0) {
+        keplerElements.semiMajorAxis = calculateSemiMajorAxis(keplerElements.meanMotion, _bodyMass);
+    }
+    else {
+        constexpr const double MassEarth = 5.9721986e24;
+        keplerElements.semiMajorAxis = calculateSemiMajorAxis(keplerElements.meanMotion, MassEarth);
+    }
 
     // Converting the mean motion (revolutions per day) to period (seconds per revolution)
     using namespace std::chrono;

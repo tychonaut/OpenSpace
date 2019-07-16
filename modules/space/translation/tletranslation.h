@@ -76,6 +76,8 @@ private:
      * \pre The \p filename must exist
      */
     void readTLEFile(const std::string& filename, int lineNum);
+
+    double _bodyMass;
 };
 
 } // namespace openspace
