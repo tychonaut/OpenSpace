@@ -37,6 +37,7 @@
 #include <modules/base/dashboard/dashboarditemvelocity.h>
 #include <modules/base/lightsource/cameralightsource.h>
 #include <modules/base/lightsource/scenegraphlightsource.h>
+#include <modules/base/rendering/renderableaatrailorbit.h>
 #include <modules/base/rendering/renderablecartesianaxes.h>
 #include <modules/base/rendering/renderablemodel.h>
 #include <modules/base/rendering/renderablesphere.h>
@@ -118,6 +119,7 @@ void BaseModule::internalInitialize(const ghoul::Dictionary&) {
     auto fRenderable = FactoryManager::ref().factory<Renderable>();
     ghoul_assert(fRenderable, "Renderable factory was not created");
 
+    fRenderable->registerClass<RenderableAATrailOrbit>("RenderableAATrailOrbit");
     fRenderable->registerClass<RenderableBoxGrid>("RenderableBoxGrid");
     fRenderable->registerClass<RenderableCartesianAxes>("RenderableCartesianAxes");
     fRenderable->registerClass<RenderableModel>("RenderableModel");
@@ -183,6 +185,7 @@ std::vector<documentation::Documentation> BaseModule::documentations() const {
         DashboardItemSpacing::Documentation(),
         DashboardItemVelocity::Documentation(),
 
+        RenderableAATrailOrbit::Documentation(),
         RenderableBoxGrid::Documentation(),
         RenderableModel::Documentation(),
         RenderablePlane::Documentation(),

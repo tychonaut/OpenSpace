@@ -155,78 +155,80 @@ RenderableEarthMoonLine::RenderableEarthMoonLine(const ghoul::Dictionary& dictio
 
 
         // 3 bands, bottom up
-        _renderableLines.addNewLine(p00, p01, _lineWidth);
-        _renderableLines.addNewLine(p01, p02, _lineWidth);
-        _renderableLines.addNewLine(p02, p03, _lineWidth);
-        _renderableLines.addNewLine(p03, p00, _lineWidth);
+        _renderableLines.addNewLine(p00, p01);
+        _renderableLines.addNewLine(p01, p02);
+        _renderableLines.addNewLine(p02, p03);
+        _renderableLines.addNewLine(p03, p00);
 
-        _renderableLines.addNewLine(p04, p05, _lineWidth);
-        _renderableLines.addNewLine(p05, p06, _lineWidth);
-        _renderableLines.addNewLine(p06, p07, _lineWidth);
-        _renderableLines.addNewLine(p07, p04, _lineWidth);
+        _renderableLines.addNewLine(p04, p05);
+        _renderableLines.addNewLine(p05, p06);
+        _renderableLines.addNewLine(p06, p07);
+        _renderableLines.addNewLine(p07, p04);
 
-        _renderableLines.addNewLine(p08, p09, _lineWidth);
-        _renderableLines.addNewLine(p09, p10, _lineWidth);
-        _renderableLines.addNewLine(p10, p11, _lineWidth);
-        _renderableLines.addNewLine(p11, p08, _lineWidth);
+        _renderableLines.addNewLine(p08, p09);
+        _renderableLines.addNewLine(p09, p10);
+        _renderableLines.addNewLine(p10, p11);
+        _renderableLines.addNewLine(p11, p08);
 
         // vertical joins for bottom
-        _renderableLines.addNewLine(p00, p04, _lineWidth);
-        _renderableLines.addNewLine(p01, p05, _lineWidth);
-        _renderableLines.addNewLine(p02, p06, _lineWidth);
-        _renderableLines.addNewLine(p03, p07, _lineWidth);
+        _renderableLines.addNewLine(p00, p04);
+        _renderableLines.addNewLine(p01, p05);
+        _renderableLines.addNewLine(p02, p06);
+        _renderableLines.addNewLine(p03, p07);
 
-        _renderableLines.addNewLine(p08, p04, _lineWidth);
-        _renderableLines.addNewLine(p09, p05, _lineWidth);
-        _renderableLines.addNewLine(p10, p06, _lineWidth);
-        _renderableLines.addNewLine(p11, p07, _lineWidth);
+        _renderableLines.addNewLine(p08, p04);
+        _renderableLines.addNewLine(p09, p05);
+        _renderableLines.addNewLine(p10, p06);
+        _renderableLines.addNewLine(p11, p07);
 
         // turret
-        _renderableLines.addNewLine(p08, p12, _lineWidth);
-        _renderableLines.addNewLine(p13, p12, _lineWidth);
-        _renderableLines.addNewLine(p11, p13, _lineWidth);
-        _renderableLines.addNewLine(p10, p13, _lineWidth);
-        _renderableLines.addNewLine(p09, p12, _lineWidth);
+        _renderableLines.addNewLine(p08, p12);
+        _renderableLines.addNewLine(p13, p12);
+        _renderableLines.addNewLine(p11, p13);
+        _renderableLines.addNewLine(p10, p13);
+        _renderableLines.addNewLine(p09, p12);
 
         // gun
-        _renderableLines.addNewLine(p14, p15, _lineWidth);
-        _renderableLines.addNewLine(p15, p16, _lineWidth);
-        _renderableLines.addNewLine(p16, p17, _lineWidth);
-        _renderableLines.addNewLine(p17, p14, _lineWidth);
+        _renderableLines.addNewLine(p14, p15);
+        _renderableLines.addNewLine(p15, p16);
+        _renderableLines.addNewLine(p16, p17);
+        _renderableLines.addNewLine(p17, p14);
 
-        _renderableLines.addNewLine(p18, p19, _lineWidth);
-        _renderableLines.addNewLine(p19, p20, _lineWidth);
-        _renderableLines.addNewLine(p20, p21, _lineWidth);
-        _renderableLines.addNewLine(p21, p18, _lineWidth);
+        _renderableLines.addNewLine(p18, p19);
+        _renderableLines.addNewLine(p19, p20);
+        _renderableLines.addNewLine(p20, p21);
+        _renderableLines.addNewLine(p21, p18);
 
-        _renderableLines.addNewLine(p14, p18, _lineWidth);
-        _renderableLines.addNewLine(p15, p19, _lineWidth);
-        _renderableLines.addNewLine(p16, p20, _lineWidth);
-        _renderableLines.addNewLine(p17, p21, _lineWidth);
+        _renderableLines.addNewLine(p14, p18);
+        _renderableLines.addNewLine(p15, p19);
+        _renderableLines.addNewLine(p16, p20);
+        _renderableLines.addNewLine(p17, p21);
 
         // radar
-        _renderableLines.addNewLine(p23, p24, _lineWidth);
-        _renderableLines.addNewLine(p24, p25, _lineWidth);
-        _renderableLines.addNewLine(p25, p26, _lineWidth);
-        _renderableLines.addNewLine(p26, p27, _lineWidth);
-        _renderableLines.addNewLine(p27, p28, _lineWidth);
-        _renderableLines.addNewLine(p28, p29, _lineWidth);
-        _renderableLines.addNewLine(p29, p30, _lineWidth);
-        _renderableLines.addNewLine(p30, p23, _lineWidth);
+        _renderableLines.addNewLine(p23, p24);
+        _renderableLines.addNewLine(p24, p25);
+        _renderableLines.addNewLine(p25, p26);
+        _renderableLines.addNewLine(p26, p27);
+        _renderableLines.addNewLine(p27, p28);
+        _renderableLines.addNewLine(p28, p29);
+        _renderableLines.addNewLine(p29, p30);
+        _renderableLines.addNewLine(p30, p23);
 
-        _renderableLines.addNewLine(p23, p26, _lineWidth);
-        _renderableLines.addNewLine(p27, p30, _lineWidth);
+        _renderableLines.addNewLine(p23, p26);
+        _renderableLines.addNewLine(p27, p30);
 
-        _renderableLines.addNewLine(p22, p31, _lineWidth);
+        _renderableLines.addNewLine(p22, p31);
     };
 
     addPropertySubOwner(_renderableLines);
 
     addProperty(_lineWidth);
     _lineWidth.onChange([this, drawnTank]() {
-        drawnTank();
+        //drawnTank();
+        _renderableLines.setLineWidth(_lineWidth);
     }
     );
+    _renderableLines.setLineWidth(_lineWidth);
 
     addProperty(_currentLineColor);
     _currentLineColor.onChange([this]() {
@@ -235,8 +237,8 @@ RenderableEarthMoonLine::RenderableEarthMoonLine(const ghoul::Dictionary& dictio
     );
     _renderableLines.setLineColor(_currentLineColor);
 
-    //_renderableLines.setGPUMemoryAccessType(GL_STATIC_DRAW);
-    //drawnTank();
+    /*_renderableLines.setGPUMemoryAccessType(GL_STATIC_DRAW);
+    drawnTank();*/
 }
 
 
@@ -291,7 +293,7 @@ void RenderableEarthMoonLine::update(const UpdateData& data) {
     glm::vec3 earthP = glm::vec3(worldToModelTransform * glm::dvec4(EarthPosWorld, 1.0));
     glm::vec3 moonP = glm::vec3(worldToModelTransform * glm::dvec4(MoonPosWorld, 1.0));
 
-    _renderableLines.addNewLine(earthP, moonP, _lineWidth);
+    _renderableLines.addNewLine(earthP, moonP);
 
     _renderableLines.update();
 }

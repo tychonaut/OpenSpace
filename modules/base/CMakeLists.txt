@@ -39,6 +39,8 @@ set(HEADER_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/lightsource/scenegraphlightsource.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/modelgeometry.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/multimodelgeometry.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableaatrail.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableaatrailorbit.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableboxgrid.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablecartesianaxes.h
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablelines.h
@@ -84,6 +86,8 @@ set(SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/lightsource/scenegraphlightsource.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/modelgeometry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/multimodelgeometry.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableaatrail.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableaatrailorbit.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderableboxgrid.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablecartesianaxes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/rendering/renderablelines.cpp

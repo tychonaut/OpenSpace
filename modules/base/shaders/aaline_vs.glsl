@@ -29,12 +29,12 @@
 layout(location = 0) in vec3 pos0;
 layout(location = 1) in vec3 pos1;
 layout(location = 2) in vec4 weights;
-layout(location = 3) in float radius;
 
 out vec4 textureUV;
 out float vs_screenSpaceDepth;
 //out vec4 vs_positionViewSpace;
 
+uniform float lineWidth;
 uniform float aspectRatio;
 uniform mat4 modelViewProjection;   // World * View * Projection matrix
 
@@ -51,42 +51,35 @@ void main() {
     vec4 w1 = p1;
 
     float s = abs(w1.x - w0.x) + abs(w1.y - w0.y);
-    // if (s < 0.005) {
-    //     return;
-    // }
-
+    
     w0.y /= aspectRatio;
     w1.y /= aspectRatio;
 
     // Calc vectors between points in screen space.
     vec3 delta = w1.xyz / w1.w - w0.xyz / w0.w;
     
-    //
     // Calc UV basis vectors.
-    //
     vec3 U = normalize(delta);
-    // Create V orthogonal to U.
     vec3 V;
     V.x = U.y;
     V.y = -U.x;
-    V.z = 0;
+    V.z = 0.f;
 
     // Calculate output position based on this
     // vertex's weights.
     vec4 position = p0 * weights.x + p1 * weights.y;
-
+    position /= position.w;
     // Calc offset part of postion.
-    vec3 offset = U * weights.z + V * weights.w;
+    vec3 offset = (U * weights.z + V * weights.w);
 
     // Apply line thickness.
-    offset.xy *= (radius / 1000.0);
-
+    offset.xy *= (lineWidth / 10000);
+    
     // Unwarp by inverse of aspectRatio ratio.
     offset.y *= aspectRatio;
 
     // Undo perspective divide since the hardware will do it.
     position.xyz += offset.xyz * position.w;
-    
     
     // Set up UVs.  We have to use projected sampling rather
     // than regular sampling because we don't want to get

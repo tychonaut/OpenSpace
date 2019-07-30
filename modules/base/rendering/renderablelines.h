@@ -56,13 +56,12 @@ public:
     struct AAVertex {
         AAVertex() {};
         AAVertex(const glm::vec3& p0, const glm::vec3& p1,
-            const glm::vec4& weights, float radius) :
-            _p0(p0), _p1(p1), _weights(weights), _radius(radius)
+            const glm::vec4& weights) :
+            _p0(p0), _p1(p1), _weights(weights)
         {};
         glm::vec3 _p0;
         glm::vec3 _p1;
         glm::vec4 _weights;
-        float _radius;
     };
 public:
     RenderableLines(const ghoul::Dictionary& dictionary);
@@ -78,12 +77,15 @@ public:
 
     static documentation::Documentation Documentation();
 
-    void addNewLine(const glm::vec3& p0, const glm::vec3& p1, float radius);
+    void addNewLine(const glm::vec3& p0, const glm::vec3& p1);
 
     void reset();
 
     void setLineColor(const glm::vec4 color) { _lineColor = std::move(color); }
     glm::vec4 lineColor() const { return _lineColor; }
+
+    void setLineWidth(float width) { _lineWidth = std::move(width); }
+    float lineWidth() const { return _lineWidth; }
 
     Renderable::RenderBin renderBin() const { return _renderBinOpt; }
 
@@ -117,7 +119,8 @@ protected:
     UniformCache(
         modelViewProjection, 
         aspectRatio, 
-        lineColor, 
+        lineColor,
+        lineWidth,
         filterTexture,
         opacity
     ) _uniformCache;
@@ -125,8 +128,8 @@ protected:
     std::vector<AAVertex> _verticesArray;
     std::vector<GLuint> _indicesArray;
     
-    //JCC: Change this later
-    glm::vec4 _lineColor = glm::vec4(1.0);
+    glm::vec4 _lineColor = glm::vec4(1.f);
+    float _lineWidth = 1.f;
 
     Renderable::RenderBin _renderBinOpt;
 

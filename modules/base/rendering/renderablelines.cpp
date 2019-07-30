@@ -53,8 +53,9 @@ namespace {
         BlendModeAdditive
     };
 
-    constexpr const std::array<const char*, 5> UniformNames = {
-        "modelViewProjection", "aspectRatio", "lineColor", "filterTexture", "opacity"
+    constexpr const std::array<const char*, 6> UniformNames = {
+        "modelViewProjection", "aspectRatio", "lineColor", "lineWidth", 
+        "filterTexture", "opacity"
     };
 
     constexpr openspace::properties::Property::PropertyInfo FilteringTextureSizeInfo = {
@@ -255,6 +256,7 @@ void RenderableLines::render(const RenderData& data) {
     }
 
     _program->setUniform(_uniformCache.lineColor, _lineColor);
+    _program->setUniform(_uniformCache.lineWidth, _lineWidth);
     
     glm::mat4 modelViewProjection(
         glm::dmat4(data.camera.projectionMatrix()) * data.camera.combinedViewMatrix() *
@@ -386,19 +388,7 @@ void RenderableLines::updateGPUData() {
         (void*)offsetof(AAVertex, _weights)
     );
 
-    // radius
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(
-        3,
-        1,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(AAVertex),
-        (void*)offsetof(AAVertex, _radius));
-
     glBindVertexArray(0);
-
-    //checkGLErrors("after update GPU data");
 }
 
 void RenderableLines::createFilterTexture() {
@@ -422,22 +412,13 @@ void RenderableLines::createFilterTexture() {
             t = smoothStep(0.0f, 1.0f, t);
             unsigned int val = 255 - unsigned int(255.0f * t);
 
-            /*
-            // Test pattern.
-            if( i==0 || (j==0 && i&1) )
-                val = 255;
-            else
-                val = 50;
-            */
-
             filterTextureData[i * _filterTextureSize + j] = 0x00ffffff + (val << 24);
         }
     }
 
         
     glGenTextures(1, &_filterTexture);
-    //glGenFramebuffers(1, &_mainFramebuffer);
-
+    
     glBindTexture(GL_TEXTURE_2D, _filterTexture);
 
     glTexImage2D(
@@ -464,33 +445,32 @@ void RenderableLines::createFilterTexture() {
 
 void RenderableLines::addNewLine(
     const glm::vec3& p0, 
-    const glm::vec3& p1, 
-    float radius
+    const glm::vec3& p1
 ) {
         
     _verticesArray.push_back(
-        AAVertex(p0, p1, glm::vec4(1.0f, 0.0f, -1.0f, -1.0f), radius)
+        AAVertex(p0, p1, glm::vec4(1.0f, 0.0f, -1.0f, -1.0f))
     );
     _verticesArray.push_back(
-        AAVertex(p0, p1, glm::vec4(1.0f, 0.0f, -1.0f, 1.0f), radius)
+        AAVertex(p0, p1, glm::vec4(1.0f, 0.0f, -1.0f, 1.0f))
     );
     _verticesArray.push_back(
-        AAVertex(p0, p1, glm::vec4(1.0f, 0.0f, 0.0f, -1.0f), radius)
+        AAVertex(p0, p1, glm::vec4(1.0f, 0.0f, 0.0f, -1.0f))
     );
     _verticesArray.push_back(
-        AAVertex(p0, p1, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), radius)
+        AAVertex(p0, p1, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f))
     );
     _verticesArray.push_back(
-        AAVertex(p0, p1, glm::vec4(0.0f, 1.0f, 0.0f, -1.0f), radius)
+        AAVertex(p0, p1, glm::vec4(0.0f, 1.0f, 0.0f, -1.0f))
     );
     _verticesArray.push_back(
-        AAVertex(p0, p1, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), radius)
+        AAVertex(p0, p1, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f))
     );
     _verticesArray.push_back(
-        AAVertex(p0, p1, glm::vec4(0.0f, 1.0f, 1.0f, -1.0f), radius)
+        AAVertex(p0, p1, glm::vec4(0.0f, 1.0f, 1.0f, -1.0f))
     );
     _verticesArray.push_back(
-        AAVertex(p0, p1, glm::vec4(0.0f, 1.0f, 1.0f, 1.0f), radius)
+        AAVertex(p0, p1, glm::vec4(0.0f, 1.0f, 1.0f, 1.0f))
     );
 
     GLuint currentIndex = _indicesArray.size() / 18.f;

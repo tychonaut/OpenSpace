@@ -4,11 +4,33 @@ asset.require("spice/base")
 
 
 
+-- local EarthTrail = {
+--     Identifier = "EarthTrail",
+--     Parent = transforms.SolarSystemBarycenter.Identifier,
+--     Renderable = {
+--         Type = "RenderableTrailOrbit",
+--         Translation = {
+--             Type = "SpiceTranslation",
+--             Target = "EARTH",
+--             Observer = "SUN"
+--         },
+--         Color = { 0.5, 0.8, 1.0 },
+--         Period = 365.242,
+--         Resolution = 1000,
+--         Tag = { "planetTrail_solarSystem", "planetTrail_terrestrial" }
+--     },
+--     GUI = {
+--         Name = "Earth Trail",
+--         Path = "/Solar System/Planets/Earth"
+--     }
+-- }
+
+-- JCC: Testing new AA Trail Orbit
 local EarthTrail = {
     Identifier = "EarthTrail",
     Parent = transforms.SolarSystemBarycenter.Identifier,
     Renderable = {
-        Type = "RenderableTrailOrbit",
+        Type = "RenderableAATrailOrbit",
         Translation = {
             Type = "SpiceTranslation",
             Target = "EARTH",
@@ -24,7 +46,6 @@ local EarthTrail = {
         Path = "/Solar System/Planets/Earth"
     }
 }
-
 
 
 assetHelper.registerSceneGraphNodesAndExport(asset, { EarthTrail })
