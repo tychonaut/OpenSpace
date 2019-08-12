@@ -50,44 +50,43 @@ void main() {
     vec4 w0 = p0;
     vec4 w1 = p1;
 
-    float s = abs(w1.x - w0.x) + abs(w1.y - w0.y);
-    
     w0.y /= aspectRatio;
     w1.y /= aspectRatio;
 
     // Calc vectors between points in screen space.
-    vec3 delta = w1.xyz / w1.w - w0.xyz / w0.w;
-    
-    // Calc UV basis vectors.
-    vec3 U = normalize(delta);
-    vec3 V;
-    V.x = U.y;
-    V.y = -U.x;
-    V.z = 0.f;
+    //vec3 delta = w1.xyz / w1.w - w0.xyz / w0.w;
+    vec2 delta =  w1.xy / w1.w - w0.xy / w0.w;
 
+    // Calc UV basis vectors.
+    //vec3 U = normalize(delta);
+    vec2 U = delta / length(delta);
+    vec2 V = vec2(U.y, -U.x);
+    
     // Calculate output position based on this
     // vertex's weights.
     vec4 position = p0 * weights.x + p1 * weights.y;
-    position /= position.w;
+    //position /= position.w;
     // Calc offset part of postion.
-    vec3 offset = (U * weights.z + V * weights.w);
+    vec2 offset = (U * weights.z + V * weights.w);
 
     // Apply line thickness.
-    offset.xy *= (lineWidth / 10000);
+    offset *= (lineWidth / 1000.f);
     
     // Unwarp by inverse of aspectRatio ratio.
     offset.y *= aspectRatio;
 
-    // Undo perspective divide since the hardware will do it.
-    position.xyz += offset.xyz * position.w;
+    // Undo perspective divide since the hardware will do it and we
+    // want perspective-correct vertices' parameters interpolation.
+    position.xy += (offset * position.w);
     
     // Set up UVs.  We have to use projected sampling rather
     // than regular sampling because we don't want to get
     // perspective correction.
-    textureUV.x = weights.z;
-    textureUV.y = weights.w;
-    textureUV.z = 0.0f;
-    textureUV.w = 1.0f;
+    float wide = position.w;//length(offset * position.w);
+    textureUV.x = weights.z * wide;
+    textureUV.y = weights.w * wide;
+    textureUV.z = 0.f;
+    textureUV.w = wide;
 
     vec4 positionClipSpaceZNorm = z_normalization(position);
     vs_screenSpaceDepth  = positionClipSpaceZNorm.w;

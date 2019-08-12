@@ -412,6 +412,12 @@ void RenderableLines::createFilterTexture() {
             t = smoothStep(0.0f, 1.0f, t);
             unsigned int val = 255 - unsigned int(255.0f * t);
 
+            //// Test pattern.
+            //if( i==0 || (j==0 && i&1) )
+            //    val = 255;
+            //else
+            //    val = 50;
+            
             filterTextureData[i * _filterTextureSize + j] = 0x00ffffff + (val << 24);
         }
     }
