@@ -173,7 +173,6 @@ void PerformanceManager::setEnabled(bool enabled) {
     else {
         if (loggingEnabled()) {
             outputLogs();
-            debrisLog();
         }
 
         if (_performanceMemory) {
