@@ -442,11 +442,12 @@ std::vector<glm::dvec3> getPositionBuffer(std::vector<KeplerParameters> tleData,
         
         
     }
+    /*
     LINFO(fmt::format("max theta: {} ", maxTheta));
     LINFO(fmt::format("max phi: {} ", maxPhi));
     LINFO(fmt::format("min theta: {} ", minTheta));
     LINFO(fmt::format("min phi: {} ", minPhi));
-
+    */
     return positionBuffer;
 }
 
