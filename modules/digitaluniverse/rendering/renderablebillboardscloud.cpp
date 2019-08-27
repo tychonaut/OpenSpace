@@ -56,12 +56,12 @@ namespace {
     constexpr const char* ProgramObjectName = "RenderableBillboardsCloud";
     constexpr const char* RenderToPolygonProgram = "RenderableBillboardsCloud_Polygon";
 
-    constexpr const std::array<const char*, 19> UniformNames = {
+    constexpr const std::array<const char*, 20> UniformNames = {
         "cameraViewProjectionMatrix", "modelMatrix", "cameraPosition", "cameraLookUp",
         "renderOption", "minBillboardSize", "maxBillboardSize",
         "correctionSizeEndDistance", "correctionSizeFactor", "color", "alphaValue",
         "scaleFactor", "up", "right", "fadeInValue", "screenSize", "spriteTexture",
-        "hasColorMap", "enabledRectSizeControl"
+        "hasColorMap", "enabledRectSizeControl", "falseVPMatrix"
     };
 
     constexpr const char* KeyFile = "File";
@@ -766,6 +766,20 @@ void RenderableBillboardsCloud::renderBillboards(const RenderData& data,
         _uniformCache.cameraViewProjectionMatrix,
         glm::dmat4(data.camera.projectionMatrix()) * data.camera.combinedViewMatrix()
     );
+
+    // JCC: Test
+    glm::dmat4 camTranslation = glm::inverse(
+        glm::translate(glm::dmat4(1.0), static_cast<glm::dvec3>(data.camera.positionVec3()))
+    );
+    glm::dmat4 falseVMatrix =
+        glm::dmat4(data.camera.viewScaleMatrix()) *
+        glm::dmat4(data.camera.viewRotationMatrix()) *
+        camTranslation;
+    _program->setUniform(
+        _uniformCache.falseVPMatrix,
+        glm::dmat4(data.camera.projectionMatrix()) * falseVMatrix
+    );
+
     _program->setUniform(_uniformCache.minBillboardSize, _billboardMinSize); // in pixels
     _program->setUniform(_uniformCache.maxBillboardSize, _billboardMaxSize); // in pixels
     _program->setUniform(_uniformCache.color, _pointColor);

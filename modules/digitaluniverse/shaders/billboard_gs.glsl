@@ -41,6 +41,7 @@ uniform float minBillboardSize;
 
 uniform dmat4 cameraViewProjectionMatrix;
 uniform dmat4 modelMatrix;
+uniform dmat4 falseVPMatrix;
 
 uniform float correctionSizeFactor;
 uniform float correctionSizeEndDistance;
@@ -129,23 +130,22 @@ void main() {
         // width and height
         vec2 sizes = abs(halfViewSize * (topRight - bottomLeft));
         
-        if (enabledRectSizeControl && ((sizes.y > maxBillboardSize) ||
-            (sizes.x > maxBillboardSize))) {        
+        if ((sizes.y > maxBillboardSize) || (sizes.x > maxBillboardSize)) {        
             //Set maximum size as Carter's instructions
             float correctionScale = 
                 sizes.y > maxBillboardSize ? maxBillboardSize / sizes.y :
                                              maxBillboardSize / sizes.x;
-            
             scaledRight *= correctionScale;
             scaledUp    *= correctionScale;
-        
-        } else {            
-            if (sizes.x < 2.0f * minBillboardSize) {
-                float maxVar = 2.0f * minBillboardSize;
+        } else {
+            float mimSize = sqrt(sizes.x * sizes.x + sizes.y * sizes.y);
+            //if ((sizes.x < minBillboardSize * 0.5) || (sizes.y < minBillboardSize * 0.5)) {
+            if ( mimSize < minBillboardSize) {
+                float maxVar = minBillboardSize;
                 float minVar = minBillboardSize;
-                float var    = (sizes.y + sizes.x);    
+                float var    = (sizes.y + sizes.x);
                 ta = ( (var - minVar)/(maxVar - minVar) );
-                if (ta == 0.0f)
+                if (ta < 0.01f)
                     return;
             }
         }
@@ -153,7 +153,7 @@ void main() {
     
     initialPosition = z_normalization(vec4(cameraViewProjectionMatrix *
                         dvec4(dpos.xyz - scaledRight - scaledUp, dpos.w)));
-    vs_screenSpaceDepth = initialPosition.w;                        
+    vs_screenSpaceDepth = initialPosition.w;
     secondPosition = z_normalization(vec4(cameraViewProjectionMatrix * 
                         dvec4(dpos.xyz + scaledRight - scaledUp, dpos.w)));
     crossCorner = z_normalization(vec4(cameraViewProjectionMatrix * 

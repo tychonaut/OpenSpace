@@ -139,7 +139,8 @@ private:
     UniformCache(cameraViewProjectionMatrix, modelMatrix, cameraPos, cameraLookup,
         renderOption, minBillboardSize, maxBillboardSize, correctionSizeEndDistance,
         correctionSizeFactor, color, alphaValue, scaleFactor, up, right, fadeInValue,
-        screenSize, spriteTexture, hasColormap, enabledRectSizeControl
+        screenSize, spriteTexture, hasColormap, enabledRectSizeControl,
+        falseVPMatrix
     ) _uniformCache;
     std::shared_ptr<ghoul::fontrendering::Font> _font;
 
