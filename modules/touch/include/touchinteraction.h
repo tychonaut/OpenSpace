@@ -31,6 +31,7 @@
 #include <modules/touch/include/tuioear.h>
 
 #include <openspace/properties/scalar/boolproperty.h>
+#include <openspace/properties/scalar/doubleproperty.h>
 #include <openspace/properties/scalar/floatproperty.h>
 #include <openspace/properties/scalar/intproperty.h>
 #include <openspace/properties/stringproperty.h>
@@ -214,7 +215,9 @@ private:
     properties::FloatProperty _interpretPan;
     properties::FloatProperty _slerpTime;
     properties::IVec2Property _guiButton;
-    properties::Vec4Property _friction;
+    properties::DoubleProperty _sensitivityOrbit;
+    properties::DoubleProperty _sensitivityRoll;
+    properties::DoubleProperty _sensitivityPan;
     properties::FloatProperty _pickingRadiusMinimum;
     properties::BoolProperty _ignoreGui;
     properties::FloatProperty _constTimeDecay_secs;
@@ -238,7 +241,6 @@ private:
     // Class variables
     VelocityStates _vel;
     VelocityStates _lastVel;
-    VelocityStates _sensitivity;
 
     double _projectionScaleFactor;
     double _currentRadius;

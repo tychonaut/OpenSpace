@@ -216,9 +216,21 @@ namespace {
         "" // @TODO Missing documentation
     };
 
-    constexpr openspace::properties::Property::PropertyInfo FrictionInfo = {
-        "Friction",
-        "Friction for different interactions (orbit, zoom, roll, pan)",
+    constexpr openspace::properties::Property::PropertyInfo TouchSensitivityOrbitInfo = {
+        "TouchSensitivityOrbit",
+        "Touch sensitivity gain for orbit movement",
+        "" // @TODO Missing documentation
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo TouchSensitivityRollInfo = {
+        "TouchSensitivityRoll",
+        "Touch sensitivity gain for roll movement",
+        "" // @TODO Missing documentation
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo TouchSensitivityPanInfo = {
+        "TouchSensitivityPan",
+        "Touch sensitivity gain for pan movement",
         "" // @TODO Missing documentation
     };
 
@@ -268,12 +280,6 @@ TouchInteraction::TouchInteraction()
         glm::ivec2(8, 16),
         glm::ivec2(128, 256)
     )
-    , _friction(
-        FrictionInfo,
-        glm::vec4(0.025f, 0.025f, 0.02f, 0.02f),
-        glm::vec4(0.f),
-        glm::vec4(0.2f)
-    )
     , _pickingRadiusMinimum(
         { "Picking Radius", "Minimum radius for picking in NDC coordinates", "" },
         0.1f,
@@ -285,7 +291,9 @@ TouchInteraction::TouchInteraction()
         false
     )
     , _vel{ glm::dvec2(0.0), 0.0, 0.0, glm::dvec2(0.0) }
-    , _sensitivity{ glm::dvec2(0.08, 0.045), 12.0 /*4.0*/, 2.75, glm::dvec2(0.08, 0.045) }
+    , _sensitivityOrbit(TouchSensitivityOrbitInfo, 0.12, 0.01, 1.0)
+    , _sensitivityRoll(TouchSensitivityRollInfo, 1.5, 0.5, 5.0)
+    , _sensitivityPan(TouchSensitivityPanInfo, 0.1, 0.01, 0.4)
     , _constTimeDecay_secs(ConstantTimeDecaySecsInfo, 1.75f, 0.1f, 4.0f)
     // calculated with two vectors with known diff in length, then
     // projDiffLength/diffLength.
@@ -328,7 +336,9 @@ TouchInteraction::TouchInteraction()
     addProperty(_interpretPan);
     addProperty(_slerpTime);
     addProperty(_guiButton);
-    addProperty(_friction);
+    addProperty(_sensitivityOrbit);
+    addProperty(_sensitivityRoll);
+    addProperty(_sensitivityPan);
     addProperty(_pickingRadiusMinimum);
     addProperty(_ignoreGui);
 
@@ -1075,8 +1085,8 @@ void TouchInteraction::computeVelocities(const std::vector<TuioCursor>& list,
     switch (action) {
         case ROT: { // add rotation velocity
             _vel.orbit += glm::dvec2(cursor.getXSpeed() *
-                          _sensitivity.orbit.x, cursor.getYSpeed() *
-                          _sensitivity.orbit.y);
+                          _sensitivityOrbit, cursor.getYSpeed() *
+                          _sensitivityOrbit);
             double orbitVelocityAvg = glm::distance(_vel.orbit.x, _vel.orbit.y);
             _constTimeDecayCoeff.orbit
                 = computeConstTimeDecayCoefficient(orbitVelocityAvg);
@@ -1172,14 +1182,14 @@ void TouchInteraction::computeVelocities(const std::vector<TuioCursor>& list,
                 }
             ) / list.size();
 
-            _vel.roll += -rollFactor * _sensitivity.roll;
+            _vel.roll += -rollFactor * _sensitivityRoll;
             _constTimeDecayCoeff.roll = computeConstTimeDecayCoefficient(_vel.roll);
             break;
         }
         case PAN: {
              // add local rotation velocity
             _vel.pan += glm::dvec2(cursor.getXSpeed() *
-                        _sensitivity.pan.x, cursor.getYSpeed() * _sensitivity.pan.y);
+                        _sensitivityPan, cursor.getYSpeed() * _sensitivityPan);
             double panVelocityAvg = glm::distance(_vel.pan.x, _vel.pan.y);
             _constTimeDecayCoeff.pan = computeConstTimeDecayCoefficient(panVelocityAvg);
             break;
@@ -1507,7 +1517,9 @@ void TouchInteraction::resetToDefault() {
     _interpretPan.set(0.015f);
     _slerpTime.set(3.0f);
     _guiButton.set(glm::ivec2(32, 64));
-    _friction.set(glm::vec4(0.025, 0.025, 0.02, 0.02));
+    _sensitivityOrbit.set(0.12);
+    _sensitivityRoll.set(1.5);
+    _sensitivityPan.set(0.1);
 }
 
 void TouchInteraction::tap() {
