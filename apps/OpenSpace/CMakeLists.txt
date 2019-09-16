@@ -110,11 +110,7 @@ set(JPEG_TURBO_WITH_SIMD OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/sgct)
 target_include_directories(OpenSpace SYSTEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ext/sgct/include)
-target_link_libraries(
-  OpenSpace
-  sgct_light glew glfw png16_static quat tinyxml2static turbojpeg-static
-  vrpn ${GLFW_LIBRARIES}
-)
+target_link_libraries(OpenSpace sgct)
 
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH GLFW_BUILD_DOCS GLFW_BUILD_EXAMPLES
   GLFW_BUILD_TESTS GLFW_INSTALL GLFW_USE_HYBRID_HPG GLFW_USE_OSMESA GLFW_VULKAN_STATIC

@@ -23,6 +23,7 @@
 ##########################################################################################
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+set(CMAKE_OSX_ARCHITECTURES "x86_64")
 
 project(OpenSpace)
 

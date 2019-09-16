@@ -1257,8 +1257,8 @@ int main(int argc, char** argv) {
     // is fixed. With the bug, the rendering stays gray even well after the main render
     // loop has started     -- 2018-10-28   abock
     size_t n = sgct::Engine::instance()->getNumberOfWindows();
-    for (size_t i = 0; i < n; ++i) {
-        GLFWwindow* w = sgct::Engine::instance()->getWindowPtr(i)->getWindowHandle();
+    for (int i = 0; i < n; ++i) {
+        GLFWwindow* w = sgct::Engine::instance()->getWindow(i).getWindowHandle();
         int x, y;
         glfwGetWindowPos(w, &x, &y);
         glfwSetWindowPos(w, x + 1, y + 1);
