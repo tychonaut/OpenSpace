@@ -42,9 +42,9 @@
 #include <ghoul/misc/assert.h>
 #include <ghoul/misc/boolean.h>
 #include <sgct.h>
-#include <sgct/ClusterManager.h>
-#include <sgct/SGCTWindow.h>
-#include <sgct/SGCTUser.h>
+#include <sgct/clustermanager.h>
+#include <sgct/user.h>
+#include <sgct/window.h>
 #include <chrono>
 #include <ctime>
 #include <stb_image.h>
@@ -282,7 +282,7 @@ void mainInitFunc() {
 
         const size_t nWindows = SgctEngine->getNumberOfWindows();
         for (size_t i = 0; i < nWindows; ++i) {
-            const sgct::SGCTWindow& win = SgctEngine->getWindow(i);
+            const sgct::Window& win = SgctEngine->getWindow(i);
             glfwSetWindowIcon(win.getWindowHandle(), 1, icons);
         }
 
@@ -317,7 +317,7 @@ void mainInitFunc() {
 
     const size_t nWindows = SgctEngine->getNumberOfWindows();
     for (size_t i = 0; i < nWindows; ++i) {
-        const sgct::SGCTWindow& win = SgctEngine->getWindow(i);
+        const sgct::Window& win = SgctEngine->getWindow(i);
 
         if (!win.hasTag(SpoutTag)) {
             continue;
@@ -328,9 +328,9 @@ void mainInitFunc() {
 
         w.windowId = i;
 
-        const sgct::SGCTWindow::StereoMode sm = win.getStereoMode();
-        const bool hasStereo = (sm != sgct::SGCTWindow::StereoMode::NoStereo) &&
-                               (sm < sgct::SGCTWindow::StereoMode::SideBySide);
+        const sgct::Window::StereoMode sm = win.getStereoMode();
+        const bool hasStereo = (sm != sgct::Window::StereoMode::NoStereo) &&
+                               (sm < sgct::Window::StereoMode::SideBySide);
 
         const glm::ivec2 res = win.getFramebufferResolution();
         if (hasStereo) {
@@ -386,13 +386,13 @@ void mainInitFunc() {
     }
 
     for (size_t i = 0; i < nWindows; ++i) {
-        const sgct::SGCTWindow& w = SgctEngine->getWindow(i);
+        const sgct::Window& w = SgctEngine->getWindow(i);
         constexpr const char* screenshotNames = "OpenSpace";
         sgct_core::ScreenCapture* cpt0 = w.getScreenCapturePointer(
-            sgct::SGCTWindow::Eye::MonoOrLeft
+            sgct::Window::Eye::MonoOrLeft
         );
         sgct_core::ScreenCapture* cpt1 = w.getScreenCapturePointer(
-            sgct::SGCTWindow::Eye::Right
+            sgct::Window::Eye::Right
         );
 
         if (cpt0) {
@@ -645,7 +645,7 @@ void mainPostDrawFunc() {
 
 #ifdef OPENSPACE_HAS_SPOUT
     for (const SpoutWindow& w : SpoutWindows) {
-        sgct::SGCTWindow& window = SgctEngine->getWindow(w.windowId);
+        sgct::Window& window = SgctEngine->getWindow(w.windowId);
         const glm::ivec2 res = window.getFramebufferResolution();
         if (w.leftOrMain.initialized) {
             const GLuint texId = window.getFrameBufferTexture(sgct::Engine::LeftEye);
@@ -837,7 +837,7 @@ void setSgctDelegateFunctions() {
     WindowDelegate& sgctDelegate = global::windowDelegate;
     sgctDelegate.terminate = []() { sgct::Engine::instance()->terminate(); };
     sgctDelegate.setBarrier = [](bool enabled) {
-        sgct::SGCTWindow::setBarrier(enabled);
+        sgct::Window::setBarrier(enabled);
     };
     sgctDelegate.setSynchronization = [](bool enabled) {
         sgct_core::ClusterManager::instance()->setUseIgnoreSync(enabled);
@@ -887,20 +887,20 @@ void setSgctDelegateFunctions() {
         return sgct::Engine::instance()->getCurrentWindow().getResolution();
     };
     sgctDelegate.currentSubwindowSize = []() {
-        const sgct::SGCTWindow& window = sgct::Engine::instance()->getCurrentWindow();
+        const sgct::Window& window = sgct::Engine::instance()->getCurrentWindow();
         switch (window.getStereoMode()) {
-            case sgct::SGCTWindow::StereoMode::SideBySide:
-            case sgct::SGCTWindow::StereoMode::SideBySideInverted:
+            case sgct::Window::StereoMode::SideBySide:
+            case sgct::Window::StereoMode::SideBySideInverted:
                 return glm::ivec2(window.getResolution().x / 2, window.getResolution().y);
-            case sgct::SGCTWindow::StereoMode::TopBottom:
-            case sgct::SGCTWindow::StereoMode::TopBottomInverted:
+            case sgct::Window::StereoMode::TopBottom:
+            case sgct::Window::StereoMode::TopBottomInverted:
                 return glm::ivec2(window.getResolution().x, window.getResolution().y / 2);
             default:
                 return glm::ivec2(window.getResolution().x, window.getResolution().y);
         }
     };
     sgctDelegate.currentWindowResolution = []() {
-        const sgct::SGCTWindow& window = sgct::Engine::instance()->getCurrentWindow();
+        const sgct::Window& window = sgct::Engine::instance()->getCurrentWindow();
         return window.getFinalFBODimensions();
     };
     sgctDelegate.currentDrawBufferResolution = []() {
@@ -911,10 +911,9 @@ void setSgctDelegateFunctions() {
             return glm::ivec2(res, res);
         }
         else {
-            const sgct::SGCTWindow& window = sgct::Engine::instance()->getCurrentWindow();
+            const sgct::Window& window = sgct::Engine::instance()->getCurrentWindow();
             return window.getFinalFBODimensions();
         }
-        return glm::ivec2(-1, -1);
     };
     sgctDelegate.currentViewportSize = []() {
         const sgct_core::Viewport& viewport =
@@ -928,7 +927,7 @@ void setSgctDelegateFunctions() {
         return sgct::Engine::instance()->getCurrentWindow().getNumberOfAASamples();
     };
     sgctDelegate.isRegularRendering = []() {
-        const sgct::SGCTWindow& w = sgct::Engine::instance()->getCurrentWindow();
+        const sgct::Window& w = sgct::Engine::instance()->getCurrentWindow();
         ghoul_assert(
             w.getNumberOfViewports() > 0,
             "At least one viewport must exist at this time"
@@ -950,10 +949,10 @@ void setSgctDelegateFunctions() {
     };
     sgctDelegate.isMaster = []() { return sgct::Engine::instance()->isMaster(); };
     sgctDelegate.isUsingSwapGroups = []() {
-        return sgct::SGCTWindow::isUsingSwapGroups();
+        return sgct::Window::isUsingSwapGroups();
     };
     sgctDelegate.isSwapGroupMaster = []() {
-        return sgct::SGCTWindow::isSwapGroupMaster();
+        return sgct::Window::isSwapGroupMaster();
     };
     sgctDelegate.viewProjectionMatrix = []() {
         return sgct::Engine::instance()->getCurrentModelViewProjectionMatrix();
@@ -968,7 +967,7 @@ void setSgctDelegateFunctions() {
         sgct::Engine::instance()->setEyeSeparation(distance);
     };
     sgctDelegate.viewportPixelCoordinates = []() {
-        const sgct::SGCTWindow& window = sgct::Engine::instance()->getCurrentWindow();
+        const sgct::Window& window = sgct::Engine::instance()->getCurrentWindow();
         if (!window.getCurrentViewport()) {
             return glm::ivec4(0, 0, 0, 0);
         }
@@ -990,13 +989,13 @@ void setSgctDelegateFunctions() {
                 sgct::Engine::RenderTarget::NonLinearBuffer);
     };
     sgctDelegate.isFisheyeRendering = []() {
-        const sgct::SGCTWindow& w = sgct::Engine::instance()->getCurrentWindow();
+        const sgct::Window& w = sgct::Engine::instance()->getCurrentWindow();
         return dynamic_cast<sgct_core::FisheyeProjection*>(
             w.getViewport(0).getNonLinearProjection()
         ) != nullptr;
     };
     sgctDelegate.takeScreenshot = [](bool applyWarping) {
-        sgct::SGCTSettings::instance()->setCaptureFromBackBuffer(applyWarping);
+        sgct::Settings::instance()->setCaptureFromBackBuffer(applyWarping);
         sgct::Engine::instance()->takeScreenshot();
     };
     sgctDelegate.swapBuffer = []() {
@@ -1019,7 +1018,7 @@ void setSgctDelegateFunctions() {
         );
     };
     sgctDelegate.setHorizFieldOfView = [](float hFovDeg) {
-        sgct::SGCTWindow& w = sgct::Engine::instance()->getWindow(0);
+        sgct::Window& w = sgct::Engine::instance()->getWindow(0);
         w.setHorizFieldOfView(hFovDeg);
     };
     sgctDelegate.frustumMode = []() {
@@ -1031,8 +1030,8 @@ void setSgctDelegateFunctions() {
         }
     };
     sgctDelegate.swapGroupFrameNumber = []() {
-        unsigned int fn = 0;
-        sgct::Engine::instance()->getCurrentWindowPtr()->getSwapGroupFrameNumber(fn);
+        unsigned int fn =
+            sgct::Engine::instance()->getCurrentWindow().getSwapGroupFrameNumber();
         return static_cast<uint64_t>(fn);
     };
 }
@@ -1229,7 +1228,7 @@ int main(int argc, char** argv) {
     SgctEngine->setCharCallbackFunction(mainCharCallback);
 
     // Disable the immediate exit of the application when the ESC key is pressed
-    SgctEngine->setExitKey(SGCT_KEY_UNKNOWN);
+    SgctEngine->setExitKey(sgct::key::Unknown);
 
     sgct::MessageHandler::instance()->setNotifyLevel(
         sgct::MessageHandler::Level::NotifyAll
