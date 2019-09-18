@@ -21,19 +21,60 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE  *
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
+#ifndef __OPENSPACE_MODULE_SPACE___GENERATERDEBRISVOLUMETASK___H__
+#define __OPENSPACE_MODULE_SPACE___GENERATERDEBRISVOLUMETASK___H__
 
-#version __CONTEXT__
+#include <openspace/util/task.h>
+#include <openspace/util/time.h>
 
-in vec4 position;
+#include <modules/space/rendering/renderablesatellites.h>
+#include <modules/space/translation/keplertranslation.h>
 
-out vec2 texCoord;
-out vec3 vPosition;
-out vec4 worldPosition;
 
-void main() {
-    gl_Position = position;
-    texCoord = 0.5 + position.xy * 0.5;
+#include <ghoul/glm.h>
 
-    vPosition = position.xyz;
-    worldPosition = position;
-}
+#include <string>
+#include <vector>
+
+namespace openspace {
+namespace volume {
+
+
+class GenerateDebrisVolumeTask : public Task {
+public:
+    GenerateDebrisVolumeTask(const ghoul::Dictionary& dictionary);
+    std::string description() override;
+    void perform(const Task::ProgressCallback& progressCallback) override;
+    static documentation::Documentation documentation();
+
+    std::string _gridType;
+
+protected:
+
+private:
+    std::string _rawVolumeOutputPath;
+    std::string _dictionaryOutputPath;
+    std::string _startTime;
+    std::string _timeStep;
+    std::string _endTime;
+    std::string _inputPath;
+    
+    glm::uvec3 _dimensions;
+    glm::vec3 _lowerDomainBound;
+    glm::vec3 _upperDomainBound;
+
+    std::vector<KeplerParameters> _TLEDataVector;
+
+    float _maxApogee;
+
+    // not sure if it should be local function or hidden function.
+    //std::vector<KeplerParameters> readTLEFile(const std::string& filename);
+
+};
+
+
+
+} // namespace volume
+} // namespace openspace
+
+#endif // __OPENSPACE_MODULE_SPACE___GENERATEDEBRISVOLUMETASK___H__

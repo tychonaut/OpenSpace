@@ -22,22 +22,44 @@
  * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                         *
  ****************************************************************************************/
 
-#include "PowerScaling/powerScaling_fs.hglsl"
-#include "fragment.glsl"
+#version __CONTEXT__
 
-in vec3 vPosition;
-in vec4 worldPosition;
+#include "hdr.glsl"
 
-uniform uint blendMode;
+#define HSV_COLOR 0u
+#define HSL_COLOR 1u
 
+layout (location = 0) out vec4 finalColor;
 
-Fragment getFragment() {
-    vec4 position = worldPosition;
-    float depth = pscDepth(position);
+uniform float hdrExposure;
+uniform float blackoutFactor;
+uniform float gamma;
+uniform float Hue;
+uniform float Saturation;
+uniform float Value;
+uniform float Lightness;
+uniform int nAaSamples;
 
-    Fragment frag;
-    frag.color = vec4((vPosition + 0.5), 1.0);
-    frag.depth = depth;
-    frag.blend = blendMode;
-    return frag;
+uniform sampler2D hdrFeedingTexture;
+
+in vec2 texCoord;
+
+void main() {
+    vec4 color = texture(hdrFeedingTexture, texCoord);
+    color.rgb *= blackoutFactor;
+    
+    // Applies TMO
+    vec3 tColor = toneMappingOperator(color.rgb, hdrExposure);
+    
+    // Color control
+    vec3 hsvColor = rgb2hsv(tColor);
+    hsvColor.x = (hsvColor.x + Hue);
+    if (hsvColor.x > 360.0) {
+        hsvColor -= 360.0;
+    }
+    hsvColor.y = clamp(hsvColor.y * Saturation, 0.0, 1.0);
+    hsvColor.z = clamp(hsvColor.z * Value, 0.0, 1.0);
+
+    // Gamma Correction
+    finalColor = vec4(gammaCorrection(hsv2rgb(hsvColor), gamma), color.a);
 }

@@ -192,11 +192,12 @@ namespace {
         "direction for tilted display systems in clustered immersive environments."
     };
 
-    constexpr openspace::properties::Property::PropertyInfo AaSamplesInfo = {
-        "AaSamples",
-        "Number of Anti-aliasing samples",
-        "This value determines the number of anti-aliasing samples to be used in the "
-        "rendering for the MSAA method."
+    constexpr openspace::properties::Property::PropertyInfo DisableHDRPipelineInfo = {
+       "DisableHDRPipeline",
+       "Disable HDR Rendering",
+       "If this value is enabled, the rendering will disable the HDR color handling "
+       "and the LDR color pipeline will be used. Be aware of possible over exposure "
+       "in the final colors."
     };
 
     constexpr openspace::properties::Property::PropertyInfo HDRExposureInfo = {
@@ -206,18 +207,29 @@ namespace {
         "equivalent of an electronic image sensor."
     };
 
-    constexpr openspace::properties::Property::PropertyInfo BackgroundExposureInfo = {
-        "Background Exposure",
-        "BackgroundExposure",
-        "This value determines the amount of light per unit area reaching the "
-        "equivalent of an electronic image sensor for the background image."
-    };
-
     constexpr openspace::properties::Property::PropertyInfo GammaInfo = {
         "Gamma",
         "Gamma Correction",
         "Gamma, is the nonlinear operation used to encode and decode luminance or "
         "tristimulus values in the image."
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo HueInfo = {
+        "Hue",
+        "Hue",
+        "Hue"
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo SaturationInfo = {
+        "Saturation",
+        "Saturation",
+        "Saturation"
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo ValueInfo = {
+        "Value",
+        "Value",
+        "Value"
     };
 
     constexpr openspace::properties::Property::PropertyInfo HorizFieldOfViewInfo = {
@@ -233,6 +245,12 @@ namespace {
         "Blackout Factor",
         "The blackout factor of the rendering. This can be used for fading in or out the "
         "rendering window"
+    };
+
+    constexpr openspace::properties::Property::PropertyInfo FXAAInfo = {
+        "FXAA",
+        "Enable FXAA",
+        "Enable FXAA"
     };
 } // namespace
 
@@ -254,11 +272,14 @@ RenderEngine::RenderEngine()
 #endif // OPENSPACE_WITH_INSTRUMENTATION
     , _disableMasterRendering(DisableMasterInfo, false)
     , _globalBlackOutFactor(GlobalBlackoutFactorInfo, 1.f, 0.f, 1.f)
-    , _nAaSamples(AaSamplesInfo, 4, 1, 8)
-    , _hdrExposure(HDRExposureInfo, 0.4f, 0.01f, 10.0f)
-    , _hdrBackground(BackgroundExposureInfo, 2.8f, 0.01f, 10.0f)
-    , _gamma(GammaInfo, 2.2f, 0.01f, 10.0f)
-    , _horizFieldOfView(HorizFieldOfViewInfo, 80.f, 1.f, 179.0f)
+    , _enableFXAA(FXAAInfo, true)
+    , _disableHDRPipeline(DisableHDRPipelineInfo, false)
+    , _hdrExposure(HDRExposureInfo, 3.7f, 0.01f, 10.f)
+    , _gamma(GammaInfo, 0.95f, 0.01f, 5.f)
+    , _hue(HueInfo, 0.f, 0.f, 360.f)
+    , _saturation(SaturationInfo, 1.f, 0.0f, 2.f)
+    , _value(ValueInfo, 1.f, 0.f, 2.f)
+    , _horizFieldOfView(HorizFieldOfViewInfo, 80.f, 1.f, 179.f)
     , _globalRotation(
         GlobalRotationInfo,
         glm::vec3(0.f),
@@ -288,33 +309,65 @@ RenderEngine::RenderEngine()
     addProperty(_showVersionInfo);
     addProperty(_showCameraInfo);
 
-    _nAaSamples.onChange([this](){
+    // @TODO (maci 2019-08-23) disabling FXAA on
+    // MacOS for now until we have fix or MSAA option.
+#ifdef __APPLE__
+    _enableFXAA = false;
+#endif
+
+    _enableFXAA.onChange([this]() {
         if (_renderer) {
-            _renderer->setNAaSamples(_nAaSamples);
+            _renderer->enableFXAA(_enableFXAA);
+        }
+        });
+    addProperty(_enableFXAA);
+
+    _disableHDRPipeline.onChange([this]() {
+        if (_renderer) {
+            _renderer->setDisableHDR(_disableHDRPipeline);
         }
     });
-    addProperty(_nAaSamples);
+    addProperty(_disableHDRPipeline);
 
+    
     _hdrExposure.onChange([this]() {
         if (_renderer) {
             _renderer->setHDRExposure(_hdrExposure);
         }
     });
     addProperty(_hdrExposure);
-
-    _hdrBackground.onChange([this]() {
-        if (_renderer) {
-            _renderer->setHDRBackground(_hdrBackground);
-        }
-    });
-    addProperty(_hdrBackground);
-
+    
     _gamma.onChange([this]() {
         if (_renderer) {
             _renderer->setGamma(_gamma);
         }
     });
     addProperty(_gamma);
+
+    _hue.onChange([this]() {
+        if (_renderer) {
+            const float h = _hue / 360.0;
+            _renderer->setHue(h);
+        }
+    });
+
+    addProperty(_hue);
+    
+    _saturation.onChange([this]() {
+        if (_renderer) {
+            _renderer->setSaturation(_saturation);
+        }
+    });
+
+    addProperty(_saturation);
+    
+    _value.onChange([this]() {
+        if (_renderer) {
+            _renderer->setValue(_value);
+        }
+    });
+
+    addProperty(_value);
 
     addProperty(_globalBlackOutFactor);
     addProperty(_applyWarping);
@@ -409,8 +462,6 @@ void RenderEngine::initialize() {
 void RenderEngine::initializeGL() {
     LTRACE("RenderEngine::initializeGL(begin)");
 
-    _nAaSamples = global::windowDelegate.currentNumberOfAaSamples();
-
     std::string renderingMethod = global::configuration.renderingMethod;
     if (renderingMethod == "ABuffer") {
         using Version = ghoul::systemcapabilities::Version;
@@ -472,7 +523,7 @@ void RenderEngine::updateScene() {
     const Time& integrateFromTime = global::timeManager.integrateFromTime();
 
     _scene->update({
-        { glm::dvec3(0.0), glm::dmat3(11.), 1.0 },
+        { glm::dvec3(0.0), glm::dmat3(1.0), 1.0 },
         currentTime,
         integrateFromTime,
         _doPerformanceMeasurements
@@ -609,14 +660,24 @@ void RenderEngine::render(const glm::mat4& sceneMatrix, const glm::mat4& viewMat
         );
 
         std::string fn = std::to_string(_frameNumber);
+        WindowDelegate::Frustum frustum = global::windowDelegate.frustumMode();
+        std::string fr = [](WindowDelegate::Frustum frustum) -> std::string {
+            switch (frustum) {
+                case WindowDelegate::Frustum::Mono: return "";
+                case WindowDelegate::Frustum::LeftEye: return "(left)";
+                case WindowDelegate::Frustum::RightEye: return "(right)";
+            }
+        }(frustum);
+
+        std::string sgFn = std::to_string(global::windowDelegate.swapGroupFrameNumber());
         std::string dt = std::to_string(global::windowDelegate.deltaTime());
         std::string avgDt = std::to_string(global::windowDelegate.averageDeltaTime());
 
-        std::string res = "Frame: " + fn + '\n' + "Dt: " + dt + '\n' + "Avg Dt: " + avgDt;
+        std::string res = "Frame: " + fn + ' ' + fr + '\n' +
+                          "Swap group frame: " + sgFn + '\n' +
+                          "Dt: " + dt + '\n' + "Avg Dt: " + avgDt;
         RenderFont(*_fontFrameInfo, penPosition, res);
     }
-
-    ++_frameNumber;
 
     if (masterEnabled && !delegate.isGuiWindow() && _globalBlackOutFactor > 0.f) {
         std::vector<ScreenSpaceRenderable*> ssrs;
@@ -799,6 +860,8 @@ void RenderEngine::renderDashboard() {
 }
 
 void RenderEngine::postDraw() {
+    ++_frameNumber;
+
     if (_shouldTakeScreenshot) {
         // We only create the directory here, as we don't want to spam the users
         // screenshot folder everytime we start OpenSpace even when we are not taking any
@@ -876,6 +939,14 @@ float RenderEngine::globalBlackOutFactor() {
 
 void RenderEngine::setGlobalBlackOutFactor(float opacity) {
     _globalBlackOutFactor = opacity;
+}
+
+float RenderEngine::hdrExposure() const {
+    return _hdrExposure;
+}
+
+bool RenderEngine::isHdrDisabled() const {
+    return _disableHDRPipeline;
 }
 
 /**
@@ -1018,7 +1089,7 @@ void RenderEngine::setRenderer(std::unique_ptr<Renderer> renderer) {
 
     _renderer = std::move(renderer);
     _renderer->setResolution(renderingResolution());
-    _renderer->setNAaSamples(_nAaSamples);
+    _renderer->enableFXAA(_enableFXAA);
     _renderer->setHDRExposure(_hdrExposure);
     _renderer->initialize();
 }

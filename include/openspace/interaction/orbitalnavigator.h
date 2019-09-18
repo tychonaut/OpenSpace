@@ -83,7 +83,8 @@ public:
     ScriptCameraStates& scriptStates();
     const ScriptCameraStates& scriptStates() const;
 
-    bool followingNodeRotation() const;
+    bool shouldFollowAnchorRotation(const glm::dvec3& cameraPosition) const;
+    bool followingAnchorRotation() const;
     const SceneGraphNode* anchorNode() const;
     const SceneGraphNode* aimNode() const;
 
@@ -289,10 +290,8 @@ private:
     /**
      * Interpolates between rotationDiff and a 0 rotation.
      */
-    glm::dquat interpolateRotationDifferential(double deltaTime,
-        double interpolationTime, const glm::dquat& rotationDiff,
-        const glm::dvec3& objectPosition, const glm::dvec3& cameraPosition,
-        const SurfacePositionHandle& positionHandle);
+    glm::dquat interpolateRotationDifferential(double deltaTime, double interpolationTime,
+        const glm::dvec3 cameraPosition, const glm::dquat& rotationDiff);
 
     /**
      * Get the vector from the camera to the surface of the anchor object in world space.
