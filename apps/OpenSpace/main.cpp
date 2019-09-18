@@ -1022,7 +1022,7 @@ void setSgctDelegateFunctions() {
         w.setHorizFieldOfView(hFovDeg);
     };
     sgctDelegate.frustumMode = []() {
-        using FM = sgct_core::Frustum::FrustumMode;
+        using FM = sgct_core::Frustum::Mode;
         switch (sgct::Engine::instance()->getCurrentFrustumMode()) {
             case FM::MonoEye: return WindowDelegate::Frustum::Mono;
             case FM::StereoLeftEye: return WindowDelegate::Frustum::LeftEye;
