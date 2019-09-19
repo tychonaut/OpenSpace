@@ -388,10 +388,10 @@ void mainInitFunc() {
     for (size_t i = 0; i < nWindows; ++i) {
         const sgct::Window& w = SgctEngine->getWindow(i);
         constexpr const char* screenshotNames = "OpenSpace";
-        sgct_core::ScreenCapture* cpt0 = w.getScreenCapturePointer(
+        sgct::core::ScreenCapture* cpt0 = w.getScreenCapturePointer(
             sgct::Window::Eye::MonoOrLeft
         );
-        sgct_core::ScreenCapture* cpt1 = w.getScreenCapturePointer(
+        sgct::core::ScreenCapture* cpt1 = w.getScreenCapturePointer(
             sgct::Window::Eye::Right
         );
 
@@ -840,7 +840,7 @@ void setSgctDelegateFunctions() {
         sgct::Window::setBarrier(enabled);
     };
     sgctDelegate.setSynchronization = [](bool enabled) {
-        sgct_core::ClusterManager::instance()->setUseIgnoreSync(enabled);
+        sgct::core::ClusterManager::instance()->setUseIgnoreSync(enabled);
     };
     sgctDelegate.clearAllWindows = [](const glm::vec4& clearColor) {
         size_t n = sgct::Engine::instance()->getNumberOfWindows();
@@ -904,7 +904,7 @@ void setSgctDelegateFunctions() {
         return window.getFinalFBODimensions();
     };
     sgctDelegate.currentDrawBufferResolution = []() {
-        sgct_core::Viewport& viewport =
+        sgct::core::Viewport& viewport =
             sgct::Engine::instance()->getCurrentWindow().getViewport(0);
         if (viewport.hasSubViewports() && viewport.getNonLinearProjection()) {
             int res = viewport.getNonLinearProjection()->getCubemapResolution();
@@ -916,7 +916,7 @@ void setSgctDelegateFunctions() {
         }
     };
     sgctDelegate.currentViewportSize = []() {
-        const sgct_core::Viewport& viewport =
+        const sgct::core::Viewport& viewport =
             sgct::Engine::instance()->getCurrentWindow().getViewport(0);
         return sgct::Engine::instance()->getCurrentViewportSize();
     };
@@ -932,8 +932,8 @@ void setSgctDelegateFunctions() {
             w.getNumberOfViewports() > 0,
             "At least one viewport must exist at this time"
         );
-        const sgct_core::Viewport& vp = w.getViewport(0);
-        sgct_core::NonLinearProjection* nlp = vp.getNonLinearProjection();
+        const sgct::core::Viewport& vp = w.getViewport(0);
+        sgct::core::NonLinearProjection* nlp = vp.getNonLinearProjection();
         return nlp == nullptr;
     };
     sgctDelegate.hasGuiWindow = []() {
@@ -990,7 +990,7 @@ void setSgctDelegateFunctions() {
     };
     sgctDelegate.isFisheyeRendering = []() {
         const sgct::Window& w = sgct::Engine::instance()->getCurrentWindow();
-        return dynamic_cast<sgct_core::FisheyeProjection*>(
+        return dynamic_cast<sgct::core::FisheyeProjection*>(
             w.getViewport(0).getNonLinearProjection()
         ) != nullptr;
     };
@@ -1022,7 +1022,7 @@ void setSgctDelegateFunctions() {
         w.setHorizFieldOfView(hFovDeg);
     };
     sgctDelegate.frustumMode = []() {
-        using FM = sgct_core::Frustum::Mode;
+        using FM = sgct::core::Frustum::Mode;
         switch (sgct::Engine::instance()->getCurrentFrustumMode()) {
             case FM::MonoEye: return WindowDelegate::Frustum::Mono;
             case FM::StereoLeftEye: return WindowDelegate::Frustum::LeftEye;
