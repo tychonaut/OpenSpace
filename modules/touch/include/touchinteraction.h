@@ -248,8 +248,8 @@ private:
     double _timeSlack;
     int _numOfTests;
     TUIO::TuioTime _time;
-    bool _directTouchMode;
-    bool _wasPrevModeDirectTouch;
+    float _directTouchMode;
+    float _prevModeDirectTouch;
     bool _tap;
     bool _doubleTap;
     bool _zoomOutTap;

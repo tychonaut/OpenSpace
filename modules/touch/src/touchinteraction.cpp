@@ -302,8 +302,8 @@ TouchInteraction::TouchInteraction()
     , _slerpdT(1000)
     , _timeSlack(0.0)
     , _numOfTests(0)
-    , _directTouchMode(false)
-    , _wasPrevModeDirectTouch(false)
+    , _directTouchMode(0.0)
+    , _prevModeDirectTouch(0.0)
     , _tap(false)
     , _doubleTap(false)
     , _zoomOutTap(false)
@@ -405,7 +405,7 @@ void TouchInteraction::updateStateFromInput(const std::vector<TuioCursor>& list,
 
     if (!guiMode(list) && !hasWebContent) {
         bool isThisFrameTransitionBetweenTouchModes
-            = (_wasPrevModeDirectTouch != _directTouchMode);
+            = (_prevModeDirectTouch > 0.0 && _directTouchMode == 0.0);
         if (isThisFrameTransitionBetweenTouchModes) {
             _vel.orbit = glm::dvec2(0.0, 0.0);
             _vel.zoom = 0.0;
@@ -418,7 +418,7 @@ void TouchInteraction::updateStateFromInput(const std::vector<TuioCursor>& list,
                 LINFO("Direct-touch -> Touch");*/
         }
 
-        if (_directTouchMode && _selected.size() > 0 && list.size() == _selected.size()) {
+        if (_directTouchMode > 0.0 && _selected.size() > 0 && list.size() == _selected.size()) {
 #ifdef TOUCH_DEBUG_PROPERTIES
             _debugProperties.interactionMode = "Direct";
 #endif
@@ -428,17 +428,24 @@ void TouchInteraction::updateStateFromInput(const std::vector<TuioCursor>& list,
             findSelectedNode(list);
         }
 
-        if (!_directTouchMode) {
+        if (_directTouchMode < 1.0) {
 #ifdef TOUCH_DEBUG_PROPERTIES
             _debugProperties.interactionMode = "Velocities";
 #endif
             computeVelocities(list, lastProcessed);
         }
 
-        _wasPrevModeDirectTouch = _directTouchMode;
+        _prevModeDirectTouch = _directTouchMode;
         // evaluates if current frame is in directTouchMode (will be used next frame)
-        _directTouchMode =
-            (_currentRadius > _nodeRadiusThreshold && _selected.size() == list.size());
+        _directTouchMode = 0.0;
+        if (_selected.size() == list.size()) {
+            if (_currentRadius > _nodeRadiusThreshold) {
+                _directTouchMode = 1.0;
+            }
+            else if (_currentRadius > _nodeRadiusThreshold * 0.7) {
+                _directTouchMode = (_currentRadius - (_nodeRadiusThreshold * 0.7)) / (_nodeRadiusThreshold *(1.0 - 0.7));
+            }
+        }
     }
 }
 
@@ -495,10 +502,10 @@ bool TouchInteraction::guiMode(const std::vector<TuioCursor>& list) {
 // Sets _vel to update _camera according to direct-manipulation (L2 error)
 void TouchInteraction::directControl(const std::vector<TuioCursor>& list) {
     // Reset old velocities upon new interaction
-    _vel.orbit = glm::dvec2(0.0, 0.0);
-    _vel.zoom = 0.0;
-    _vel.roll = 0.0;
-    _vel.pan = glm::dvec2(0.0, 0.0);
+    _vel.orbit *= (1 - _directTouchMode);
+    _vel.zoom *= (1 - _directTouchMode);
+    _vel.roll *= (1 - _directTouchMode);
+    _vel.pan *= (1 - _directTouchMode);
 #ifdef TOUCH_DEBUG_PROPERTIES
     LINFO("DirectControl");
 #endif
@@ -731,6 +738,11 @@ void TouchInteraction::directControl(const std::vector<TuioCursor>& list) {
             }
         }
         step(1.0);
+
+        _vel.orbit *= _directTouchMode;
+        _vel.zoom *= _directTouchMode;
+        _vel.roll *= _directTouchMode;
+        _vel.pan *= _directTouchMode;
 
         // Reset velocities after setting new camera state
         _lastVel = _vel;
@@ -1225,6 +1237,11 @@ void TouchInteraction::computeVelocities(const std::vector<TuioCursor>& list,
             _constTimeDecayCoeff.zoom = computeConstTimeDecayCoefficient(_vel.zoom);
         }
     }
+
+    _vel.orbit *= (1.0 - _directTouchMode);
+    _vel.zoom *= (1.0 - _directTouchMode);
+    _vel.roll *= (1.0 - _directTouchMode);
+    _vel.pan *= (1.0 - _directTouchMode);
 }
 
 double TouchInteraction::computeConstTimeDecayCoefficient(double velocity) {
@@ -1464,7 +1481,7 @@ void TouchInteraction::resetAfterInput() {
     _debugProperties.nFingers = 0;
     _debugProperties.interactionMode = "None";
 #endif
-    if (_directTouchMode && !_selected.empty() && _lmSuccess) {
+    if (_directTouchMode > 0.0 && !_selected.empty() && _lmSuccess) {
         double spinDelta = _spinSensitivity / global::windowDelegate.averageDeltaTime();
         if (glm::length(_lastVel.orbit) > _orbitSpeedThreshold) {
              // allow node to start "spinning" after direct-manipulation finger is let go
