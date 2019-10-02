@@ -103,9 +103,11 @@ target_compile_definitions(OpenSpace PRIVATE
 begin_header("Dependency: SGCT")
 
 
-set(SGCT_FREETYPE_SUPPORT OFF CACHE BOOL "" FORCE)
+set(SGCT_DEP_INCLUDE_FREETYPE OFF CACHE BOOL "" FORCE)
+set(SGCT_DEP_INCLUDE_GLBINDINGS OFF CACHE BOOL "" FORCE)
 set(SGCT_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(JPEG_TURBO_WITH_SIMD OFF CACHE BOOL "" FORCE)
+
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/sgct)
 target_include_directories(OpenSpace SYSTEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ext/sgct/include)

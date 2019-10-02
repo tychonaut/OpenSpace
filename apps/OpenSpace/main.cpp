@@ -234,11 +234,13 @@ std::pair<int, int> supportedOpenGLVersion() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 
-    glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     // By creating an offscreen window, the user will not know that we created this window
     GLFWwindow* offscreen = glfwCreateWindow(128, 128, "", nullptr, nullptr);
     glfwMakeContextCurrent(offscreen);
+
+    glbinding::Binding::initialize(glfwGetProcAddress);
 
     // Get the OpenGL version
     int major, minor;
@@ -247,7 +249,7 @@ std::pair<int, int> supportedOpenGLVersion() {
 
     // And get rid of the window again
     glfwDestroyWindow(offscreen);
-    glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
     return { major, minor };
 }
@@ -650,13 +652,23 @@ void mainPostDrawFunc() {
         if (w.leftOrMain.initialized) {
             const GLuint texId = window.getFrameBufferTexture(sgct::Engine::LeftEye);
             glBindTexture(GL_TEXTURE_2D, texId);
-            w.leftOrMain.handle->SendTexture(texId, GL_TEXTURE_2D, res.x, res.y);
+            w.leftOrMain.handle->SendTexture(
+                texId,
+                static_cast<GLuint>(GL_TEXTURE_2D),
+                res.x,
+                res.y
+            );
         }
 
         if (w.right.initialized) {
             const GLuint texId = window.getFrameBufferTexture(sgct::Engine::RightEye);
             glBindTexture(GL_TEXTURE_2D, texId);
-            w.right.handle->SendTexture(texId, GL_TEXTURE_2D, res.x, res.y);
+            w.right.handle->SendTexture(
+                texId,
+                static_cast<GLuint>(GL_TEXTURE_2D),
+                res.x,
+                res.y
+            );
         }
     }
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -1124,8 +1136,6 @@ int main(int argc, char** argv) {
         parser.displayHelp(std::cout);
         exit(EXIT_SUCCESS);
     }
-    // Take an actual copy of the arguments
-    std::vector<std::string> arguments = sgctArguments;
 
     //
     // Set up SGCT functions for window delegate
@@ -1195,12 +1205,6 @@ int main(int argc, char** argv) {
 
     global::openSpaceEngine.registerPathTokens();
 
-    // Prepend the outgoing sgctArguments with the program name
-    // as well as the configuration file that sgct is supposed to use
-    arguments.insert(arguments.begin(), argv[0]);
-    arguments.insert(arguments.begin() + 1, "-config");
-    arguments.insert(arguments.begin() + 2, absPath(windowConfiguration));
-
     // Need to set this before the creation of the sgct::Engine
     sgct::MessageHandler::instance()->setLogToConsole(false);
     sgct::MessageHandler::instance()->setShowTime(false);
@@ -1211,8 +1215,11 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
 #endif
 
+    sgct::Configuration config = sgct::parseArguments(sgctArguments);
+    sgct::config::Cluster cluster = sgct::loadCluster(absPath(windowConfiguration));
+
     LDEBUG("Creating SGCT Engine");
-    SgctEngine = new sgct::Engine(arguments);
+    SgctEngine = new sgct::Engine(config);
 
     // Bind functions
     SgctEngine->setInitOGLFunction(mainInitFunc);
@@ -1255,7 +1262,7 @@ int main(int argc, char** argv) {
 
     std::pair<int, int> version = supportedOpenGLVersion();
     LINFO(fmt::format("Detected OpenGL version: {}.{}", version.first, version.second));
-    bool initSuccess = SgctEngine->init(versionMapping[version]);
+    bool initSuccess = SgctEngine->init(versionMapping[version], cluster);
 
 #ifdef __APPLE__
     // Workaround for OpenGL bug that Apple introduced in 10.14 Mojave that prevents an
