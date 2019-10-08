@@ -54,11 +54,6 @@ struct ShutdownInformation {
     float timer = 0.f;
 };
 
-struct CommandlineArguments {
-    std::string configurationName;
-    std::string configurationOverride;
-};
-
 class OpenSpaceEngine {
 public:
     OpenSpaceEngine();

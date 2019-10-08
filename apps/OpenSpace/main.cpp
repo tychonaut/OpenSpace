@@ -832,14 +832,7 @@ void mainDecodeFun() {
 
 
 void mainLogCallback(const char* msg) {
-    std::string message = msg;
-    if (message.empty() || message == ".") {
-        // We don't want the empty '.' message that SGCT sends while it is waiting for
-        // connections from other network nodes
-        return;
-    }
-    // Remove the trailing \n that is passed along
-    LINFOC("SGCT", message.substr(0, message.size() - 1));
+    LINFOC("SGCT", std::string(msg));
 }
 
 } // namespace
@@ -1107,7 +1100,12 @@ int main(int argc, char** argv) {
         ghoul::cmdparser::CommandlineParser::AllowUnknownCommands::Yes
     );
 
-    CommandlineArguments commandlineArguments;
+    struct {
+        std::string configurationName;
+        std::string configurationOverride;
+        bool isClusteredSlave = false;
+        int clusteredNodeId = -1;
+    } commandlineArguments;
     parser.addCommand(std::make_unique<ghoul::cmdparser::SingleCommand<std::string>>(
         commandlineArguments.configurationName, "--file", "-f",
         "Provides the path to the OpenSpace configuration file. Only the '${TEMPORARY}' "
@@ -1124,6 +1122,20 @@ int main(int argc, char** argv) {
         "planetarium environment. Please not that the Lua script must not contain any - "
         "or they will be interpreted as a new command. Similar, in Bash, ${...} will be "
         "evaluated before it is passed to OpenSpace."
+    ));
+
+    parser.addCommand(std::make_unique<ghoul::cmdparser::SingleCommandZeroArguments>(
+        commandlineArguments.isClusteredSlave, "--slave", "",
+        "If this option is passed, this instance of OpenSpace is the slave/client in a "
+        "clustered environment that is executing on the same machine. The default value "
+        "is that the instance is the master node."
+    ));
+
+    parser.addCommand(std::make_unique<ghoul::cmdparser::SingleCommand<int>>(
+        commandlineArguments.clusteredNodeId, "-local", "",
+        "If this OpenSpace instance is running in a clustered environment where multiple "
+        "instances are executed on the same machine, this parameter determines the node "
+        "id that this particularly instance should be using."
     ));
 
     // setCommandLine returns a reference to the vector that will be filled later
@@ -1215,7 +1227,15 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_STENCIL_BITS, 8);
 #endif
 
-    sgct::Configuration config = sgct::parseArguments(sgctArguments);
+    //sgct::Configuration config = sgct::parseArguments(sgctArguments);
+    sgct::Configuration config;
+    if (commandlineArguments.clusteredNodeId != -1) {
+        config.isServer = true;
+        config.nodeId = commandlineArguments.clusteredNodeId;
+    }
+    if (commandlineArguments.isClusteredSlave) {
+        config.isServer = false;
+    }
     sgct::config::Cluster cluster = sgct::loadCluster(absPath(windowConfiguration));
 
     LDEBUG("Creating SGCT Engine");
