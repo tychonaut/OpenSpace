@@ -112,7 +112,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/sgct)
 target_include_directories(OpenSpace SYSTEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/ext/sgct/include)
 target_link_libraries(
   OpenSpace
-  sgct_light glew glfw png16_static quat tinyxml2static turbojpeg-static
+  sgct_light glew glfw png16_static quat tinyxml2static
   vrpn ${GLFW_LIBRARIES}
 )
 
@@ -135,7 +135,6 @@ set_folder_location(png16_static "External/SGCT")
 set_folder_location(quat "External/SGCT")
 set_folder_location(simd "External/SGCT")
 set_folder_location(tinyxml2static "External/SGCT")
-set_folder_location(turbojpeg-static "External/SGCT")
 set_folder_location(vrpn "External/SGCT")
 set_folder_location(zlibstatic "External/SGCT")
 set_folder_location(miniziplibstatic "External/SGCT")
