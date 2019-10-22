@@ -18,7 +18,7 @@
 [submodule "apps/OpenSpace/ext/sgct"]
 	path = apps/OpenSpace/ext/sgct
 	url = https://github.com/tychonaut/sgct
-	branch = fisheyeWarBlendLUT
+	branch = origin/fisheyeWarBlendLUT
 [submodule "modules/fitsfilereader/ext/CCfits"]
 	path = modules/fitsfilereader/ext/CCfits
 	url = https://github.com/OpenSpace/CCfits.git
