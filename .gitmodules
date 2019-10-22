@@ -1,6 +1,7 @@
 [submodule "ext/ghoul"]
 	path = ext/ghoul
 	url = https://github.com/tychonaut/Ghoul.git
+	branch = dome2
 [submodule "modules/kameleon/ext/kameleon"]
 	path = modules/kameleon/ext/kameleon
 	url = https://github.com/OpenSpace/Kameleon.git
