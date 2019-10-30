@@ -14,6 +14,12 @@ local mapServiceConfigsPath = asset.localResource("map_service_configs")
 local Earth = {
     Identifier = "Earth",
     Parent = transforms.EarthIAU.Identifier,
+    Transform = {
+        Scale = {
+            Type = "StaticScale",
+            Scale = 1.0
+        }
+    },
     Renderable = {
         Type = "RenderableGlobe",
         Radii = earthEllipsoid,
@@ -21,6 +27,25 @@ local Earth = {
         PerformShading = false,
         Layers = {
             ColorLayers = {
+				{
+                    Identifier = "GMRT_bathymetry_colorLayer_masked",
+                    Name = "GMRT bathymetry color_masked",
+                    FilePath = mapServiceConfigsPath .. "/GMRT/Bathymetry_color_masked.wms",
+					Enabled = true,
+                },
+			    {
+                    Identifier = "GMRT_bathymetry_colorLayer",
+                    Name = "GMRT bathymetry color",
+                    FilePath = mapServiceConfigsPath .. "/GMRT/Bathymetry_color.wms",
+					--
+					Enabled = true,
+                },
+			    {
+                    Identifier = "ESRI_World_Imagery",
+                    Name = "ESRI World Imagery",
+                    FilePath = mapServiceConfigsPath .. "/ESRI/World_Imagery.wms",
+					--Enabled = true,
+                },
                 {
                     Identifier = "ESRI_VIIRS_Combo",
                     Name = "ESRI VIIRS Combo",
@@ -53,7 +78,7 @@ local Earth = {
                             }
                         },
                     },
-                    Enabled = true,
+                    -- Enabled = true,
                     PadTiles = false,
                     Fallback = {
                         Identifier = "Blue_Marble",
@@ -61,11 +86,6 @@ local Earth = {
                         FilePath = texturesPath .. "/earth_bluemarble.jpg",
                         Enabled = true
                     }
-                },
-                {
-                    Identifier = "ESRI_World_Imagery",
-                    Name = "ESRI World Imagery",
-                    FilePath = mapServiceConfigsPath .. "/ESRI/World_Imagery.wms"
                 },
                 {
                     Identifier = "ESRI_Imagery_World_2D",
@@ -126,7 +146,7 @@ local Earth = {
                     Name = "AMSR2 GCOM W1 Sea Ice Concentration (Temporal)",
                     Type = "TemporalTileLayer",
                     FilePath = openspace.globebrowsing.createTemporalGibsGdalXml(
-                        "AMSRU2_Sea_Ice_Concentration_12km",
+                        "AMSR2_Sea_Ice_Concentration_12km",
                         "2012-05-08",
                         "Yesterday",
                         "1d",

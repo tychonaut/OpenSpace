@@ -1,8 +1,28 @@
 <GDAL_WMS>
+  <!--
+	<Extension>.jpg</Extension>
+	<Unique>True</Unique>
+  <Service name="WMS">
+  -->
   <Service name="TiledWMS">
     <ServerUrl>http://198.102.45.23/arcgis/rest/services/worldelevation3d/terrain3d?</ServerUrl>
     <TiledGroupName>GCS_Elevation</TiledGroupName>
   </Service>
+  <DataWindow>
+    <UpperLeftX>-180.0</UpperLeftX>
+    <UpperLeftY>90.0</UpperLeftY>
+    <LowerRightX>180.0</LowerRightX>
+    <LowerRightY>-90.0</LowerRightY>
+    <YOrigin>bottom</YOrigin>
+  </DataWindow>
+  <Cache>
+	true
+	<Path>S:/Openspace/openspace_TiledWMScache</Path>
+	<Depth>2</Depth>
+	<Type>file</Type>
+	<Expires>604800</Expires>
+	<MaxSize>67108864</MaxSize>
+  </Cache>
   <Timeout>2</Timeout>
   <MaxConnections>5</MaxConnections>
 </GDAL_WMS>
