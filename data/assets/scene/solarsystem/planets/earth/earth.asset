@@ -37,8 +37,7 @@ local Earth = {
                     Identifier = "GMRT_bathymetry_colorLayer",
                     Name = "GMRT bathymetry color",
                     FilePath = mapServiceConfigsPath .. "/GMRT/Bathymetry_color.wms",
-					--
-					Enabled = true,
+					--	Enabled = true,
                 },
 			    {
                     Identifier = "ESRI_World_Imagery",

@@ -17,7 +17,8 @@
   </DataWindow>
   <Cache>
 	true
-	<Path>S:/Openspace/openspace_TiledWMScache</Path>
+	<!-- <Path>S:/Openspace/openspace_TiledWMScache</Path> -->
+	<Path>D:/_cache/OpenSpace/cache_TiledWMS</Path>
 	<Depth>2</Depth>
 	<Type>file</Type>
 	<Expires>604800</Expires>
