@@ -11,12 +11,16 @@ asset.require('spice/base')
 
 -- asset.require('scene/solarsystem/sun/sun')
 -- asset.require('scene/solarsystem/sun/glare')
+
+-- somehow needed for earth athmosphere to exist 0_o:
 asset.require('scene/solarsystem/planets')
+
 -- asset.require('scene/solarsystem/planets/mars/moons/phobos')
 -- asset.require('scene/solarsystem/planets/mars/moons/deimos')
 -- asset.require('scene/solarsystem/dwarf_planets/pluto/system')
 -- asset.request('scene/milkyway/milkyway/volume')
 
+-- somehow needed for earth athmosphere not to glitch 0_o:
 assetHelper.requestAll(asset, 'scene/digitaluniverse')
 
 -- Load default key bindings applicable to most scenes

@@ -1,21 +1,35 @@
---asset.require('./base')
-asset.require('./base_profile')
 
-local earthAsset = asset.require('scene/solarsystem/planets/earth/earth')
+
+-- asset.require('./base')
+
+asset.require('./earthOnly')
+
+-- local earthAsset = asset.require('scene/solarsystem/planets/earth/earth')
+local earthAsset = asset.require('scene/solarsystem/planets/earth/earth_minimal')
+
+
+asset.require('scene/solarsystem/planets/earth/satellites/satellites.asset')
+asset.require('scene/solarsystem/sssb/pha')
 
 asset.onInitialize(function ()
     local now = openspace.time.currentWallTime()
-    -- Jump back one day to be able to show complete weather data on Earth.
-    openspace.time.setTime(openspace.time.advancedTime(now, "-1d"))
+    
+	-- Jump back one day to be able to show complete weather data on Earth.
+    -- openspace.time.setTime(openspace.time.advancedTime(now, "-1d"))
+	-- actually, jump to a specific time of day illuminating the amazonas
+	openspace.time.setTime("2020 JUN 09 16:00:00")
 
-    --openspace.globebrowsing.goToGeo("Earth", 58.5877, 16.1924, 20000000)
-	openspace.globebrowsing.goToGeo("Earth", 46.8379, 9.4074, 5000)
+	-- alps
+	-- openspace.globebrowsing.goToGeo("Earth", 45.8691, 8.7751, 130000)
 
-	openspace.markInterestingNodes({ "Earth" })
-    --openspace.markInterestingNodes({ "Earth", "Mars", "Moon", "Sun" })
+	-- amazon
+	openspace.globebrowsing.goToGeo("Earth", -2.7450, -64.4566, 2000000)
+
+    openspace.markInterestingNodes({ "Earth", "Mars", "Moon", "Sun" })
+
+    openspace.setPropertyValue("{earth_satellites}.Renderable.Enabled", false)
 end)
 
 asset.onDeinitialize(function ()
-    --openspace.removeInterestingNodes({ "Earth", "Mars", "Moon", "Sun" })
-	openspace.removeInterestingNodes({ "Earth"})
+    openspace.removeInterestingNodes({ "Earth", "Mars", "Moon", "Sun" })
 end)
